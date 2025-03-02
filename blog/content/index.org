@@ -1,8 +1,8 @@
 #+TITLE: Personal blog
 
 
-* Hello world!
+* [[file:./post-0.org][Post 0]]
 
-* New post
+* New post!
 
 * New post again!

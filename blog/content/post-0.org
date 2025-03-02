@@ -1,0 +1,10 @@
+#+TITLE: post-0
+
+* Example of post 0
+Text
+
+#+begin_src elisp
+
+(message "Hello world")
+
+#+end_src
