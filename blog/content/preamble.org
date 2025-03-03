@@ -1,0 +1,20 @@
+#+OPTIONS: toc:nil title:nil
+
+#+begin_export html
+<div id="navbar">
+#+end_export
+
+#+ATTR_HTML: :id home :class horizontal
+#+begin_home
+[[file:index.org][ASV]]
+#+end_home
+
+#+ATTR_HTML: :id home-nav :class horizontal
+#+begin_home-nav
+[[file:posts.org][Posts]]
+[[file:about.org][About]]
+#+end_home-nav
+
+#+begin_export html
+</div> <!-- #navbar -->
+#+end_export

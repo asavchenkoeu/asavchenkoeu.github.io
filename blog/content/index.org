@@ -1,8 +1,15 @@
 #+TITLE: Personal blog
+#+OPTIONS: toc:nil title:nil
+#+MACRO: doc-title Personal blog
 
+#+INCLUDE: preamble.org
 
-* [[file:./post-0.org][Post 0]]
+#+ATTR_HTML: :id title
+#+begin_title
+{{{doc-title}}}
+#+end_title
 
-* New post!
-
-* New post again!
+#+ATTR_HTML: :id page_content
+#+begin_page_content
+Index.
+#+end_page_content
