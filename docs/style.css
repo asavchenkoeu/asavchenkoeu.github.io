@@ -130,38 +130,38 @@
 
 
 :root {
-	--color-background: white;
-	--color-text: black;
-	--color-secondary: #333;
-	--color-shadow: #eee;
-	--color-link: #0000bb;
-	--color-link-active: #223fbf;
-	--border-width: 2px;
-	--max-paragraph-width: 70ch;
+  --color-background: #192129;
+  --color-text: #ffffff;
+  --color-secondary: #eee;
+  --color-shadow: #333;
+  --color-link: #EFEFcF;
+  --color-link-active: #79a8ff;
+  --border-width: 2px;
+  --max-paragraph-width: 70ch;
 }
 
 
-@media (prefers-color-scheme: light) {
-	:root {
-		--color-background: #ffffff;
-		--color-text: #000000;
-		--color-secondary: #333;
-		--color-shadow: #eee;
-		--color-link: #0000bb;
-		--color-link-active: #223fbf;
-	}
-}
+/* @media (prefers-color-scheme: light) { */
+/* 	:root { */
+/* 		--color-background: #ffffff; */
+/* 		--color-text: #000000; */
+/* 		--color-secondary: #333; */
+/* 		--color-shadow: #eee; */
+/* 		--color-link: #0000bb; */
+/* 		--color-link-active: #223fbf; */
+/* 	} */
+/* } */
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--color-background: #192129;
-		--color-text: #ffffff;
-		--color-secondary: #eee;
-		--color-shadow: #333;
-		--color-link: #00bcff;
-		--color-link-active: #79a8ff;
-	}
-}
+/* @media (prefers-color-scheme: dark) { */
+/* 	:root { */
+/* 		--color-background: #192129; */
+/* 		--color-text: #ffffff; */
+/* 		--color-secondary: #eee; */
+/* 		--color-shadow: #333; */
+/* 		--color-link: #00bcff; */
+/* 		--color-link-active: #79a8ff; */
+/* 	} */
+/* } */
 
 body {
 	font-family: "PT Sans", sans-serif;
@@ -179,9 +179,9 @@ p {
  	max-width: var(--max-paragraph-width);
 }
 
-#content > * {
-	grid-column: 2;
-}
+/* #content > * { */
+/* 	grid-column: 2; */
+/* } */
 
 /* #content { */
 /* 	max-width: 40rem; */
@@ -405,4 +405,70 @@ footer {
 	.profile-pic {
 		float: right;
 	}
+}
+
+/* .horizontal { */
+/*   font-family: "PT Mono", monospace; */
+/*   font-size: 2.8em; */
+
+/*   li { */
+/* 	float: left; */
+/*   } */
+/* } */
+
+#table-of-contents {
+  /* position: sticky; */
+  /* top: 0px; */
+  /* float: left; */
+}
+
+/* #home { */
+/*   position: sticky; */
+/*   top: 0px; */
+/*   float: left; */
+/* } */
+/* Parent container that holds title + nav */
+.page-header {
+  display: flex;              /* use Flexbox */
+  flex-direction: column;     /* stack children vertically in a column */
+  align-items: stretch;       /* or center, if you prefer the content centered */
+}
+
+/* By default, .title is order 0 and #home is order 0; we change that below */
+.title {
+  order: 2;                   /* put the title second */
+  margin: 0.5rem 0;           /* adjust spacing as desired */
+}
+/* Parent container for both divs */
+#navbar {
+  display: flex;
+  justify-content: space-between;  /* #home on left, #home-nav on right */
+  align-items: center;             /* vertically center them (optional) */
+  margin-bottom: 1rem;            /* spacing below the navbar */
+  margin-top: 2rem;
+
+  /* Horizontal lines (borders) above & below */
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+
+  font-family: "PT Mono", monospace;
+  font-size: 1.2em;
+  font-weight: bold;
+
+  color: #88C0D0;
+}
+
+/* Basic styling for each horizontal block */
+#home.horizontal,
+#home-nav.horizontal {
+  display: flex;          /* ensure any links inside are in a row */
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* Example link styling */
+#home a, #home-nav a {
+  margin-right: 1rem;
+  text-decoration: none;
 }
