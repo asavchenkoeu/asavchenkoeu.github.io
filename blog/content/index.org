@@ -11,5 +11,5 @@
 
 #+ATTR_HTML: :id page_content
 #+begin_page_content
-Index.
+[[file:posts.org][Posts]]
 #+end_page_content

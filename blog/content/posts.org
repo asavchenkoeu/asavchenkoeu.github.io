@@ -3,5 +3,5 @@
 #+INCLUDE: preamble.org
 #+OPTIONS: toc:nil title:nil
 
-* [[file:./feed-2026-04-21.org][ASV Technical Digest]]
+* [[file:./feed-2026-04-21.org][Technical Digest: 2026-04-21]]
 

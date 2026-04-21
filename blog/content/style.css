@@ -472,3 +472,26 @@ footer {
   margin-right: 1rem;
   text-decoration: none;
 }
+
+
+.digest-page .outline-3 {
+	margin: 0 0 3rem;
+	padding: 0 0 1.75rem;
+	border-bottom: 1px dotted var(--color-secondary);
+}
+
+.digest-page .outline-3:last-child {
+	margin-bottom: 0;
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+.digest-page .outline-text-3 ul {
+	max-width: var(--max-paragraph-width);
+	margin-top: 0.75rem;
+	padding-left: 1.4rem;
+}
+
+.digest-page .outline-text-3 li {
+	padding-bottom: 0.45rem;
+}
