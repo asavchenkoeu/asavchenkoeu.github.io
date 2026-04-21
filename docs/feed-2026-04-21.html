@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2026-04-21 Tue 14:01 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ASV Technical Digest</title>
+<meta name="author" content="Aleksandr Savchenko" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" href="/style.css" type="text/css"/>
+</head>
+<body>
+<div id="content" class="content">
+<div id="navbar">
+
+<div id="home" class="horizontal home">
+<p>
+<a href="index.html">ASV</a>
+</p>
+
+</div>
+
+<div id="home-nav" class="horizontal home-nav">
+<p>
+<a href="posts.html">Posts</a>
+<a href="about.html">About</a>
+</p>
+
+</div>
+
+</div> <!-- #navbar -->
+<div id="outline-container-org03e7525" class="outline-2">
+<h2 id="org03e7525">Summary</h2>
+<div class="outline-text-2" id="text-org03e7525">
+<p>
+A curated set of 12 posts, papers, and projects selected for technical depth and relevance.
+</p>
+</div>
+</div>
+<div id="outline-container-org3bbe045" class="outline-2">
+<h2 id="org3bbe045">Papers</h2>
+<div class="outline-text-2" id="text-org3bbe045">
+</div>
+<div id="outline-container-orge1362e6" class="outline-3">
+<h3 id="orge1362e6"><a href="https://arxiv.org/abs/2604.17046v1">A Real-Time Bike-Pedestrian Safety System with Wide-Angle Perception and Evaluation Testbed for Urban Intersections</a></h3>
+<div class="outline-text-3" id="text-orge1362e6">
+<p>
+arXiv Vision | Mehmet Kerem Turkcan | 2026-04-18
+</p>
+
+<p>
+This is one of the strongest items in the bundle. It presents a real-time urban safety system built around a wide-angle fisheye camera, and the paper goes well beyond detection by detailing a calibration pipeline, a lookup-table-based ground-plane projection stage, a conformance simulation framework, and explicit deployment-risk analysis. The combination of geometry, edge deployment, and testbench thinking makes it far more useful than a generic perception paper.
+</p>
+
+<p>
+What's unique: It couples fisheye calibration, closed-form projection, and deployment gating in a single end-to-end safety system.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb90afc8" class="outline-3">
+<h3 id="orgb90afc8"><a href="https://arxiv.org/abs/2604.17231v1">Fringe Projection Based Vision Pipeline for Autonomous Hard Drive Disassembly</a></h3>
+<div class="outline-text-3" id="text-orgb90afc8">
+<p>
+arXiv Vision | Badrinath Balasubramaniam | 2026-04-19
+</p>
+
+<p>
+This paper is a strong engineering piece because it uses structured-light style sensing through fringe projection and then integrates it with segmentation and depth completion for robotic disassembly. The pixel-wise alignment argument is especially compelling: the same camera-projector system supports both depth and semantic localization, which simplifies downstream 3D reasoning in a way many RGB-D pipelines do not.
+</p>
+
+<p>
+What's unique: It combines fringe projection, depth completion, and segmentation in one inherently aligned 3D pipeline.
+</p>
+</div>
+</div>
+<div id="outline-container-org281f719" class="outline-3">
+<h3 id="org281f719"><a href="https://arxiv.org/abs/2604.18476v1">SemLT3D: Semantic-Guided Expert Distillation for Camera-only Long-Tailed 3D Object Detection</a></h3>
+<div class="outline-text-3" id="text-org281f719">
+<p>
+arXiv Vision | Hao Vo | 2026-04-20
+</p>
+
+<p>
+SemLT3D is a solid camera-only 3D detection paper with a concrete angle on long-tail classes, which matters in safety-critical driving scenarios where rare categories can still be important. The semantic-guided expert routing and CLIP-informed distillation make it more interesting than a generic detector-improvement paper.
+</p>
+
+<p>
+What's unique: It attacks long-tail camera-only 3D detection using semantic expert routing and semantic projection distillation.
+</p>
+</div>
+</div>
+<div id="outline-container-org65539c6" class="outline-3">
+<h3 id="org65539c6"><a href="https://arxiv.org/abs/2604.18289v1">Relative State Estimation using Event-Based Propeller Sensing</a></h3>
+<div class="outline-text-3" id="text-org65539c6">
+<p>
+arXiv Robotics and Geometry | Ravi Kumar Thakur | 2026-04-20
+</p>
+
+<p>
+This is a compelling niche paper because it uses event-based sensing of propellers for relative state estimation in UAV settings, which is an unusual sensing and geometry problem. It is exactly the kind of non-generic perception work that makes a digest feel curated rather than algorithmically assembled.
+</p>
+
+<p>
+What's unique: It derives relative state from event-based observations of propeller motion, which is a very unusual sensing setup.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb4a0d02" class="outline-2">
+<h2 id="orgb4a0d02">Projects</h2>
+<div class="outline-text-2" id="text-orgb4a0d02">
+</div>
+<div id="outline-container-org535ed03" class="outline-3">
+<h3 id="org535ed03"><a href="https://github.com/eowjd0512/fisheye-calib-adapter">eowjd0512/fisheye-calib-adapter</a></h3>
+<div class="outline-text-3" id="text-org535ed03">
+<p>
+GitHub Vision Geometry C++ | eowjd0512 | 2026-04-07
+</p>
+
+<p>
+This repository is unusually relevant if you care about real camera models rather than generic OpenCV calibration scripts. It focuses on converting and reconciling multiple fisheye models, including double-sphere, Kannala-Brandt, EUCM, UCM, Kalibr, and WoodScape-style formulations, which is exactly the kind of glue code that shows up in real multi-camera and automotive perception stacks.
+</p>
+
+<p>
+What's unique: It is about cross-model fisheye calibration interoperability, not just running one calibration routine.
+</p>
+</div>
+</div>
+<div id="outline-container-org645b3a1" class="outline-3">
+<h3 id="org645b3a1"><a href="https://github.com/fundamentalvision/BEVFormer">fundamentalvision/BEVFormer</a></h3>
+<div class="outline-text-3" id="text-org645b3a1">
+<p>
+GitHub Automotive Perception | fundamentalvision | 2026-04-21
+</p>
+
+<p>
+BEVFormer is already an important reference point for camera-only autonomous-driving perception, and it remains highly relevant if you are interested in BEV representations and multi-camera reasoning. Even though it is not new, it is one of the few GitHub items in the bundle that clearly belongs in an advanced automotive-vision digest.
+</p>
+
+<p>
+What's unique: It is a canonical camera-only BEV perception framework rather than a small demo repository.
+</p>
+</div>
+</div>
+<div id="outline-container-org5abc991" class="outline-3">
+<h3 id="org5abc991"><a href="https://github.com/sourishg/fisheye-stereo-calibration">sourishg/fisheye-stereo-calibration</a></h3>
+<div class="outline-text-3" id="text-org5abc991">
+<p>
+GitHub Vision Geometry C++ | sourishg | 2026-03-06
+</p>
+
+<p>
+Stereo fisheye calibration is harder and more practically relevant than monocular calibration for many robotics and surround-view systems, so this repository earns a place on depth alone. It gives you a concrete C++ and OpenCV reference point for handling stereo geometry under fisheye distortion, which is exactly where many toy calibration guides stop being useful.
+</p>
+
+<p>
+What's unique: It tackles stereo fisheye calibration directly, which is much closer to real multi-camera systems.
+</p>
+</div>
+</div>
+<div id="outline-container-org9a9ab24" class="outline-3">
+<h3 id="org9a9ab24"><a href="https://github.com/astar-ai/calicam_mono">astar-ai/calicam<sub>mono</sub></a></h3>
+<div class="outline-text-3" id="text-org9a9ab24">
+<p>
+GitHub Vision Geometry C++ | astar-ai | 2026-03-16
+</p>
+
+<p>
+CaliCam<sub>Mono</sub> looks like a practical tool for rectifying fisheye imagery into multiple output parameterizations such as cylindrical, perspective, and longitude-latitude projections. That makes it useful as a working reference for the downstream side of calibration, where the question is not only estimating parameters but also choosing how to remap the imagery for later perception tasks.
+</p>
+
+<p>
+What's unique: It emphasizes multiple fisheye rectification targets rather than only calibration parameter estimation.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgac98c80" class="outline-2">
+<h2 id="orgac98c80">Posts</h2>
+<div class="outline-text-2" id="text-orgac98c80">
+</div>
+<div id="outline-container-orgb224c33" class="outline-3">
+<h3 id="orgb224c33"><a href="https://www.tangramvision.com/blog/nfov-calibration-made-easier">Oct 24, 2025 Narrow FOV Calibration Made Easy(er)</a></h3>
+<div class="outline-text-3" id="text-orgb224c33">
+<p>
+Tangram Vision Blog | 2026-04-21
+</p>
+
+<p>
+This is one of the clearest matches for your interests in the entire bundle. Narrow-FOV calibration is a real engineering problem that regularly breaks downstream extrinsics and stereo systems even when reprojection error looks acceptable, and Tangram is writing directly about why that happens and how to handle it. That is exactly the right combination of theory and applied calibration pain.
+</p>
+
+<p>
+What's unique: It focuses on the failure modes of narrow-FOV calibration rather than generic calibration basics.
+</p>
+</div>
+</div>
+<div id="outline-container-orgc9378e7" class="outline-3">
+<h3 id="orgc9378e7"><a href="https://www.tangramvision.com/blog/plane-fitting-part-2-manifold-optimization-without-lie-groups">Dec 9, 2025 Plane Fitting, Part 2: Manifold Optimization, without Lie Groups</a></h3>
+<div class="outline-text-3" id="text-orgc9378e7">
+<p>
+Tangram Vision Blog | 2026-04-21
+</p>
+
+<p>
+This is one of the best blog picks because it is directly about geometry and optimization rather than product promotion. Plane fitting is a deceptively deep topic in perception pipelines, and a post about manifold optimization without leaning on Lie-group boilerplate sounds exactly like the kind of mathematically grounded engineering note worth keeping.
+</p>
+
+<p>
+What's unique: It revisits plane fitting through manifold optimization instead of the usual cookbook treatment.
+</p>
+</div>
+</div>
+<div id="outline-container-org7f89a86" class="outline-3">
+<h3 id="org7f89a86"><a href="https://blog.llvm.org/posts/2025-08-gsoc-lldb-rich-disassembler/">GSoC 2025: Rich Disassembler for LLDB</a></h3>
+<div class="outline-text-3" id="text-org7f89a86">
+<p>
+LLVM Project Blog | 2025-11-10
+</p>
+
+<p>
+This LLVM post is not directly about vision, but it clears the bar on technical substance. The project uses DWARF location ranges to enrich disassembly with variable-lifetime annotations, which is genuinely useful systems work if you care about low-level tooling, optimized binaries, and understanding what the debugger can recover from compiled code.
+</p>
+
+<p>
+What's unique: It makes disassembly semantically richer by mapping machine instructions back to variable state.
+</p>
+</div>
+</div>
+<div id="outline-container-org68b86f3" class="outline-3">
+<h3 id="org68b86f3"><a href="https://developer.nvidia.com/blog/how-to-build-vision-ai-pipelines-using-deepstream-coding-agents/">How to Build Vision AI Pipelines Using NVIDIA DeepStream Coding Agents</a></h3>
+<div class="outline-text-3" id="text-org68b86f3">
+<p>
+NVIDIA Computer Vision Blog | 2026-04-21
+</p>
+
+<p>
+DeepStream coding agents is a slightly odd article, but it still lands because it sits at the intersection of vision pipelines, deployment tooling, and NVIDIA’s production video stack. If your interest includes how vision systems get assembled and operated rather than only models, it is worth keeping.
+</p>
+
+<p>
+What's unique: It treats vision-pipeline construction itself as an agent-assisted engineering workflow.
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2026-04-21</p>
+<p class="author">Author: Aleksandr Savchenko</p>
+<p class="date">Created: 2026-04-21 Tue 14:01</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

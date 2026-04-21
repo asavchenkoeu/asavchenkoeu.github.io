@@ -3,8 +3,5 @@
 #+INCLUDE: preamble.org
 #+OPTIONS: toc:nil title:nil
 
-* [[file:./post-0.org][Post 0]]
+* [[file:./feed-2026-04-21.org][ASV Technical Digest]]
 
-* New post!
-
-* New post again!
