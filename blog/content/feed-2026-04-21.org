@@ -13,39 +13,27 @@
 ** [[https://arxiv.org/abs/2604.17046v1][A Real-Time Bike-Pedestrian Safety System with Wide-Angle Perception and Evaluation Testbed for Urban Intersections]]
    arXiv Vision | Mehmet Kerem Turkcan | 2026-04-18
 
-   - It presents a real-time urban safety system built around a wide-angle fisheye camera, and the paper goes well beyond detection by detailing a calibration pipeline, a lookup-table-based ground-plane projection stage, a conformance simulation framework, and explicit deployment-risk analysis.
-   - The combination of geometry, edge deployment, and testbench thinking makes it far more useful than a generic perception paper.
-   - Distinctive point: It couples fisheye calibration, closed-form projection, and deployment gating in a single end-to-end safety system.
+   - A real-time fisheye safety stack that combines calibration, projection, and deployment-risk validation for intersections.
 
 ** [[https://arxiv.org/abs/2604.17231v1][Fringe Projection Based Vision Pipeline for Autonomous Hard Drive Disassembly]]
    arXiv Vision | Badrinath Balasubramaniam | 2026-04-19
 
-   - It uses structured-light style sensing through fringe projection and then integrates it with segmentation and depth completion for robotic disassembly.
-   - The pixel-wise alignment argument is especially compelling: the same camera-projector system supports both depth and semantic localization, which simplifies downstream 3D reasoning in a way many RGB-D pipelines do not.
-   - Distinctive point: It combines fringe projection, depth completion, and segmentation in one inherently aligned 3D pipeline.
+   - A fringe-projection pipeline that aligns depth completion and segmentation for robotic HDD disassembly.
 
 ** [[https://arxiv.org/abs/2604.14795v1][Keep It CALM: Toward Calibration-Free Kilometer-Level SLAM with Visual Geometry Foundation Models via an Assistant Eye]]
    arXiv Robotics and Geometry | Tianjun Zhang | 2026-04-16
 
-   - CAL2M targets large-scale SLAM with visual geometry foundation models and directly addresses intrinsic correction, pose correction, and geometric distortion.
-   - The paper is especially relevant because it treats calibration and geometry problems as deployment bottlenecks rather than just benchmark details.
-   - Even the unusual assistant-eye idea is tied to a concrete systems goal: reducing scale ambiguity and improving global consistency.
-   - Distinctive point: It combines intrinsic correction and nonlinear map alignment in a calibration-aware SLAM framework built around geometry foundation models.
+   - A calibration-aware SLAM approach that corrects intrinsics and pose to improve long-range geometric consistency.
 
 ** [[https://arxiv.org/abs/2604.18476v1][SemLT3D: Semantic-Guided Expert Distillation for Camera-only Long-Tailed 3D Object Detection]]
    arXiv Vision | Hao Vo | 2026-04-20
 
-   - SemLT3D is a solid camera-only 3D detection paper with a concrete angle on long-tail classes, which matters in safety-critical driving scenarios where rare categories can still be important.
-   - The semantic-guided expert routing and CLIP-informed distillation make it more interesting than a generic detector-improvement paper.
-   - Distinctive point: It attacks long-tail camera-only 3D detection using semantic expert routing and semantic projection distillation.
+   - Camera-only long-tail 3D detection improved with semantic expert routing and CLIP-guided distillation.
 
 ** [[https://arxiv.org/abs/2604.14454v1][CooperDrive: Enhancing Driving Decisions Through Cooperative Perception]]
    arXiv Vision | Deyuan Qu | 2026-04-15
 
-   - CooperDrive is a strong automotive-perception paper centered on cooperative perception and BEV-based decision support under occlusion and non-line-of-sight conditions.
-   - It is more planning-facing than camera-model work, but still highly relevant because it sits inside the real driving stack rather than isolated detector benchmarks.
-   - The object-level sharing and fusion angle makes it a good complement to the camera-only perception items already in the issue.
-   - Distinctive point: It links cooperative perception directly to driving decisions instead of treating perception as a standalone module.
+   - Cooperative perception fuses shared object context to improve BEV driving decisions under occlusion.
 
 
 * Projects
@@ -53,38 +41,27 @@
 ** [[https://github.com/eowjd0512/fisheye-calib-adapter][eowjd0512/fisheye-calib-adapter]]
    GitHub Vision Geometry C++ | eowjd0512 | 2026-04-07
 
-   - This repository is unusually relevant if you care about real camera models rather than generic OpenCV calibration scripts.
-   - It focuses on converting and reconciling multiple fisheye models, including double-sphere, Kannala-Brandt, EUCM, UCM, Kalibr, and WoodScape-style formulations, which is exactly the kind of glue code that shows up in real multi-camera and automotive perception stacks.
-   - Distinctive point: It is about cross-model fisheye calibration interoperability, not just running one calibration routine.
+   - Adapter code that converts between multiple fisheye camera models for real-system interoperability.
 
 ** [[https://github.com/xixu-me/avm][xixu-me/avm]]
    GitHub Fisheye Geometry | xixu-me | 2026-04-20
 
-   - A practical surround-view project built around fisheye cameras, OpenCV, and bird's-eye-view generation.
-   - It is directly relevant to automotive camera geometry, calibration, and projection workflows rather than generic vision demos.
-   - It is useful as a concrete implementation reference when you care about how multi-camera AVM systems are actually assembled.
-   - Distinctive point: It connects fisheye imagery to a full around-view monitoring pipeline instead of stopping at isolated calibration steps.
+   - Practical around-view monitoring pipeline from fisheye images to bird's-eye-view output.
 
 ** [[https://github.com/fundamentalvision/BEVFormer][fundamentalvision/BEVFormer]]
    GitHub Automotive Perception | fundamentalvision | 2026-04-21
 
-   - BEVFormer is already an important reference point for camera-only autonomous-driving perception, and it remains highly relevant if you are interested in BEV representations and multi-camera reasoning.
-   - Even though it is not new, it is one of the few GitHub items in the bundle that clearly belongs in an advanced automotive-vision digest.
-   - Distinctive point: It is a canonical camera-only BEV perception framework rather than a small demo repository.
+   - Canonical camera-only BEV perception framework for multi-camera autonomous-driving scenes.
 
 ** [[https://github.com/sourishg/fisheye-stereo-calibration][sourishg/fisheye-stereo-calibration]]
    GitHub Vision Geometry C++ | sourishg | 2026-03-06
 
-   - Stereo fisheye calibration is harder and more practically relevant than monocular calibration for many robotics and surround-view systems, so this repository earns a place on depth alone.
-   - It gives you a concrete C++ and OpenCV reference point for handling stereo geometry under fisheye distortion, which is exactly where many toy calibration guides stop being useful.
-   - Distinctive point: It tackles stereo fisheye calibration directly, which is much closer to real multi-camera systems.
+   - C++ OpenCV reference implementation for stereo fisheye calibration.
 
 ** [[https://github.com/astar-ai/calicam_mono][astar-ai/calicam_mono]]
    GitHub Vision Geometry C++ | astar-ai | 2026-03-16
 
-   - =CaliCam_Mono= looks like a practical tool for rectifying fisheye imagery into multiple output parameterizations such as cylindrical, perspective, and longitude-latitude projections.
-   - That makes it useful as a working reference for the downstream side of calibration, where the question is not only estimating parameters but also choosing how to remap the imagery for later perception tasks.
-   - Distinctive point: It emphasizes multiple fisheye rectification targets rather than only calibration parameter estimation.
+   - Fisheye rectification tool that outputs multiple projection formats for downstream perception.
 
 
 * Posts
@@ -92,117 +69,112 @@
 ** [[https://www.tangramvision.com/blog/nfov-calibration-made-easier][Oct 24, 2025 Narrow FOV Calibration Made Easy(er)]]
    Tangram Vision Blog | 2026-04-21
 
-   - This is one of the clearest matches for your interests in the entire bundle.
-   - Narrow-FOV calibration is a real engineering problem that regularly breaks downstream extrinsics and stereo systems even when reprojection error looks acceptable, and Tangram is writing directly about why that happens and how to handle it.
-   - That is exactly the right combination of theory and applied calibration pain.
-   - Distinctive point: It focuses on the failure modes of narrow-FOV calibration rather than generic calibration basics.
+   - Explains narrow-FOV calibration failure modes and practical mitigation strategies.
 
 ** [[https://www.tangramvision.com/blog/plane-fitting-part-2-manifold-optimization-without-lie-groups][Dec 9, 2025 Plane Fitting, Part 2: Manifold Optimization, without Lie Groups]]
    Tangram Vision Blog | 2026-04-21
 
-   - This is one of the best blog picks because it is directly about geometry and optimization rather than product promotion.
-   - Plane fitting is a deceptively deep topic in perception pipelines, and a post about manifold optimization without leaning on Lie-group boilerplate sounds exactly like the kind of mathematically grounded engineering note worth keeping.
-   - Distinctive point: It revisits plane fitting through manifold optimization instead of the usual cookbook treatment.
+   - Reframes plane fitting as manifold optimization without standard Lie-group machinery.
 
 
 * Filtered But Worth Checking
 
-These did not make the main digest, but they are still worth a quick look.
+These were not in the main digest, but each has one useful core idea.
 
 - [[https://arxiv.org/abs/2604.18289v1][Relative State Estimation using Event-Based Propeller Sensing]]
-  This is a compelling niche paper because it uses event-based sensing of propellers for relative state estimation in UAV settings, which is an unusual sensing and geometry problem.
+  Event-camera propeller cues for UAV relative state estimation.
 - [[https://blog.llvm.org/posts/2025-08-gsoc-lldb-rich-disassembler/][GSoC 2025: Rich Disassembler for LLDB]]
-  This LLVM post is not directly about vision, but it clears the bar on technical substance.
+  LLDB disassembly UX and visualization improvements.
 - [[https://developer.nvidia.com/blog/how-to-build-vision-ai-pipelines-using-deepstream-coding-agents/][How to Build Vision AI Pipelines Using NVIDIA DeepStream Coding Agents]]
-  DeepStream coding agents is a slightly odd article, but it still lands because it sits at the intersection of vision pipelines, deployment tooling, and NVIDIA’s production video stack.
+  Agent-assisted workflow for building DeepStream vision pipelines.
 - [[https://blog.llvm.org/posts/2025-08-25-abi-library/][GSoC 2025: Introducing an ABI Lowering Library]]
-  This ABI-lowering post is the kind of systems article that justifies keeping C++ and compiler content in the digest.
+  Reusable ABI lowering components for compiler tooling.
 - [[https://blog.roboflow.com/inference-1-0/][Inference 1.0: Foundational Infrastructure for Visual Understanding]]
-  Roboflow’s infrastructure-focused post is useful because it talks about visual understanding as an operational stack, not only a model artifact.
+  Deployment-oriented infrastructure for vision inference workloads.
 - [[https://blog.llvm.org/posts/2025-08-31-gsoc-llvm-advisor/][Making LLVM Compilation Data Accessible: A Unified Visualization Tool for Compiler Artifacts]]
-  LLVM Advisor is a useful tooling project because it tries to unify and visualize scattered compiler artifacts rather than asking developers to juggle a pile of incompatible flags and output formats.
+  Unified visualization for scattered LLVM compilation artifacts.
 - [[https://pytorch.org/blog/gemms-torchinductor-cutedsl-backend/][Generating State-of-the-Art GEMMs with TorchInductor’s CuteDSL backend]]
-  This PyTorch item is the strongest of the bunch because it is concrete compiler and kernel-generation work, not generic framework marketing.
+  Compiler-driven GEMM generation with high kernel performance.
 - [[https://blog.llvm.org/posts/2025-gsoc-clangir-upstreaming/][GSoC 2025: ClangIR upstreaming]]
-  ClangIR upstreaming is niche in exactly the right way for someone who follows compiler internals.
+  Progress on upstreaming ClangIR into LLVM/Clang.
 - [[https://github.com/ankitghoshthecreator/monoCar_detection][ankitghoshthecreator/monoCar_detection]]
-  The monoCar_detection repository is clearly aimed at camera-only 3D perception and tries to mix geometric priors with learned predictions, which is aligned with your interests.
+  Monocular car detection with geometric priors for 3D cues.
 - [[https://blog.roboflow.com/build-robots-vision-ai/][How to Build Factory Robots with Vision AI]]
-  Factory robotics with vision AI is at least close to your general area, and Roboflow often has practical content.
+  Practical steps for deploying vision in factory robotics.
 - [[https://github.com/4rtur1t0/fisheye_calibration][4rtur1t0/fisheye_calibration]]
-  This is a straightforward OpenCV-based fisheye calibration project.
+  Basic OpenCV fisheye calibration workflow.
 - [[https://pytorch.org/blog/faster-diffusion-on-blackwell-mxfp8-and-nvfp4-with-diffusers-and-torchao/][Faster Diffusion on Blackwell: MXFP8 and NVFP4 with Diffusers and TorchAO]]
-  This post is more relevant because it deals with diffusion acceleration, low-precision formats, and runtime behavior on Blackwell.
+  Blackwell low-precision diffusion acceleration techniques.
 - [[https://arxiv.org/abs/2604.16855v1][When W4A4 Breaks Camouflaged Object Detection: Token-Group Dual-Constraint Activation Quantization]]
-  This quantization paper is technically respectable and unusually specific about why 4-bit activation quantization fails for camouflaged object detection.
+  Why 4-bit activation quantization fails on camouflaged detection.
 - [[https://developer.nvidia.com/blog/build-synthetic-data-pipelines-to-train-smarter-robots-with-nvidia-isaac-sim/][Build and Orchestrate End-to-End SDG Workflows with NVIDIA Isaac Sim and NVIDIA OSMO]]
-  Synthetic-data workflow orchestration in Isaac Sim and OSMO is certainly relevant to robotics and perception data pipelines.
+  End-to-end synthetic-data orchestration for robotics training.
 - [[https://pytorch.org/blog/sota-normalization-performance-with-torch-compile/][SOTA Normalization Performance with torch.compile]]
-  Normalization performance with torch.compile is the kind of Python performance engineering that can be interesting if you want occasional systems posts.
+  Faster normalization ops via torch.compile optimization.
 - [[https://arxiv.org/abs/2604.18484v1][XEmbodied: A Foundation Model with Enhanced Geometric and Physical Cues for Large-Scale Embodied Environments]]
-  XEmbodied is more relevant than most of the robotics backfill items because it explicitly pushes geometric and physical cues into embodied foundation models.
+  Embodied foundation model strengthened with geometry and physics cues.
 - [[https://developer.nvidia.com/blog/optimizing-semiconductor-defect-classification-with-generative-ai-and-vision-foundation-models/][Optimizing Semiconductor Defect Classification with Generative AI and Vision Foundation Models]]
-  Semiconductor defect classification is an industrial vision application with real value, but it is a weaker thematic match than the automotive, calibration, and geometry-heavy items.
+  Industrial defect classification with foundation-model vision pipelines.
 - [[https://developer.nvidia.com/blog/getting-started-with-edge-ai-on-nvidia-jetson-llms-vlms-and-foundation-models-for-robotics/][Getting Started with Edge AI on NVIDIA Jetson: LLMs, VLMs, and Foundation Models for Robotics]]
-  Jetson edge-AI posts can be useful for deployment awareness, but this one is broad and more introductory than the bundle’s strongest items.
+  Intro path for Jetson edge AI with modern foundation models.
 - [[https://www.tangramvision.com/blog/tangram-vision-opencv-announcement][Apr 7, 2026 Tangram Vision and OpenCV Team Up]]
-  A Tangram and OpenCV partnership post is directionally relevant because Tangram tends to work on calibration and perception infrastructure.
+  Partnership announcement around calibration-focused tooling.
 - [[https://github.com/prajesdas/Smart-Parking-Space-Detector-using-YOLO-and-OpenCV][prajesdas/Smart-Parking-Space-Detector-using-YOLO-and-OpenCV]]
-  This repository is directly on the parking topic, but it looks like a standard YOLO-plus-OpenCV application build.
+  YOLO/OpenCV smart parking space occupancy detection.
 - [[https://blog.roboflow.com/rf-detr-segmentation/][New RF-DETR Segmentation Checkpoints from Nano to 2XLarge]]
-  Segmentation checkpoints are useful to practitioners, but this is closer to a product/update post than an engineering deep dive.
+  New segmentation checkpoints across RF-DETR model sizes.
 - [[https://pytorch.org/blog/optimizing-effective-training-time-for-metas-internal-recommendation-ranking-workloads/][Optimizing Effective Training Time for Meta’s Internal Recommendation/Ranking Workloads]]
-  Recommendation-training optimization is real systems work, but it is not the flavor of systems work this digest is after.
+  System-level optimization for recommendation model training throughput.
 - [[https://arxiv.org/abs/2604.17623v1][ViPS: Video-informed Pose Spaces for Auto-Rigged Meshes]]
-  ViPS is a thoughtful paper on pose-space learning for auto-rigged meshes, but its real home is graphics and animation rather than the camera, geometry, and perception stack you are aiming for here.
+  Video-conditioned pose spaces for rigged character meshes.
 - [[https://blog.roboflow.com/automating-conidia-counting/][Revolutionizing Conidia Counting with Roboflow]]
-  The conidia-counting application is a nice example of vision being applied in a specific domain, but it is not closely tied to the geometry, camera, or automotive topics that define the feed.
+  Vision workflow for automating conidia counting.
 - [[https://arxiv.org/abs/2604.17919v1][Fisher Decorator: Refining Flow Policy via A Local Transport Map]]
-  Fisher Decorator appears mathematically sophisticated, but it is fundamentally an offline reinforcement-learning paper rather than a geometry or perception item.
+  Local transport maps for improving offline RL flow policies.
 - [[https://pytorch.org/blog/monarch-an-api-to-your-supercomputer/][Monarch: an API to your supercomputer]]
-  Monarch may be useful in the broader Python/HPC ecosystem, but it is not obviously relevant to your stated interests.
+  API abstraction layer for HPC/supercomputer access.
 - [[https://github.com/Sumukh73/smart-parking-capacity-enforcement-system][Sumukh73/smart-parking-capacity-enforcement-system]]
-  This one is broader than the others because it combines CCTV, IoT, dashboards, and enforcement logic, which gives it a systems angle.
+  Parking enforcement system combining CCTV, IoT, and dashboards.
 - [[https://opencv.org/when-the-track-is-your-lab-meet-the-team-racing-without-a-driver/][When the Track Is Your Lab: Meet the Team Racing Without a Driver]]
-  Autonomous racing is a potentially interesting area, but this post still reads more like event promotion than an engineering deep dive.
+  Autonomous racing team profile and development context.
 - [[https://github.com/MrDaila007/Park_space_detector_Yolov8][MrDaila007/Park_space_detector_Yolov8]]
-  This parking monitor adds some practical touches such as polygon configuration and uncertainty timing, but it still looks like an application repository more than a deep technical contribution.
+  YOLOv8 parking detector with polygon-zone occupancy tracking.
 - [[https://huggingface.co/blog/train-multimodal-sentence-transformers][Training and Finetuning Multimodal Embedding & Reranker Models with Sentence Transformers]]
-  Multimodal embedding and reranker training is more relevant than the other Hugging Face items, but it is still not the right kind of vision content for this digest.
+  Recipe for multimodal embedding and reranker training.
 - [[https://github.com/omerfarooq223/parking-detection-system][omerfarooq223/parking-detection-system]]
-  This is another standard YOLO-plus-OpenCV parking detector.
+  Standard YOLO/OpenCV parking detection implementation.
 - [[https://opencv.org/glenn-jocher-of-ultralytics-yolo-is-speaking-at-oscca/][Glenn Jocher of Ultralytics (YOLO) Is Speaking at OSCCA]]
-  Ultralytics and YOLO are relevant, but this post is still an event announcement.
+  Conference speaker announcement for Ultralytics leadership.
 - [[https://arxiv.org/abs/2604.17887v1][StableIDM: Stabilizing Inverse Dynamics Model against Manipulator Truncation via Spatio-Temporal Refinement]]
-  StableIDM is embodied-AI control infrastructure rather than a vision or geometry contribution.
+  Stabilized inverse-dynamics modeling for truncated manipulator trajectories.
 - [[https://github.com/Dhruvangbari/AI-Smart-Parking-Occupancy-Detection-System-YOLOv8-OpenCV-][Dhruvangbari/AI-Smart-Parking-Occupancy-Detection-System-YOLOv8-OpenCV-]]
-  The repository matches the parking-occupancy theme, but it appears to be a fairly standard YOLOv8 application.
+  YOLOv8/OpenCV smart parking occupancy detection project.
 - [[https://opencv.org/how-pg-uses-ai-to-understand-human-behavior/][How P&G Uses AI to Understand Human Behavior]]
-  This is another OpenCV conference-promo style item.
+  Applied CV case study for consumer behavior analysis.
 - [[https://huggingface.co/blog/transformers-to-mlx][The PR you would have opened yourself]]
-  This article is mildly relevant because it is about code review automation, but it still belongs to a coding-tools feed rather than your vision-focused digest.
+  Automation approach for framework migration pull requests.
 - [[https://opencv.org/behind-the-magic-disney-research-imagineerings-doug-fidaleo-comes-to-oscca/][Behind the Magic: Disney Research Imagineering’s Doug Fidaleo Comes to OSCCA]]
-  This is mostly a conference-speaker announcement framed around Disney Research.
+  Conference preview featuring Disney Research Imagineering speaker.
 - [[https://blog.roboflow.com/better-consumer-experiences-vision-ai/][How to Deliver Better Consumer Experiences with Vision AI]]
-  This is a generic business-facing vision-AI article and does not belong in a technical digest.
+  Business-facing guidance on vision AI in consumer products.
 - [[https://blog.llvm.org/posts/2025-11-11-advanced-symbol-resolution-for-clang-repl/][GSoC 2025: Advanced symbol resolution for Clang-Repl]]
-  This item does not clear the bar for inclusion in a tightly curated issue focused on advanced vision, geometry, and systems work.
+  Better symbol resolution pipeline for Clang REPL.
 - [[https://www.tangramvision.com/blog/moving-metrical-metrics-to-mcaps][Sep 16, 2025 Moving MetriCal Metrics to MCAPs]]
-  MCAP metrics are useful internal plumbing, but this post is too tooling-specific and too far from the digest’s main themes.
+  Migrating calibration metrics storage to MCAP format.
 - [[https://opencv.org/the-founder-of-opencv-is-speaking-at-oscca-dont-miss-it/][The Founder of OpenCV Is Speaking at OSCCA, Don’t Miss It!]]
-  This is not a technical post; it is an announcement that the OpenCV founder will speak at a conference.
+  Event announcement featuring OpenCV founder talk.
 - [[https://developer.nvidia.com/blog/nvidia-accelerated-mistral-3-open-models-deliver-efficiency-accuracy-at-any-scale/][NVIDIA-Accelerated Mistral 3 Open Models Deliver Efficiency, Accuracy at Any Scale]]
-  This post is far too general and too LLM-centric for your target digest.
+  NVIDIA acceleration story for Mistral 3 open models.
 - [[https://huggingface.co/blog/nvidia/build-korean-agents-with-nemotron-personas][How to Ground a Korean AI Agent in Real Demographics with Synthetic Personas]]
-  Synthetic personas for a Korean AI agent might be interesting in a different newsletter, but it is not relevant here.
+  Synthetic persona generation for demographic grounding.
 - [[https://huggingface.co/blog/ecom-rlve][Ecom-RLVE: Adaptive Verifiable Environments for E-Commerce Conversational Agents]]
-  This e-commerce conversational-agent environment is unrelated to the digest’s scope.
+  Benchmark-style environment for e-commerce conversational agents.
 - [[https://arxiv.org/abs/2604.18090v1][Muscle-inspired magnetic actuators that push, pull, crawl, and grasp]]
-  The magnetic actuator paper is outside the scope of the digest.
+  Soft robotic actuation with muscle-like magnetic structures.
 - [[https://huggingface.co/blog/tiiuae/qimma-arabic-leaderboard][QIMMA قِمّة ⛰: A Quality-First Arabic LLM Leaderboard]]
-  An Arabic leaderboard is far outside the scope of this digest.
+  Quality-focused benchmark leaderboard for Arabic LLMs.
 - [[https://www.tangramvision.com/blog/pay-for-what-you-calibrate-tangram-vision-introduces-credit-based-licensing][Nov 19, 2025 Announcing Public Pricing and Credit-Based Licensing for MetriCal]]
-  This is pricing and licensing news.
+  Pricing and licensing update for MetriCal.
 
 #+begin_export html
 </div>

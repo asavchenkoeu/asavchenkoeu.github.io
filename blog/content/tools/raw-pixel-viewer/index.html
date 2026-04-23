@@ -1,0 +1,2766 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Raw viewer</title>
+  <style>
+    :root {
+      --bg: #0c1117;
+      --panel: #161f2a;
+      --panel2: #1c2837;
+      --text: #e6edf3;
+      --muted: #96a5b8;
+      --accent: #59d09d;
+      --danger: #ff8f8f;
+      --line: #2b3b4e;
+      --chip: #243447;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      background: radial-gradient(circle at 10% 10%, #1a2431 0%, #0c1117 40%, #090d12 100%);
+      color: var(--text);
+      font: 14px/1.4 "Segoe UI", "Noto Sans", sans-serif;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 340px minmax(0, 1fr);
+      height: 100%;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .controls {
+      padding: 12px;
+      overflow: auto;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .section {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(8, 13, 18, 0.25);
+      display: grid;
+      gap: 8px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .row3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .compact-input {
+      padding: 5px 7px;
+    }
+
+    label {
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input,
+    select,
+    button {
+      font: inherit;
+      color: var(--text);
+      background: #111923;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 9px;
+      min-width: 0;
+    }
+
+    input[type="checkbox"] {
+      min-width: auto;
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    button {
+      cursor: pointer;
+      background: linear-gradient(180deg, #182331, #121c27);
+    }
+
+    button:hover {
+      border-color: #3d566e;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .slot-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .slot-btn {
+      text-align: left;
+      min-height: 42px;
+      display: grid;
+      gap: 2px;
+      align-content: center;
+      font-size: 12px;
+    }
+
+    .slot-btn.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(89, 208, 157, 0.35) inset;
+    }
+
+    .slot-btn .title {
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .slot-btn .file {
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .checks {
+      display: grid;
+      gap: 6px;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .viewer {
+      position: relative;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      background: #0c1117;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      min-height: 0;
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+      background-image: linear-gradient(45deg, #0f1722 25%, transparent 25%),
+        linear-gradient(-45deg, #0f1722 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #0f1722 75%),
+        linear-gradient(-45deg, transparent 75%, #0f1722 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+
+    .status {
+      padding: 8px 10px;
+      display: grid;
+      gap: 2px;
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 54px;
+      background: rgba(5, 8, 12, 0.35);
+    }
+
+    .status strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .warn {
+      color: var(--danger);
+    }
+
+    .guess-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .guess-card {
+      background: #111923;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .guess-card:hover {
+      border-color: #3d566e;
+    }
+
+    .guess-card canvas {
+      position: static;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16/10;
+      border-radius: 6px;
+      border: 1px solid #253446;
+      background: #0b1017;
+    }
+
+    .guess-label {
+      font-size: 11px;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .guess-overlay {
+      position: absolute;
+      inset: 0;
+      padding: 10px;
+      background: rgba(8, 13, 20, 0.92);
+      border-left: 1px solid var(--line);
+      display: none;
+      grid-template-rows: auto auto auto minmax(0, 1fr);
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .guess-overlay.open {
+      display: grid;
+    }
+
+    .guess-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .guess-info {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .guess-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .guess-options {
+      display: grid;
+      grid-template-columns: 1.1fr 0.8fr 1.2fr;
+      gap: 8px;
+      align-items: end;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: rgba(11, 18, 26, 0.68);
+    }
+
+    .guess-options .checks-inline {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      align-items: center;
+    }
+
+    .guess-options .check {
+      font-size: 12px;
+    }
+
+    .guess-overlay .guess-grid {
+      overflow: auto;
+      align-content: start;
+    }
+
+    .histogram-wrap {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 280px;
+      height: 156px;
+      border: 1px solid #32465d;
+      border-radius: 8px;
+      background: rgba(8, 14, 22, 0.78);
+      backdrop-filter: blur(2px);
+      z-index: 5;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      overflow: hidden;
+    }
+
+    .histogram-wrap canvas {
+      position: static;
+      width: 100%;
+      height: 100%;
+      image-rendering: auto;
+    }
+
+    .histogram-label {
+      font-size: 11px;
+      padding: 3px 8px 5px;
+      color: #cad6e3;
+      background: rgba(7, 12, 18, 0.5);
+    }
+
+    .kbd {
+      display: inline-block;
+      border: 1px solid #3a4d61;
+      background: #142131;
+      border-radius: 6px;
+      font-size: 11px;
+      padding: 1px 5px;
+      margin-right: 4px;
+      color: #c9d7e5;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: 55vh minmax(0, 1fr);
+      }
+
+      .controls {
+        max-height: 45vh;
+      }
+
+      .guess-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="panel controls">
+      <div>
+        <h1>Raw Pixel Viewer</h1>
+      </div>
+
+      <div class="section">
+        <div><strong>Slots</strong></div>
+        <div class="slot-switch">
+          <button id="slot0Btn" class="slot-btn active" type="button"></button>
+          <button id="slot1Btn" class="slot-btn" type="button"></button>
+          <button id="slot2Btn" class="slot-btn" type="button"></button>
+          <button id="slot3Btn" class="slot-btn" type="button"></button>
+        </div>
+        <button id="loadBtn" type="button">Load To Active Slot</button>
+        <div class="muted">
+          <span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span><span class="kbd">4</span>switch slots
+        </div>
+      </div>
+
+      <div class="section">
+        <div><strong>View</strong></div>
+        <div class="row">
+          <button id="fitBtn" type="button">Fit Image</button>
+          <button id="resetViewBtn" type="button">Reset View</button>
+        </div>
+        <div class="row">
+          <label>
+            Save As
+            <select id="saveFormatSelect">
+              <option value="image/png">PNG</option>
+              <option value="image/jpeg">JPEG</option>
+            </select>
+          </label>
+          <button id="saveBtn" type="button">Save Current</button>
+        </div>
+        <div class="row">
+          <button id="guessBtn" type="button">Guess Format (Overlay)</button>
+          <button id="diffBtn" type="button">Diff Latest (0): Off</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <label>
+          Starting Data offset (bytes)
+          <input id="offsetInput" type="number" min="0" step="1" value="0" />
+        </label>
+        <label>
+          Format
+          <select id="formatSelect"></select>
+        </label>
+        <div class="row">
+          <label>
+            Byte Ordering
+            <select id="byteOrderSelect">
+              <option value="little">Little-Endian</option>
+              <option value="big">Big-Endian</option>
+            </select>
+          </label>
+          <label>
+            Bayer Pattern
+            <select id="bayerPatternSelect">
+              <option value="RGGB">RGGB (2x2)</option>
+              <option value="BGGR">BGGR (2x2)</option>
+              <option value="GRBG">GRBG (2x2)</option>
+              <option value="GBRG">GBRG (2x2)</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label>
+            Bayer Bit Depth
+            <select id="bayerBitDepthSelect">
+              <option value="8">8</option>
+              <option value="10">10</option>
+              <option value="12" selected>12</option>
+              <option value="14">14</option>
+              <option value="16">16</option>
+            </select>
+          </label>
+          <label>
+            Color Space
+            <select id="colorSpaceSelect">
+              <option value="srgb">sRGB / BT.601</option>
+              <option value="bt709">BT.709</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label>
+            Width (px)
+            <input id="widthInput" type="number" min="1" step="1" value="1280" />
+          </label>
+          <label>
+            Height (px)
+            <input id="heightInput" type="number" min="1" step="1" value="960" />
+          </label>
+        </div>
+        <div class="row3">
+          <label>
+            Stride0
+            <input id="stride0Input" class="compact-input" type="number" min="0" step="1" value="0" />
+          </label>
+          <label>
+            Stride1
+            <input id="stride1Input" class="compact-input" type="number" min="0" step="1" value="0" />
+          </label>
+          <label>
+            Stride2
+            <input id="stride2Input" class="compact-input" type="number" min="0" step="1" value="0" />
+          </label>
+        </div>
+        <div class="checks">
+          <label class="check"><input id="treatLinearInput" type="checkbox" /> Treat as linear color space</label>
+          <label class="check"><input id="demosaicInput" type="checkbox" checked /> Demosaicing</label>
+          <label class="check"><input id="swapUVInput" type="checkbox" /> Swap U/V</label>
+          <label class="check"><input id="swapRBInput" type="checkbox" /> Swap R/B output</label>
+        </div>
+      </div>
+
+      <div class="section">
+        <div><strong>Saved Profiles</strong></div>
+        <label>
+          Profile
+          <select id="profileSelect">
+            <option value="">None</option>
+          </select>
+        </label>
+        <div class="row">
+          <label>
+            Save Profile Name
+            <input id="profileNameInput" type="text" placeholder="e.g. sensor_a_1280x960" />
+          </label>
+          <div style="display:grid;grid-template-rows:1fr 1fr;gap:8px;align-self:end;">
+            <button id="saveProfileBtn" type="button">Save Profile</button>
+            <button id="deleteProfileBtn" type="button">Delete Saved</button>
+          </div>
+        </div>
+      </div>
+
+      <input id="fileInput" type="file" hidden />
+    </section>
+
+    <section class="panel viewer">
+      <div id="canvasWrap" class="canvas-wrap">
+        <canvas id="viewerCanvas"></canvas>
+        <div class="histogram-wrap">
+          <canvas id="histogramCanvas"></canvas>
+          <div id="histogramLabel" class="histogram-label">Histogram: R/G/B + Luma</div>
+        </div>
+        <div id="guessOverlay" class="guess-overlay">
+          <div class="guess-head">
+            <strong>Format Guessing Preview</strong>
+            <div class="guess-actions">
+              <button id="guessRunBtn" type="button">Run</button>
+              <button id="guessCloseBtn" type="button">Close</button>
+            </div>
+          </div>
+          <div class="guess-options">
+            <label>
+              Dimensions To Test
+              <select id="guessDimModeSelect">
+                <option value="current_and_standards">Current + standards</option>
+                <option value="current_only">Current only</option>
+                <option value="current_swap">Current + swapped</option>
+                <option value="standards_only">Standards only</option>
+              </select>
+            </label>
+            <label>
+              Standard Aspect
+              <select id="guessAspectSelect">
+                <option value="auto">Auto (from current)</option>
+                <option value="4:3">4:3</option>
+                <option value="16:9">16:9</option>
+                <option value="3:2">3:2</option>
+              </select>
+            </label>
+            <label>
+              Standard Widths
+              <input id="guessWidthsInput" type="text" value="1024, 1280, 1920" />
+            </label>
+            <div class="checks-inline">
+              <label class="check"><input id="guessYuvInput" type="checkbox" checked /> Test YUV</label>
+              <label class="check"><input id="guessRgbInput" type="checkbox" checked /> Test RGB</label>
+              <label class="check"><input id="guessBayerInput" type="checkbox" checked /> Test Bayer</label>
+              <label class="check"><input id="guessBayerEndianBothInput" type="checkbox" checked /> Bayer both endians</label>
+            </div>
+          </div>
+          <div id="guessInfo" class="guess-info">Click any preview to apply settings.</div>
+          <div id="guessGrid" class="guess-grid"></div>
+        </div>
+      </div>
+      <div class="status">
+        <div id="fileStatus">No file loaded</div>
+        <div id="pixelStatus">Pixel: -</div>
+        <div id="warnStatus"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const FORMATS = [
+        { value: "nv12", label: "NV12 (Y + interleaved UV 4:2:0)", kind: "yuv" },
+        { value: "nv21", label: "NV21 (Y + interleaved VU 4:2:0)", kind: "yuv" },
+        { value: "nv16", label: "NV16 (Y + interleaved UV 4:2:2)", kind: "yuv" },
+        { value: "nv61", label: "NV61 (Y + interleaved VU 4:2:2)", kind: "yuv" },
+        { value: "yuyv", label: "YUYV / YUY2 (packed 4:2:2)", kind: "yuv" },
+        { value: "uyvy", label: "UYVY (packed 4:2:2)", kind: "yuv" },
+        { value: "i420", label: "I420 / YUV420P (planar)", kind: "yuv" },
+        { value: "yv12", label: "YV12 / YVU420P (planar)", kind: "yuv" },
+        { value: "yuv422p", label: "YUV422P (planar)", kind: "yuv" },
+        { value: "yvu422p", label: "YVU422P (planar)", kind: "yuv" },
+        { value: "gray8", label: "GRAY8 / Y8", kind: "gray" },
+        { value: "rgb24", label: "RGB24", kind: "rgb" },
+        { value: "bgr24", label: "BGR24", kind: "rgb" },
+        { value: "rgba32", label: "RGBA32", kind: "rgb" },
+        { value: "bgra32", label: "BGRA32", kind: "rgb" },
+        { value: "argb32", label: "ARGB32", kind: "rgb" },
+        { value: "abgr32", label: "ABGR32", kind: "rgb" },
+        { value: "bayer8", label: "Bayer 8-bit", kind: "bayer" },
+        { value: "bayer16", label: "Bayer in 16-bit words", kind: "bayer" },
+        { value: "bayer10mipi", label: "Bayer MIPI RAW10 (packed)", kind: "bayer" },
+        { value: "bayer12mipi", label: "Bayer MIPI RAW12 (packed)", kind: "bayer" }
+      ];
+
+      const defaults = {
+        format: "nv12",
+        width: 1280,
+        height: 960,
+        offset: 0,
+        stride0: 0,
+        stride1: 0,
+        stride2: 0,
+        byteOrder: "little",
+        colorSpace: "srgb",
+        treatLinear: false,
+        demosaic: true,
+        swapUV: false,
+        swapRB: false,
+        bayerPattern: "RGGB",
+        bayerBitDepth: 12
+      };
+
+      const slotButtons = [
+        document.getElementById("slot0Btn"),
+        document.getElementById("slot1Btn"),
+        document.getElementById("slot2Btn"),
+        document.getElementById("slot3Btn")
+      ];
+      const loadBtn = document.getElementById("loadBtn");
+      const guessBtn = document.getElementById("guessBtn");
+      const diffBtn = document.getElementById("diffBtn");
+      const fitBtn = document.getElementById("fitBtn");
+      const resetViewBtn = document.getElementById("resetViewBtn");
+      const saveFormatSelect = document.getElementById("saveFormatSelect");
+      const saveBtn = document.getElementById("saveBtn");
+      const fileInput = document.getElementById("fileInput");
+      const profileSelect = document.getElementById("profileSelect");
+      const profileNameInput = document.getElementById("profileNameInput");
+      const saveProfileBtn = document.getElementById("saveProfileBtn");
+      const deleteProfileBtn = document.getElementById("deleteProfileBtn");
+      const formatSelect = document.getElementById("formatSelect");
+      const widthInput = document.getElementById("widthInput");
+      const heightInput = document.getElementById("heightInput");
+      const offsetInput = document.getElementById("offsetInput");
+      const stride0Input = document.getElementById("stride0Input");
+      const stride1Input = document.getElementById("stride1Input");
+      const stride2Input = document.getElementById("stride2Input");
+      const byteOrderSelect = document.getElementById("byteOrderSelect");
+      const bayerBitDepthSelect = document.getElementById("bayerBitDepthSelect");
+      const colorSpaceSelect = document.getElementById("colorSpaceSelect");
+      const treatLinearInput = document.getElementById("treatLinearInput");
+      const demosaicInput = document.getElementById("demosaicInput");
+      const swapUVInput = document.getElementById("swapUVInput");
+      const swapRBInput = document.getElementById("swapRBInput");
+      const bayerPatternSelect = document.getElementById("bayerPatternSelect");
+      const guessGrid = document.getElementById("guessGrid");
+      const guessOverlay = document.getElementById("guessOverlay");
+      const guessRunBtn = document.getElementById("guessRunBtn");
+      const guessCloseBtn = document.getElementById("guessCloseBtn");
+      const guessInfo = document.getElementById("guessInfo");
+      const guessDimModeSelect = document.getElementById("guessDimModeSelect");
+      const guessAspectSelect = document.getElementById("guessAspectSelect");
+      const guessWidthsInput = document.getElementById("guessWidthsInput");
+      const guessYuvInput = document.getElementById("guessYuvInput");
+      const guessRgbInput = document.getElementById("guessRgbInput");
+      const guessBayerInput = document.getElementById("guessBayerInput");
+      const guessBayerEndianBothInput = document.getElementById("guessBayerEndianBothInput");
+      const viewerCanvas = document.getElementById("viewerCanvas");
+      const histogramCanvas = document.getElementById("histogramCanvas");
+      const histogramLabel = document.getElementById("histogramLabel");
+      const canvasWrap = document.getElementById("canvasWrap");
+      const fileStatus = document.getElementById("fileStatus");
+      const pixelStatus = document.getElementById("pixelStatus");
+      const warnStatus = document.getElementById("warnStatus");
+      const viewerCtx = viewerCanvas.getContext("2d", { alpha: false });
+      const histogramCtx = histogramCanvas.getContext("2d");
+      const PROFILE_STORE_KEY = "raw_viewer_saved_profiles_v1";
+
+      let activeSlot = 0;
+      let syncingControls = false;
+      let dragging = false;
+      let renderQueued = false;
+      let pointerX = -1;
+      let pointerY = -1;
+      let guessRunning = false;
+      let savedProfiles = [];
+      let loadSeqCounter = 0;
+      let diffMode = false;
+      let diffCache = { key: "", decoded: null, error: "" };
+      let diffHistogramCache = { key: "", data: null };
+
+      const view = {
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        minZoom: 0.02,
+        maxZoom: 256,
+        hasInitialFit: false
+      };
+
+      function createSlot(id) {
+        return {
+          id,
+          fileName: "",
+          fileSize: 0,
+          bytes: null,
+          loadSeq: 0,
+          settings: { ...defaults },
+          decoded: null,
+          decodedKey: "",
+          error: "",
+          selectedProfileId: "",
+          histogram: null,
+          histogramKey: ""
+        };
+      }
+
+      const slots = [createSlot(0), createSlot(1), createSlot(2), createSlot(3)];
+
+      function clampInt(value, fallback, min = 0) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return fallback;
+        return Math.max(min, Math.floor(n));
+      }
+
+      function clampByte(v) {
+        if (v <= 0) return 0;
+        if (v >= 255) return 255;
+        return v | 0;
+      }
+
+      function encodeDisplayValue(v, colorSpace) {
+        const x = Math.max(0, Math.min(1, v / 255));
+        let y;
+        if (colorSpace === "bt709") {
+          y = x < 0.018 ? (4.5 * x) : (1.099 * Math.pow(x, 0.45) - 0.099);
+        } else {
+          y = x <= 0.0031308 ? (12.92 * x) : (1.055 * Math.pow(x, 1 / 2.4) - 0.055);
+        }
+        return clampByte(y * 255);
+      }
+
+      function applyLinearDisplay(r, g, b, s, forceLinear = false) {
+        if (!s.treatLinear && !forceLinear) return [r, g, b];
+        return [
+          encodeDisplayValue(r, s.colorSpace),
+          encodeDisplayValue(g, s.colorSpace),
+          encodeDisplayValue(b, s.colorSpace)
+        ];
+      }
+
+      function yuvToRgb(y, u, v, s) {
+        const uu = u - 128;
+        const vv = v - 128;
+        let r;
+        let g;
+        let b;
+        if (s.colorSpace === "bt709") {
+          r = y + 1.5748 * vv;
+          g = y - 0.1873 * uu - 0.4681 * vv;
+          b = y + 1.8556 * uu;
+        } else {
+          r = y + 1.402 * vv;
+          g = y - 0.344136 * uu - 0.714136 * vv;
+          b = y + 1.772 * uu;
+        }
+        const clipped = [clampByte(r), clampByte(g), clampByte(b)];
+        return applyLinearDisplay(clipped[0], clipped[1], clipped[2], s);
+      }
+
+      function byteAt(bytes, index) {
+        return index >= 0 && index < bytes.length ? bytes[index] : 0;
+      }
+
+      function formatInfo(value) {
+        return FORMATS.find((f) => f.value === value) || FORMATS[0];
+      }
+
+      function populateFormats() {
+        formatSelect.innerHTML = "";
+        for (const f of FORMATS) {
+          const opt = document.createElement("option");
+          opt.value = f.value;
+          opt.textContent = f.label;
+          formatSelect.append(opt);
+        }
+      }
+
+      function updateSlotButtons() {
+        for (let i = 0; i < slots.length; i += 1) {
+          const slot = slots[i];
+          const btn = slotButtons[i];
+          const shortName = slot.fileName || "empty";
+          btn.classList.toggle("active", i === activeSlot);
+          btn.innerHTML = `<span class="title">${i + 1}</span><span class="file">${escapeHtml(shortName)}</span>`;
+        }
+      }
+
+      function escapeHtml(text) {
+        return String(text)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function sanitizeProfileName(name) {
+        return String(name || "").trim().replace(/\s+/g, " ").slice(0, 64);
+      }
+
+      function settingsSnapshot(s) {
+        return {
+          format: s.format,
+          width: s.width,
+          height: s.height,
+          offset: s.offset,
+          stride0: s.stride0,
+          stride1: s.stride1,
+          stride2: s.stride2,
+          byteOrder: s.byteOrder,
+          colorSpace: s.colorSpace,
+          treatLinear: s.treatLinear,
+          demosaic: s.demosaic,
+          swapUV: s.swapUV,
+          swapRB: s.swapRB,
+          bayerPattern: s.bayerPattern,
+          bayerBitDepth: s.bayerBitDepth
+        };
+      }
+
+      function applySettingsSnapshot(target, source) {
+        const snap = settingsSnapshot({ ...defaults, ...source });
+        Object.assign(target, snap);
+      }
+
+      function profileValueFromName(name) {
+        return `saved:${name}`;
+      }
+
+      function profileNameFromValue(value) {
+        return value.startsWith("saved:") ? value.slice(6) : "";
+      }
+
+      function loadSavedProfiles() {
+        try {
+          const raw = localStorage.getItem(PROFILE_STORE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return [];
+          return parsed
+            .filter((p) => p && typeof p.name === "string" && typeof p.settings === "object")
+            .map((p) => ({ name: sanitizeProfileName(p.name), settings: settingsSnapshot({ ...defaults, ...p.settings }) }))
+            .filter((p) => p.name.length > 0);
+        } catch (err) {
+          return [];
+        }
+      }
+
+      function persistSavedProfiles() {
+        try {
+          localStorage.setItem(PROFILE_STORE_KEY, JSON.stringify(savedProfiles));
+        } catch (err) {
+          // Ignore storage failures (private mode/quota).
+        }
+      }
+
+      function rebuildProfileSelect(selectedValue = null) {
+        const oldGroup = profileSelect.querySelector("optgroup[data-saved='1']");
+        if (oldGroup) oldGroup.remove();
+
+        if (savedProfiles.length > 0) {
+          const group = document.createElement("optgroup");
+          group.label = "Saved Profiles";
+          group.dataset.saved = "1";
+          for (const item of savedProfiles) {
+            const opt = document.createElement("option");
+            opt.value = profileValueFromName(item.name);
+            opt.textContent = item.name;
+            group.append(opt);
+          }
+          profileSelect.append(group);
+        }
+
+        if (selectedValue && [...profileSelect.options].some((o) => o.value === selectedValue)) {
+          profileSelect.value = selectedValue;
+        }
+      }
+
+      function saveCurrentProfile() {
+        const slot = slots[activeSlot];
+        const inputName = sanitizeProfileName(profileNameInput.value);
+        const fallback = slot.fileName ? slot.fileName.replace(/\.[^.]+$/, "") : `slot_${slot.id + 1}`;
+        const name = inputName || sanitizeProfileName(fallback);
+        if (!name) return;
+
+        const existing = savedProfiles.findIndex((p) => p.name === name);
+        const item = { name, settings: settingsSnapshot(slot.settings) };
+        if (existing >= 0) {
+          savedProfiles[existing] = item;
+        } else {
+          savedProfiles.push(item);
+          savedProfiles.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        const value = profileValueFromName(name);
+        slot.selectedProfileId = value;
+        profileNameInput.value = name;
+        persistSavedProfiles();
+        rebuildProfileSelect(value);
+      }
+
+      function deleteSelectedSavedProfile() {
+        const selectedName = profileNameFromValue(profileSelect.value) || sanitizeProfileName(profileNameInput.value);
+        if (!selectedName) return;
+        const before = savedProfiles.length;
+        savedProfiles = savedProfiles.filter((p) => p.name !== selectedName);
+        if (savedProfiles.length === before) return;
+
+        persistSavedProfiles();
+        rebuildProfileSelect("");
+        for (const slot of slots) {
+          if (slot.selectedProfileId === profileValueFromName(selectedName)) {
+            slot.selectedProfileId = "";
+          }
+        }
+        syncControlsFromSlot();
+      }
+
+      function setActiveSlot(index) {
+        if (index < 0 || index >= slots.length) return;
+        activeSlot = index;
+        setGuessOverlayVisible(false);
+        updateSlotButtons();
+        syncControlsFromSlot();
+        updateStatus();
+        scheduleRender();
+      }
+
+      function updateDiffButtonState() {
+        diffBtn.textContent = `Diff Latest (0): ${diffMode ? "On" : "Off"}`;
+      }
+
+      function setDiffMode(enabled) {
+        diffMode = !!enabled;
+        updateDiffButtonState();
+        updateStatus();
+        scheduleRender();
+      }
+
+      function getLatestLoadedSlotIndices() {
+        return slots
+          .map((slot, index) => ({ index, seq: slot.loadSeq }))
+          .filter((x) => x.seq > 0)
+          .sort((a, b) => b.seq - a.seq)
+          .map((x) => x.index);
+      }
+
+      function applyProfile(profile, slot) {
+        if (!profile) {
+          slot.selectedProfileId = "";
+          return;
+        }
+        if (profile.startsWith("saved:")) {
+          const name = profileNameFromValue(profile);
+          const item = savedProfiles.find((p) => p.name === name);
+          if (!item) return;
+          applySettingsSnapshot(slot.settings, item.settings);
+          slot.selectedProfileId = profile;
+          profileNameInput.value = item.name;
+          return;
+        }
+        slot.selectedProfileId = "";
+      }
+
+      function syncControlsFromSlot() {
+        const s = slots[activeSlot].settings;
+        syncingControls = true;
+        const wantedProfile = slots[activeSlot].selectedProfileId || "";
+        if ([...profileSelect.options].some((o) => o.value === wantedProfile)) {
+          profileSelect.value = wantedProfile;
+        } else {
+          profileSelect.value = "";
+          slots[activeSlot].selectedProfileId = profileSelect.value;
+        }
+        const savedName = profileNameFromValue(profileSelect.value);
+        profileNameInput.value = savedName || "";
+        formatSelect.value = s.format;
+        widthInput.value = String(s.width);
+        heightInput.value = String(s.height);
+        offsetInput.value = String(s.offset);
+        stride0Input.value = String(s.stride0);
+        stride1Input.value = String(s.stride1);
+        stride2Input.value = String(s.stride2);
+        byteOrderSelect.value = s.byteOrder;
+        bayerBitDepthSelect.value = String(s.bayerBitDepth);
+        colorSpaceSelect.value = s.colorSpace;
+        treatLinearInput.checked = s.treatLinear;
+        demosaicInput.checked = s.demosaic;
+        swapUVInput.checked = s.swapUV;
+        swapRBInput.checked = s.swapRB;
+        bayerPatternSelect.value = s.bayerPattern;
+        syncingControls = false;
+      }
+
+      function invalidateSlot(slot) {
+        slot.decoded = null;
+        slot.decodedKey = "";
+        slot.error = "";
+        slot.histogram = null;
+        slot.histogramKey = "";
+      }
+
+      function settingsKey(s) {
+        return [
+          s.format,
+          s.width,
+          s.height,
+          s.offset,
+          s.stride0,
+          s.stride1,
+          s.stride2,
+          s.byteOrder,
+          s.bayerBitDepth,
+          s.colorSpace,
+          s.treatLinear,
+          s.demosaic,
+          s.swapUV,
+          s.swapRB,
+          s.bayerPattern
+        ].join("|");
+      }
+
+      function readControlsToActiveSlot() {
+        if (syncingControls) return;
+        const slot = slots[activeSlot];
+        const s = slot.settings;
+        s.format = formatSelect.value;
+        s.width = clampInt(widthInput.value, s.width, 1);
+        s.height = clampInt(heightInput.value, s.height, 1);
+        s.offset = clampInt(offsetInput.value, s.offset, 0);
+        s.stride0 = clampInt(stride0Input.value, s.stride0, 0);
+        s.stride1 = clampInt(stride1Input.value, s.stride1, 0);
+        s.stride2 = clampInt(stride2Input.value, s.stride2, 0);
+        s.byteOrder = byteOrderSelect.value;
+        s.bayerBitDepth = clampInt(bayerBitDepthSelect.value, s.bayerBitDepth, 8);
+        s.colorSpace = colorSpaceSelect.value;
+        s.treatLinear = !!treatLinearInput.checked;
+        s.demosaic = !!demosaicInput.checked;
+        s.swapUV = !!swapUVInput.checked;
+        s.swapRB = !!swapRBInput.checked;
+        s.bayerPattern = bayerPatternSelect.value;
+        slot.selectedProfileId = "";
+        profileSelect.value = "";
+        invalidateSlot(slot);
+        updateStatus();
+        scheduleRender();
+      }
+
+      async function loadFileToActiveSlot(file) {
+        const slot = slots[activeSlot];
+        const buffer = await file.arrayBuffer();
+        slot.bytes = new Uint8Array(buffer);
+        slot.loadSeq = ++loadSeqCounter;
+        slot.fileName = file.name;
+        slot.fileSize = file.size;
+        guessSettingsFromFilename(file.name, slot.settings);
+        slot.selectedProfileId = "";
+        setGuessOverlayVisible(false);
+        invalidateSlot(slot);
+        syncControlsFromSlot();
+        updateSlotButtons();
+        updateStatus();
+        scheduleRender();
+      }
+
+      function guessSettingsFromFilename(name, settings) {
+        const lower = name.toLowerCase();
+
+        const dimMatches = [...lower.matchAll(/(?:^|[\s_\-[(])(\d{2,5})\s*[x:]\s*(\d{2,5})(?:$|[\s_\-)\].])/g)];
+        const chosen = dimMatches.length ? dimMatches[dimMatches.length - 1] : null;
+        if (chosen) {
+          settings.width = clampInt(chosen[1], settings.width, 1);
+          settings.height = clampInt(chosen[2], settings.height, 1);
+        }
+
+        if (lower.includes("nv12")) settings.format = "nv12";
+        else if (lower.includes("nv21")) settings.format = "nv21";
+        else if (lower.includes("nv16")) settings.format = "nv16";
+        else if (lower.includes("nv61")) settings.format = "nv61";
+        else if (lower.includes("uyvy")) settings.format = "uyvy";
+        else if (lower.includes("yuyv") || lower.includes("yuy2")) settings.format = "yuyv";
+        else if (lower.includes("i420") || lower.includes("yuv420p")) settings.format = "i420";
+        else if (lower.includes("yv12")) settings.format = "yv12";
+        else if (lower.includes("rgba")) settings.format = "rgba32";
+        else if (lower.includes("bgra")) settings.format = "bgra32";
+        else if (lower.includes("argb")) settings.format = "argb32";
+        else if (lower.includes("abgr")) settings.format = "abgr32";
+        else if (lower.includes("bgr")) settings.format = "bgr24";
+        else if (lower.includes("rgb")) settings.format = "rgb24";
+        else if (lower.includes("mipi10") || lower.includes("raw10")) {
+          settings.format = "bayer10mipi";
+          settings.bayerBitDepth = 10;
+        } else if (lower.includes("mipi12") || lower.includes("raw12")) {
+          settings.format = "bayer12mipi";
+          settings.bayerBitDepth = 12;
+        }
+        else if (lower.includes("bayer")) settings.format = "bayer8";
+
+        if (lower.includes("rggb")) settings.bayerPattern = "RGGB";
+        else if (lower.includes("bggr")) settings.bayerPattern = "BGGR";
+        else if (lower.includes("grbg")) settings.bayerPattern = "GRBG";
+        else if (lower.includes("gbrg")) settings.bayerPattern = "GBRG";
+
+        const hasBigEndian = /(?:^|[_\-.([ ])(?:be|bigendian|big-endian)(?:$|[_\-. )\]])/.test(lower);
+        const hasLittleEndian = /(?:^|[_\-.([ ])(?:le|littleendian|little-endian)(?:$|[_\-. )\]])/.test(lower);
+        if (hasBigEndian) {
+          settings.byteOrder = "big";
+        } else if (hasLittleEndian) {
+          settings.byteOrder = "little";
+        }
+      }
+
+      function ensureDecoded(slot) {
+        if (!slot.bytes) return null;
+        const key = `${settingsKey(slot.settings)}|${slot.bytes.length}`;
+        if (slot.decoded && slot.decodedKey === key) return slot.decoded;
+        try {
+          const decoded = decodeFrame(slot.bytes, slot.settings);
+          slot.decoded = decoded;
+          slot.decodedKey = key;
+          slot.error = "";
+        } catch (err) {
+          slot.decoded = null;
+          slot.decodedKey = "";
+          slot.error = err instanceof Error ? err.message : String(err);
+        }
+        return slot.decoded;
+      }
+
+      function ensureDiffDecoded(slotA, slotB) {
+        if (!slotA.bytes || !slotB.bytes) {
+          throw new Error("Need two loaded slots for diff");
+        }
+
+        const decodedA = ensureDecoded(slotA);
+        const decodedB = ensureDecoded(slotB);
+        if (!decodedA || !decodedB) {
+          throw new Error(slotA.error || slotB.error || "Failed to decode one of the slots");
+        }
+        if (decodedA.width !== decodedB.width || decodedA.height !== decodedB.height) {
+          throw new Error("RGB target size differs; set matching decoded width/height in both slots");
+        }
+
+        const key = `A${slotA.id}:${slotA.decodedKey}|B${slotB.id}:${slotB.decodedKey}`;
+        if (diffCache.decoded && diffCache.key === key) return diffCache.decoded;
+
+        const rgbaA = decodedA.rgba;
+        const rgbaB = decodedB.rgba;
+        const rgba = new Uint8ClampedArray(rgbaA.length);
+        for (let i = 0; i < rgba.length; i += 4) {
+          rgba[i] = Math.abs(rgbaA[i] - rgbaB[i]);
+          rgba[i + 1] = Math.abs(rgbaA[i + 1] - rgbaB[i + 1]);
+          rgba[i + 2] = Math.abs(rgbaA[i + 2] - rgbaB[i + 2]);
+          rgba[i + 3] = 255;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = decodedA.width;
+        canvas.height = decodedA.height;
+        const ctx = canvas.getContext("2d");
+        ctx.putImageData(new ImageData(rgba, decodedA.width, decodedA.height), 0, 0);
+
+        const decoded = {
+          rgba,
+          width: decodedA.width,
+          height: decodedA.height,
+          canvas,
+          getRaw: (x, y) => {
+            const idx = (y * decodedA.width + x) * 4;
+            const ar = rgbaA[idx];
+            const ag = rgbaA[idx + 1];
+            const ab = rgbaA[idx + 2];
+            const br = rgbaB[idx];
+            const bg = rgbaB[idx + 1];
+            const bb = rgbaB[idx + 2];
+            return {
+              A_R: ar,
+              A_G: ag,
+              A_B: ab,
+              B_R: br,
+              B_G: bg,
+              B_B: bb,
+              dR: Math.abs(ar - br),
+              dG: Math.abs(ag - bg),
+              dB: Math.abs(ab - bb)
+            };
+          }
+        };
+
+        diffCache = { key, decoded, error: "" };
+        return decoded;
+      }
+
+      function getRenderTarget() {
+        if (!diffMode) {
+          const slot = slots[activeSlot];
+          return {
+            mode: "slot",
+            decoded: ensureDecoded(slot),
+            slot,
+            error: slot.error || ""
+          };
+        }
+
+        const latest = getLatestLoadedSlotIndices();
+        if (latest.length < 2) {
+          return {
+            mode: "diff",
+            decoded: null,
+            error: "Load at least two files, then press 0 for diff mode"
+          };
+        }
+
+        const slotA = slots[latest[0]];
+        const slotB = slots[latest[1]];
+        try {
+          return {
+            mode: "diff",
+            decoded: ensureDiffDecoded(slotA, slotB),
+            slotA,
+            slotB,
+            error: ""
+          };
+        } catch (err) {
+          return {
+            mode: "diff",
+            decoded: null,
+            slotA,
+            slotB,
+            error: err instanceof Error ? err.message : String(err)
+          };
+        }
+      }
+
+      function decodeFrame(bytes, settings) {
+        const s = { ...settings };
+        const width = clampInt(s.width, 1, 1);
+        const height = clampInt(s.height, 1, 1);
+        if (width <= 0 || height <= 0) {
+          throw new Error("Width and height must be > 0");
+        }
+
+        let decoded;
+        switch (s.format) {
+          case "nv12":
+            decoded = decodeSemiPlanar(bytes, s, { order: "UV", is420: true });
+            break;
+          case "nv21":
+            decoded = decodeSemiPlanar(bytes, s, { order: "VU", is420: true });
+            break;
+          case "nv16":
+            decoded = decodeSemiPlanar(bytes, s, { order: "UV", is420: false });
+            break;
+          case "nv61":
+            decoded = decodeSemiPlanar(bytes, s, { order: "VU", is420: false });
+            break;
+          case "yuyv":
+            decoded = decodePacked422(bytes, s, "YUYV");
+            break;
+          case "uyvy":
+            decoded = decodePacked422(bytes, s, "UYVY");
+            break;
+          case "i420":
+            decoded = decodePlanar420(bytes, s, false);
+            break;
+          case "yv12":
+            decoded = decodePlanar420(bytes, s, true);
+            break;
+          case "yuv422p":
+            decoded = decodePlanar422(bytes, s, false);
+            break;
+          case "yvu422p":
+            decoded = decodePlanar422(bytes, s, true);
+            break;
+          case "gray8":
+            decoded = decodeGray8(bytes, s);
+            break;
+          case "rgb24":
+            decoded = decodeInterleaved(bytes, s, "RGB");
+            break;
+          case "bgr24":
+            decoded = decodeInterleaved(bytes, s, "BGR");
+            break;
+          case "rgba32":
+            decoded = decodeInterleaved(bytes, s, "RGBA");
+            break;
+          case "bgra32":
+            decoded = decodeInterleaved(bytes, s, "BGRA");
+            break;
+          case "argb32":
+            decoded = decodeInterleaved(bytes, s, "ARGB");
+            break;
+          case "abgr32":
+            decoded = decodeInterleaved(bytes, s, "ABGR");
+            break;
+          case "bayer8":
+            decoded = decodeBayer8(bytes, s);
+            break;
+          case "bayer16":
+            decoded = decodeBayer16(bytes, s);
+            break;
+          case "bayer10mipi":
+            decoded = decodeBayer10Mipi(bytes, s);
+            break;
+          case "bayer12mipi":
+            decoded = decodeBayer12Mipi(bytes, s);
+            break;
+          default:
+            throw new Error(`Unsupported format: ${s.format}`);
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d", { willReadFrequently: false });
+        const imageData = new ImageData(decoded.rgba, width, height);
+        ctx.putImageData(imageData, 0, 0);
+
+        return {
+          ...decoded,
+          width,
+          height,
+          canvas
+        };
+      }
+
+      function decodeGray8(bytes, s) {
+        const w = s.width;
+        const h = s.height;
+        const offset = s.offset;
+        const stride = s.stride0 > 0 ? s.stride0 : w;
+        const rgba = new Uint8ClampedArray(w * h * 4);
+        const expectedBytes = offset + stride * h;
+
+        let out = 0;
+        for (let y = 0; y < h; y += 1) {
+          const rowBase = offset + y * stride;
+          for (let x = 0; x < w; x += 1) {
+            const yv = byteAt(bytes, rowBase + x);
+            rgba[out] = yv;
+            rgba[out + 1] = yv;
+            rgba[out + 2] = yv;
+            rgba[out + 3] = 255;
+            out += 4;
+          }
+        }
+
+        return {
+          rgba,
+          expectedBytes,
+          getRaw: (x, y) => ({ Y: byteAt(bytes, offset + y * stride + x) })
+        };
+      }
+
+      function decodeInterleaved(bytes, s, order) {
+        const w = s.width;
+        const h = s.height;
+        const offset = s.offset;
+        const channels = order.split("");
+        const bpp = channels.length;
+        const stride = s.stride0 > 0 ? s.stride0 : w * bpp;
+        const idxR = channels.indexOf("R");
+        const idxG = channels.indexOf("G");
+        const idxB = channels.indexOf("B");
+        const idxA = channels.indexOf("A");
+        const rgba = new Uint8ClampedArray(w * h * 4);
+        const expectedBytes = offset + stride * h;
+
+        let out = 0;
+        for (let y = 0; y < h; y += 1) {
+          const rowBase = offset + y * stride;
+          for (let x = 0; x < w; x += 1) {
+            const p = rowBase + x * bpp;
+            let r = idxR >= 0 ? byteAt(bytes, p + idxR) : 0;
+            const g = idxG >= 0 ? byteAt(bytes, p + idxG) : 0;
+            let b = idxB >= 0 ? byteAt(bytes, p + idxB) : 0;
+            const a = idxA >= 0 ? byteAt(bytes, p + idxA) : 255;
+            if (s.swapRB) {
+              const t = r;
+              r = b;
+              b = t;
+            }
+            // Bayer data is linear by nature, so always apply selected display transfer.
+            [r, g, b] = applyLinearDisplay(r, g, b, s, true);
+            rgba[out] = r;
+            rgba[out + 1] = g;
+            rgba[out + 2] = b;
+            rgba[out + 3] = a;
+            out += 4;
+          }
+        }
+
+        return {
+          rgba,
+          expectedBytes,
+          getRaw: (x, y) => {
+            const p = offset + y * stride + x * bpp;
+            const raw = {};
+            for (let i = 0; i < channels.length; i += 1) {
+              raw[channels[i]] = byteAt(bytes, p + i);
+            }
+            return raw;
+          }
+        };
+      }
+
+      function decodeSemiPlanar(bytes, s, opts) {
+        const w = s.width;
+        const h = s.height;
+        const offset = s.offset;
+        const strideY = s.stride0 > 0 ? s.stride0 : w;
+        const strideUV = s.stride1 > 0 ? s.stride1 : w;
+        const uvRows = opts.is420 ? Math.ceil(h / 2) : h;
+        const yBase = offset;
+        const uvBase = yBase + strideY * h;
+        const rgba = new Uint8ClampedArray(w * h * 4);
+        const expectedBytes = uvBase + strideUV * uvRows;
+
+        let out = 0;
+        for (let y = 0; y < h; y += 1) {
+          const yRow = yBase + y * strideY;
+          const uvRow = uvBase + (opts.is420 ? (y >> 1) : y) * strideUV;
+          for (let x = 0; x < w; x += 1) {
+            const yv = byteAt(bytes, yRow + x);
+            const uvIndex = uvRow + ((x >> 1) << 1);
+            let u = opts.order === "UV" ? byteAt(bytes, uvIndex) : byteAt(bytes, uvIndex + 1);
+            let v = opts.order === "UV" ? byteAt(bytes, uvIndex + 1) : byteAt(bytes, uvIndex);
+            if (s.swapUV) {
+              const t = u;
+              u = v;
+              v = t;
+            }
+            let [r, g, b] = yuvToRgb(yv, u, v, s);
+            if (s.swapRB) {
+              const t = r;
+              r = b;
+              b = t;
+            }
+            rgba[out] = r;
+            rgba[out + 1] = g;
+            rgba[out + 2] = b;
+            rgba[out + 3] = 255;
+            out += 4;
+          }
+        }
+
+        return {
+          rgba,
+          expectedBytes,
+          getRaw: (x, y) => {
+            const yv = byteAt(bytes, yBase + y * strideY + x);
+            const uvRow = uvBase + (opts.is420 ? (y >> 1) : y) * strideUV;
+            const uvIndex = uvRow + ((x >> 1) << 1);
+            let u = opts.order === "UV" ? byteAt(bytes, uvIndex) : byteAt(bytes, uvIndex + 1);
+            let v = opts.order === "UV" ? byteAt(bytes, uvIndex + 1) : byteAt(bytes, uvIndex);
+            if (s.swapUV) {
+              const t = u;
+              u = v;
+              v = t;
+            }
+            return { Y: yv, U: u, V: v };
+          }
+        };
+      }
+
+      function decodePacked422(bytes, s, kind) {
+        const w = s.width;
+        const h = s.height;
+        const offset = s.offset;
+        const stride = s.stride0 > 0 ? s.stride0 : w * 2;
+        const rgba = new Uint8ClampedArray(w * h * 4);
+        const expectedBytes = offset + stride * h;
+
+        let out = 0;
+        for (let y = 0; y < h; y += 1) {
+          const row = offset + y * stride;
+          for (let x = 0; x < w; x += 2) {
+            const p = row + (x >> 1) * 4;
+            let y0;
+            let y1;
+            let u;
+            let v;
+            if (kind === "YUYV") {
+              y0 = byteAt(bytes, p);
+              u = byteAt(bytes, p + 1);
+              y1 = byteAt(bytes, p + 2);
+              v = byteAt(bytes, p + 3);
+            } else {
+              u = byteAt(bytes, p);
+              y0 = byteAt(bytes, p + 1);
+              v = byteAt(bytes, p + 2);
+              y1 = byteAt(bytes, p + 3);
+            }
+            if (s.swapUV) {
+              const t = u;
+              u = v;
+              v = t;
+            }
+
+            let rgb0 = yuvToRgb(y0, u, v, s);
+            let rgb1 = yuvToRgb(y1, u, v, s);
+            if (s.swapRB) {
+              rgb0 = [rgb0[2], rgb0[1], rgb0[0]];
+              rgb1 = [rgb1[2], rgb1[1], rgb1[0]];
+            }
+
+            rgba[out] = rgb0[0];
+            rgba[out + 1] = rgb0[1];
+            rgba[out + 2] = rgb0[2];
+            rgba[out + 3] = 255;
+            out += 4;
+
+            if (x + 1 < w) {
+              rgba[out] = rgb1[0];
+              rgba[out + 1] = rgb1[1];
+              rgba[out + 2] = rgb1[2];
+              rgba[out + 3] = 255;
+              out += 4;
+            }
+          }
+        }
+
+        return {
+          rgba,
+          expectedBytes,
+          getRaw: (x, y) => {
+            const p = offset + y * stride + (x >> 1) * 4;
+            let y0;
+            let y1;
+            let u;
+            let v;
+            if (kind === "YUYV") {
+              y0 = byteAt(bytes, p);
+              u = byteAt(bytes, p + 1);
+              y1 = byteAt(bytes, p + 2);
+              v = byteAt(bytes, p + 3);
+            } else {
+              u = byteAt(bytes, p);
+              y0 = byteAt(bytes, p + 1);
+              v = byteAt(bytes, p + 2);
+              y1 = byteAt(bytes, p + 3);
+            }
+            if (s.swapUV) {
+              const t = u;
+              u = v;
+              v = t;
+            }
+            return {
+              Y: (x & 1) ? y1 : y0,
+              U: u,
+              V: v
+            };
+          }
+        };
+      }
+
+      function decodePlanar420(bytes, s, vuOrder) {
+        const w = s.width;
+        const h = s.height;
+        const cw = Math.ceil(w / 2);
+        const ch = Math.ceil(h / 2);
+        const offset = s.offset;
+        const strideY = s.stride0 > 0 ? s.stride0 : w;
+        const strideU = s.stride1 > 0 ? s.stride1 : cw;
+        const strideV = s.stride2 > 0 ? s.stride2 : cw;
+
+        const yBase = offset;
+        const uBase = yBase + strideY * h;
+        const vBase = uBase + strideU * ch;
+
+        const planeU = vuOrder ? vBase : uBase;
+        const planeV = vuOrder ? uBase : vBase;
+
+        const rgba = new Uint8ClampedArray(w * h * 4);
+        const expectedBytes = vBase + strideV * ch;
+
+        let out = 0;
+        for (let y = 0; y < h; y += 1) {
+          const cy = y >> 1;
+          const yRow = yBase + y * strideY;
+          const uRow = planeU + cy * strideU;
+          const vRow = planeV + cy * strideV;
+          for (let x = 0; x < w; x += 1) {
+            const cx = x >> 1;
+            const yv = byteAt(bytes, yRow + x);
+            let u = byteAt(bytes, uRow + cx);
+            let v = byteAt(bytes, vRow + cx);
+            if (s.swapUV) {
+              const t = u;
+              u = v;
+              v = t;
+            }
+            let [r, g, b] = yuvToRgb(yv, u, v, s);
+            if (s.swapRB) {
+              const t = r;
+              r = b;
+              b = t;
+            }
+            rgba[out] = r;
+            rgba[out + 1] = g;
+            rgba[out + 2] = b;
+            rgba[out + 3] = 255;
+            out += 4;
+          }
+        }
+
+        return {
+          rgba,
+          expectedBytes,
+          getRaw: (x, y) => {
+            const yv = byteAt(bytes, yBase + y * strideY + x);
+            const cx = x >> 1;
+            const cy = y >> 1;
+            let u = byteAt(bytes, planeU + cy * strideU + cx);
+            let v = byteAt(bytes, planeV + cy * strideV + cx);
+            if (s.swapUV) {
+              const t = u;
+              u = v;
+              v = t;
+            }
+            return { Y: yv, U: u, V: v };
+          }
+        };
+      }
+
+      function decodePlanar422(bytes, s, vuOrder) {
+        const w = s.width;
+        const h = s.height;
+        const cw = Math.ceil(w / 2);
+        const offset = s.offset;
+        const strideY = s.stride0 > 0 ? s.stride0 : w;
+        const strideU = s.stride1 > 0 ? s.stride1 : cw;
+        const strideV = s.stride2 > 0 ? s.stride2 : cw;
+
+        const yBase = offset;
+        const uBase = yBase + strideY * h;
+        const vBase = uBase + strideU * h;
+        const planeU = vuOrder ? vBase : uBase;
+        const planeV = vuOrder ? uBase : vBase;
+
+        const rgba = new Uint8ClampedArray(w * h * 4);
+        const expectedBytes = vBase + strideV * h;
+
+        let out = 0;
+        for (let y = 0; y < h; y += 1) {
+          const yRow = yBase + y * strideY;
+          const uRow = planeU + y * strideU;
+          const vRow = planeV + y * strideV;
+          for (let x = 0; x < w; x += 1) {
+            const cx = x >> 1;
+            const yv = byteAt(bytes, yRow + x);
+            let u = byteAt(bytes, uRow + cx);
+            let v = byteAt(bytes, vRow + cx);
+            if (s.swapUV) {
+              const t = u;
+              u = v;
+              v = t;
+            }
+            let [r, g, b] = yuvToRgb(yv, u, v, s);
+            if (s.swapRB) {
+              const t = r;
+              r = b;
+              b = t;
+            }
+            rgba[out] = r;
+            rgba[out + 1] = g;
+            rgba[out + 2] = b;
+            rgba[out + 3] = 255;
+            out += 4;
+          }
+        }
+
+        return {
+          rgba,
+          expectedBytes,
+          getRaw: (x, y) => {
+            const yv = byteAt(bytes, yBase + y * strideY + x);
+            const cx = x >> 1;
+            let u = byteAt(bytes, planeU + y * strideU + cx);
+            let v = byteAt(bytes, planeV + y * strideV + cx);
+            if (s.swapUV) {
+              const t = u;
+              u = v;
+              v = t;
+            }
+            return { Y: yv, U: u, V: v };
+          }
+        };
+      }
+
+      function bayerColor(pattern, x, y) {
+        return pattern[((y & 1) << 1) | (x & 1)];
+      }
+
+      function decodeBayerFromReader(s, rawReader, rawMax, expectedBytes, rawName) {
+        const w = s.width;
+        const h = s.height;
+        const pattern = s.bayerPattern || "RGGB";
+        const rgba = new Uint8ClampedArray(w * h * 4);
+
+        function getRawSafe(x, y) {
+          const cx = x < 0 ? 0 : x >= w ? w - 1 : x;
+          const cy = y < 0 ? 0 : y >= h ? h - 1 : y;
+          return rawReader(cx, cy);
+        }
+
+        function avgNeighborColor(x, y, target) {
+          let sum = 0;
+          let count = 0;
+          for (let dy = -1; dy <= 1; dy += 1) {
+            for (let dx = -1; dx <= 1; dx += 1) {
+              const nx = x + dx;
+              const ny = y + dy;
+              const cx = nx < 0 ? 0 : nx >= w ? w - 1 : nx;
+              const cy = ny < 0 ? 0 : ny >= h ? h - 1 : ny;
+              if (bayerColor(pattern, cx, cy) === target) {
+                sum += rawReader(cx, cy);
+                count += 1;
+              }
+            }
+          }
+          if (count === 0) return getRawSafe(x, y);
+          return sum / count;
+        }
+
+        let out = 0;
+        for (let y = 0; y < h; y += 1) {
+          for (let x = 0; x < w; x += 1) {
+            const c = bayerColor(pattern, x, y);
+            const v = rawReader(x, y);
+            let rr;
+            let gg;
+            let bb;
+
+            if (!s.demosaic) {
+              rr = v;
+              gg = v;
+              bb = v;
+            } else {
+              if (c === "R") {
+                rr = v;
+                gg = avgNeighborColor(x, y, "G");
+                bb = avgNeighborColor(x, y, "B");
+              } else if (c === "B") {
+                rr = avgNeighborColor(x, y, "R");
+                gg = avgNeighborColor(x, y, "G");
+                bb = v;
+              } else {
+                rr = avgNeighborColor(x, y, "R");
+                gg = v;
+                bb = avgNeighborColor(x, y, "B");
+              }
+            }
+
+            let r = clampByte((rr * 255) / rawMax);
+            let g = clampByte((gg * 255) / rawMax);
+            let b = clampByte((bb * 255) / rawMax);
+            [r, g, b] = applyLinearDisplay(r, g, b, s);
+            if (s.swapRB) {
+              const t = r;
+              r = b;
+              b = t;
+            }
+
+            rgba[out] = r;
+            rgba[out + 1] = g;
+            rgba[out + 2] = b;
+            rgba[out + 3] = 255;
+            out += 4;
+          }
+        }
+
+        return {
+          rgba,
+          expectedBytes,
+          getRaw: (x, y) => {
+            const value = getRawSafe(x, y);
+            return {
+              [rawName]: value,
+              CFA: bayerColor(pattern, x, y)
+            };
+          }
+        };
+      }
+
+      function decodeBayer8(bytes, s) {
+        const w = s.width;
+        const h = s.height;
+        const offset = s.offset;
+        const stride = s.stride0 > 0 ? s.stride0 : w;
+        const expectedBytes = offset + stride * h;
+
+        function readRaw(x, y) {
+          return byteAt(bytes, offset + y * stride + x);
+        }
+
+        return decodeBayerFromReader(s, readRaw, 255, expectedBytes, "RAW8");
+      }
+
+      function decodeBayer16(bytes, s) {
+        const w = s.width;
+        const h = s.height;
+        const offset = s.offset;
+        const stride = s.stride0 > 0 ? s.stride0 : w * 2;
+        const bitDepth = Math.max(8, Math.min(16, s.bayerBitDepth | 0));
+        const mask = bitDepth >= 16 ? 0xffff : ((1 << bitDepth) - 1);
+        const expectedBytes = offset + stride * h;
+
+        function readRaw(x, y) {
+          const p = offset + y * stride + x * 2;
+          const lo = byteAt(bytes, p);
+          const hi = byteAt(bytes, p + 1);
+          const word = s.byteOrder === "big" ? ((lo << 8) | hi) : (lo | (hi << 8));
+          return word & mask;
+        }
+
+        return decodeBayerFromReader(s, readRaw, mask || 65535, expectedBytes, `RAW${bitDepth}`);
+      }
+
+      function decodeBayer10Mipi(bytes, s) {
+        const w = s.width;
+        const h = s.height;
+        const offset = s.offset;
+        const stride = s.stride0 > 0 ? s.stride0 : Math.ceil(w / 4) * 5;
+        const expectedBytes = offset + stride * h;
+
+        function readRaw(x, y) {
+          const group = x >> 2;
+          const p = offset + y * stride + group * 5;
+          const b0 = byteAt(bytes, p);
+          const b1 = byteAt(bytes, p + 1);
+          const b2 = byteAt(bytes, p + 2);
+          const b3 = byteAt(bytes, p + 3);
+          const b4 = byteAt(bytes, p + 4);
+          const idx = x & 3;
+          if (s.byteOrder === "big") {
+            if (idx === 0) return (b0 << 2) | ((b4 >> 6) & 0x03);
+            if (idx === 1) return (b1 << 2) | ((b4 >> 4) & 0x03);
+            if (idx === 2) return (b2 << 2) | ((b4 >> 2) & 0x03);
+            return (b3 << 2) | (b4 & 0x03);
+          }
+          if (idx === 0) return b0 | ((b4 & 0x03) << 8);
+          if (idx === 1) return b1 | ((b4 & 0x0c) << 6);
+          if (idx === 2) return b2 | ((b4 & 0x30) << 4);
+          return b3 | ((b4 & 0xc0) << 2);
+        }
+
+        return decodeBayerFromReader(s, readRaw, 1023, expectedBytes, "RAW10");
+      }
+
+      function decodeBayer12Mipi(bytes, s) {
+        const w = s.width;
+        const h = s.height;
+        const offset = s.offset;
+        const stride = s.stride0 > 0 ? s.stride0 : Math.ceil(w / 2) * 3;
+        const expectedBytes = offset + stride * h;
+
+        function readRaw(x, y) {
+          const pair = x >> 1;
+          const p = offset + y * stride + pair * 3;
+          const b0 = byteAt(bytes, p);
+          const b1 = byteAt(bytes, p + 1);
+          const b2 = byteAt(bytes, p + 2);
+          if (s.byteOrder === "big") {
+            if ((x & 1) === 0) {
+              return (b0 << 4) | ((b2 >> 4) & 0x0f);
+            }
+            return (b1 << 4) | (b2 & 0x0f);
+          }
+          if ((x & 1) === 0) {
+            return b0 | ((b2 & 0x0f) << 8);
+          }
+          return b1 | ((b2 & 0xf0) << 4);
+        }
+
+        return decodeBayerFromReader(s, readRaw, 4095, expectedBytes, "RAW12");
+      }
+
+      function estimateBytes(settings) {
+        const s = settings;
+        const w = Math.max(1, s.width | 0);
+        const h = Math.max(1, s.height | 0);
+        const offset = Math.max(0, s.offset | 0);
+
+        switch (s.format) {
+          case "nv12":
+          case "nv21": {
+            const y = (s.stride0 > 0 ? s.stride0 : w) * h;
+            const uv = (s.stride1 > 0 ? s.stride1 : w) * Math.ceil(h / 2);
+            return offset + y + uv;
+          }
+          case "nv16":
+          case "nv61": {
+            const y = (s.stride0 > 0 ? s.stride0 : w) * h;
+            const uv = (s.stride1 > 0 ? s.stride1 : w) * h;
+            return offset + y + uv;
+          }
+          case "yuyv":
+          case "uyvy":
+            return offset + (s.stride0 > 0 ? s.stride0 : w * 2) * h;
+          case "i420":
+          case "yv12": {
+            const cw = Math.ceil(w / 2);
+            const ch = Math.ceil(h / 2);
+            const y = (s.stride0 > 0 ? s.stride0 : w) * h;
+            const u = (s.stride1 > 0 ? s.stride1 : cw) * ch;
+            const v = (s.stride2 > 0 ? s.stride2 : cw) * ch;
+            return offset + y + u + v;
+          }
+          case "yuv422p":
+          case "yvu422p": {
+            const cw = Math.ceil(w / 2);
+            const y = (s.stride0 > 0 ? s.stride0 : w) * h;
+            const u = (s.stride1 > 0 ? s.stride1 : cw) * h;
+            const v = (s.stride2 > 0 ? s.stride2 : cw) * h;
+            return offset + y + u + v;
+          }
+          case "gray8":
+            return offset + (s.stride0 > 0 ? s.stride0 : w) * h;
+          case "rgb24":
+          case "bgr24":
+            return offset + (s.stride0 > 0 ? s.stride0 : w * 3) * h;
+          case "rgba32":
+          case "bgra32":
+          case "argb32":
+          case "abgr32":
+            return offset + (s.stride0 > 0 ? s.stride0 : w * 4) * h;
+          case "bayer8":
+            return offset + (s.stride0 > 0 ? s.stride0 : w) * h;
+          case "bayer16":
+            return offset + (s.stride0 > 0 ? s.stride0 : w * 2) * h;
+          case "bayer10mipi":
+            return offset + (s.stride0 > 0 ? s.stride0 : Math.ceil(w / 4) * 5) * h;
+          case "bayer12mipi":
+            return offset + (s.stride0 > 0 ? s.stride0 : Math.ceil(w / 2) * 3) * h;
+          default:
+            return offset;
+        }
+      }
+
+      function getActiveDecoded() {
+        return ensureDecoded(slots[activeSlot]);
+      }
+
+      function updateStatus(target = null) {
+        const info = target || getRenderTarget();
+        if (info.mode === "diff") {
+          const slotA = info.slotA;
+          const slotB = info.slotB;
+          if (!slotA || !slotB) {
+            fileStatus.innerHTML = "Diff mode: need two loaded slots";
+            warnStatus.className = "warn";
+            warnStatus.textContent = info.error || "";
+            return;
+          }
+          fileStatus.innerHTML =
+            `<strong>Diff</strong> S${slotA.id + 1}:${escapeHtml(slotA.fileName || "empty")} ` +
+            `vs S${slotB.id + 1}:${escapeHtml(slotB.fileName || "empty")} | ` +
+            `A:${slotA.bytes.length.toLocaleString()} bytes, B:${slotB.bytes.length.toLocaleString()} bytes`;
+          warnStatus.className = info.error ? "warn" : "";
+          warnStatus.textContent = info.error || "Diff image: per-channel absolute RGB difference";
+          return;
+        }
+
+        const slot = info.slot || slots[activeSlot];
+        if (!slot.bytes) {
+          fileStatus.innerHTML = "No file loaded in this slot";
+          warnStatus.textContent = "";
+          pixelStatus.textContent = "Pixel: -";
+          return;
+        }
+
+        const s = slot.settings;
+        const expected = estimateBytes(s);
+        const delta = slot.bytes.length - expected;
+        const formatLabel = formatInfo(s.format).label;
+
+        fileStatus.innerHTML =
+          `<strong>${escapeHtml(slot.fileName)}</strong> | ${slot.bytes.length.toLocaleString()} bytes | ` +
+          `${formatLabel} | ${s.width}x${s.height}`;
+
+        const pieces = [`Expected ~${expected.toLocaleString()} bytes`];
+        if (delta !== 0) {
+          const sign = delta > 0 ? "+" : "";
+          pieces.push(`delta ${sign}${delta.toLocaleString()}`);
+        }
+
+        warnStatus.className = delta === 0 && !slot.error ? "" : "warn";
+        warnStatus.textContent = slot.error
+          ? `Decode error: ${slot.error}`
+          : pieces.join(" | ");
+      }
+
+      function canvasCssSize() {
+        const rect = canvasWrap.getBoundingClientRect();
+        return { width: Math.max(1, rect.width), height: Math.max(1, rect.height) };
+      }
+
+      function ensureCanvasResolution() {
+        const dpr = window.devicePixelRatio || 1;
+        const size = canvasCssSize();
+        const w = Math.max(1, Math.round(size.width * dpr));
+        const h = Math.max(1, Math.round(size.height * dpr));
+        if (viewerCanvas.width !== w || viewerCanvas.height !== h) {
+          viewerCanvas.width = w;
+          viewerCanvas.height = h;
+        }
+        return { dpr, width: size.width, height: size.height };
+      }
+
+      function ensureHistogramResolution() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = histogramCanvas.getBoundingClientRect();
+        const w = Math.max(1, Math.round(rect.width * dpr));
+        const h = Math.max(1, Math.round(rect.height * dpr));
+        if (histogramCanvas.width !== w || histogramCanvas.height !== h) {
+          histogramCanvas.width = w;
+          histogramCanvas.height = h;
+        }
+        return { dpr, width: Math.max(1, rect.width), height: Math.max(1, rect.height) };
+      }
+
+      function computeHistogram(rgba) {
+        const r = new Uint32Array(256);
+        const g = new Uint32Array(256);
+        const b = new Uint32Array(256);
+        const l = new Uint32Array(256);
+        let max = 1;
+
+        for (let i = 0; i < rgba.length; i += 4) {
+          const rv = rgba[i];
+          const gv = rgba[i + 1];
+          const bv = rgba[i + 2];
+          r[rv] += 1;
+          g[gv] += 1;
+          b[bv] += 1;
+          const lv = clampByte(0.299 * rv + 0.587 * gv + 0.114 * bv);
+          l[lv] += 1;
+        }
+
+        for (let i = 0; i < 256; i += 1) {
+          if (r[i] > max) max = r[i];
+          if (g[i] > max) max = g[i];
+          if (b[i] > max) max = b[i];
+          if (l[i] > max) max = l[i];
+        }
+
+        return { r, g, b, l, max };
+      }
+
+      function ensureHistogramForTarget(target) {
+        if (!target || !target.decoded || !target.decoded.rgba) return null;
+        if (target.mode === "diff") {
+          if (diffHistogramCache.data && diffHistogramCache.key === diffCache.key) return diffHistogramCache.data;
+          const data = computeHistogram(target.decoded.rgba);
+          diffHistogramCache = { key: diffCache.key, data };
+          return data;
+        }
+
+        const slot = target.slot;
+        if (slot.histogram && slot.histogramKey === slot.decodedKey) return slot.histogram;
+        const data = computeHistogram(slot.decoded.rgba);
+        slot.histogram = data;
+        slot.histogramKey = slot.decodedKey;
+        return data;
+      }
+
+      function clearHistogramPanel(text = "Histogram: -") {
+        const { dpr, width, height } = ensureHistogramResolution();
+        histogramCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        histogramCtx.clearRect(0, 0, width, height);
+        histogramCtx.fillStyle = "rgba(8,14,22,0.95)";
+        histogramCtx.fillRect(0, 0, width, height);
+        histogramCtx.fillStyle = "#8fa3ba";
+        histogramCtx.font = "12px Segoe UI";
+        histogramCtx.fillText("No histogram", 10, height * 0.5);
+        histogramLabel.textContent = text;
+      }
+
+      function drawHistogramPanel(target) {
+        const hist = ensureHistogramForTarget(target);
+        if (!hist) {
+          clearHistogramPanel("Histogram: -");
+          return;
+        }
+
+        const { dpr, width, height } = ensureHistogramResolution();
+        const ctx = histogramCtx;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "rgba(8,14,22,0.95)";
+        ctx.fillRect(0, 0, width, height);
+
+        const left = 8;
+        const top = 8;
+        const w = width - 16;
+        const h = height - 14;
+
+        ctx.strokeStyle = "rgba(180,200,220,0.16)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let i = 0; i <= 4; i += 1) {
+          const x = left + (w * i) / 4;
+          ctx.moveTo(x, top);
+          ctx.lineTo(x, top + h);
+        }
+        for (let i = 0; i <= 3; i += 1) {
+          const y = top + (h * i) / 3;
+          ctx.moveTo(left, y);
+          ctx.lineTo(left + w, y);
+        }
+        ctx.stroke();
+
+        function drawLine(arr, color) {
+          ctx.beginPath();
+          for (let i = 0; i < 256; i += 1) {
+            const x = left + (i / 255) * w;
+            const y = top + h - (arr[i] / hist.max) * h;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 1.1;
+          ctx.stroke();
+        }
+
+        drawLine(hist.l, "rgba(235,235,235,0.8)");
+        drawLine(hist.r, "rgba(255,95,95,0.82)");
+        drawLine(hist.g, "rgba(110,255,130,0.82)");
+        drawLine(hist.b, "rgba(110,155,255,0.82)");
+        histogramLabel.textContent =
+          target.mode === "diff"
+            ? "Histogram: diff (R/G/B + Luma)"
+            : `Histogram: slot ${activeSlot + 1} (R/G/B + Luma)`;
+      }
+
+      function saveCurrentImage() {
+        const target = getRenderTarget();
+        const slot = slots[activeSlot];
+        const decoded = target.decoded;
+        if (!decoded) return;
+        const mime = saveFormatSelect.value === "image/jpeg" ? "image/jpeg" : "image/png";
+        const ext = mime === "image/jpeg" ? "jpg" : "png";
+        const base =
+          target.mode === "diff"
+            ? `diff_slot${target.slotA.id + 1}_slot${target.slotB.id + 1}`
+            : (slot.fileName || `slot_${activeSlot + 1}`).replace(/\.[^.]+$/, "");
+        const name = `${base}_${decoded.width}x${decoded.height}.${ext}`;
+
+        const downloadBlob = (blob) => {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = name;
+          document.body.append(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        };
+
+        const quality = mime === "image/jpeg" ? 0.95 : undefined;
+        if (decoded.canvas.toBlob) {
+          decoded.canvas.toBlob(downloadBlob, mime, quality);
+        } else {
+          const dataUrl = decoded.canvas.toDataURL(mime, quality);
+          const a = document.createElement("a");
+          a.href = dataUrl;
+          a.download = name;
+          document.body.append(a);
+          a.click();
+          a.remove();
+        }
+      }
+
+      function fitViewToImage(decoded) {
+        const size = canvasCssSize();
+        const zoom = Math.min(size.width / decoded.width, size.height / decoded.height);
+        view.zoom = Math.max(view.minZoom, Math.min(view.maxZoom, zoom));
+        view.panX = (size.width - decoded.width * view.zoom) * 0.5;
+        view.panY = (size.height - decoded.height * view.zoom) * 0.5;
+      }
+
+      function resetView() {
+        view.zoom = 1;
+        view.panX = 0;
+        view.panY = 0;
+        scheduleRender();
+      }
+
+      function scheduleRender() {
+        if (renderQueued) return;
+        renderQueued = true;
+        requestAnimationFrame(() => {
+          renderQueued = false;
+          render();
+        });
+      }
+
+      function render() {
+        const target = getRenderTarget();
+        const decoded = target.decoded;
+        const { dpr, width, height } = ensureCanvasResolution();
+        const ctx = viewerCtx;
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#0a1017";
+        ctx.fillRect(0, 0, width, height);
+
+        if (!decoded) {
+          drawMessage(ctx, width, height, target.error || "Load a raw file into slots 1..4");
+          clearHistogramPanel(target.mode === "diff" ? "Histogram: diff unavailable" : "Histogram: no file");
+          pixelStatus.textContent = `Pixel: - | zoom ${view.zoom.toFixed(3)}x`;
+          updateStatus(target);
+          return;
+        }
+
+        if (!view.hasInitialFit) {
+          fitViewToImage(decoded);
+          view.hasInitialFit = true;
+        }
+
+        ctx.save();
+        ctx.translate(view.panX, view.panY);
+        ctx.scale(view.zoom, view.zoom);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(decoded.canvas, 0, 0);
+        drawPixelGrid(ctx, decoded.width, decoded.height);
+        ctx.restore();
+
+        drawHoverPixelOutline(ctx, decoded);
+        updatePixelStatus(decoded, target);
+        drawHistogramPanel(target);
+        updateStatus(target);
+      }
+
+      function drawMessage(ctx, width, height, text) {
+        ctx.fillStyle = "#d0dae6";
+        ctx.font = "13px Segoe UI";
+        ctx.textAlign = "center";
+        ctx.fillText(text, width / 2, height / 2);
+      }
+
+      function drawPixelGrid(ctx, w, h) {
+        if (view.zoom < 12) return;
+        const left = Math.max(0, Math.floor((-view.panX) / view.zoom));
+        const right = Math.min(w, Math.ceil((canvasCssSize().width - view.panX) / view.zoom));
+        const top = Math.max(0, Math.floor((-view.panY) / view.zoom));
+        const bottom = Math.min(h, Math.ceil((canvasCssSize().height - view.panY) / view.zoom));
+
+        ctx.beginPath();
+        for (let x = left; x <= right; x += 1) {
+          ctx.moveTo(x, top);
+          ctx.lineTo(x, bottom);
+        }
+        for (let y = top; y <= bottom; y += 1) {
+          ctx.moveTo(left, y);
+          ctx.lineTo(right, y);
+        }
+        ctx.lineWidth = 1 / view.zoom;
+        ctx.strokeStyle = "rgba(255,255,255,0.2)";
+        ctx.stroke();
+      }
+
+      function pointerToImage(decoded) {
+        if (pointerX < 0 || pointerY < 0) return null;
+        const ix = Math.floor((pointerX - view.panX) / view.zoom);
+        const iy = Math.floor((pointerY - view.panY) / view.zoom);
+        if (ix < 0 || iy < 0 || ix >= decoded.width || iy >= decoded.height) return null;
+        return { x: ix, y: iy };
+      }
+
+      function drawHoverPixelOutline(ctx, decoded) {
+        const p = pointerToImage(decoded);
+        if (!p || view.zoom < 8) return;
+
+        const sx = view.panX + p.x * view.zoom;
+        const sy = view.panY + p.y * view.zoom;
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(sx + 0.5, sy + 0.5, Math.max(1, view.zoom - 1), Math.max(1, view.zoom - 1));
+      }
+
+      function updatePixelStatus(decoded, target = null) {
+        const p = pointerToImage(decoded);
+        if (!p) {
+          pixelStatus.textContent = `Pixel: - | zoom ${view.zoom.toFixed(3)}x`;
+          return;
+        }
+
+        const rgbaIndex = (p.y * decoded.width + p.x) * 4;
+        const r = decoded.rgba[rgbaIndex];
+        const g = decoded.rgba[rgbaIndex + 1];
+        const b = decoded.rgba[rgbaIndex + 2];
+        const a = decoded.rgba[rgbaIndex + 3];
+
+        const rawObj = decoded.getRaw ? decoded.getRaw(p.x, p.y) : {};
+        const rawText = Object.entries(rawObj)
+          .map(([k, v]) => `${k}:${v}`)
+          .join(" ");
+
+        if (target && target.mode === "diff") {
+          pixelStatus.textContent =
+            `Diff Pixel (${p.x}, ${p.y}) dRGBA(${r}, ${g}, ${b}, ${a})` +
+            (rawText ? ` | ${rawText}` : "") +
+            ` | zoom ${view.zoom.toFixed(3)}x`;
+        } else {
+          pixelStatus.textContent =
+            `Pixel (${p.x}, ${p.y}) RGBA(${r}, ${g}, ${b}, ${a})` +
+            (rawText ? ` | ${rawText}` : "") +
+            ` | zoom ${view.zoom.toFixed(3)}x`;
+        }
+      }
+
+      function beginPan(ev) {
+        if (ev.button !== 0) return;
+        dragging = true;
+        viewerCanvas.style.cursor = "grabbing";
+      }
+
+      function updatePointerPosition(ev) {
+        const rect = canvasWrap.getBoundingClientRect();
+        pointerX = ev.clientX - rect.left;
+        pointerY = ev.clientY - rect.top;
+      }
+
+      function onWheel(ev) {
+        ev.preventDefault();
+        const decoded = getRenderTarget().decoded;
+        if (!decoded) return;
+
+        updatePointerPosition(ev);
+        const oldZoom = view.zoom;
+        const zoomFactor = Math.exp(-ev.deltaY * 0.0015);
+        const newZoom = Math.max(view.minZoom, Math.min(view.maxZoom, oldZoom * zoomFactor));
+
+        const mx = pointerX;
+        const my = pointerY;
+        view.panX = mx - ((mx - view.panX) / oldZoom) * newZoom;
+        view.panY = my - ((my - view.panY) / oldZoom) * newZoom;
+        view.zoom = newZoom;
+        scheduleRender();
+      }
+
+      function onMouseMove(ev) {
+        updatePointerPosition(ev);
+        if (dragging) {
+          view.panX += ev.movementX;
+          view.panY += ev.movementY;
+        }
+        scheduleRender();
+      }
+
+      function endPan() {
+        dragging = false;
+        viewerCanvas.style.cursor = "default";
+      }
+
+      function setGuessOverlayVisible(visible) {
+        guessOverlay.classList.toggle("open", visible);
+      }
+
+      function applyGuessCandidate(candidate) {
+        const slot = slots[activeSlot];
+        slot.settings = {
+          ...slot.settings,
+          ...candidate
+        };
+        slot.selectedProfileId = "";
+        invalidateSlot(slot);
+        syncControlsFromSlot();
+        updateStatus();
+        scheduleRender();
+        setGuessOverlayVisible(false);
+      }
+
+      function settingsLabel(s) {
+        const core = `${s.format} ${s.width}x${s.height}`;
+        if (!s.format.startsWith("bayer")) return core;
+        const extra = [];
+        if (s.format === "bayer16") extra.push(`${s.bayerBitDepth}-bit`);
+        if (s.format.includes("mipi") || s.format === "bayer16") {
+          extra.push(s.byteOrder === "big" ? "BE" : "LE");
+        }
+        return `${core} ${s.bayerPattern} ${extra.join(" ")}`.trim();
+      }
+
+      function candidateKey(s) {
+        return `${s.format}|${s.width}|${s.height}|${s.bayerPattern}|${s.byteOrder}|${s.bayerBitDepth}`;
+      }
+
+      function parseGuessWidths(text) {
+        const parts = String(text || "")
+          .split(/[^0-9]+/)
+          .map((x) => clampInt(x, 0, 0))
+          .filter((x) => x >= 64 && x <= 16384);
+        const unique = [...new Set(parts)];
+        return unique.length > 0 ? unique : [1024, 1280, 1920];
+      }
+
+      function parseGuessAspect(mode, base) {
+        if (mode === "auto") {
+          const ratio = base.height > 0 ? base.width / base.height : 4 / 3;
+          return ratio > 0 ? ratio : 4 / 3;
+        }
+        const match = /^(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)$/.exec(mode);
+        if (!match) return 4 / 3;
+        const aw = Number(match[1]);
+        const ah = Number(match[2]);
+        if (!Number.isFinite(aw) || !Number.isFinite(ah) || aw <= 0 || ah <= 0) return 4 / 3;
+        return aw / ah;
+      }
+
+      function readGuessOptions() {
+        return {
+          dimMode: guessDimModeSelect.value,
+          aspect: guessAspectSelect.value,
+          widths: parseGuessWidths(guessWidthsInput.value),
+          testYuv: !!guessYuvInput.checked,
+          testRgb: !!guessRgbInput.checked,
+          testBayer: !!guessBayerInput.checked,
+          bayerBothEndians: !!guessBayerEndianBothInput.checked
+        };
+      }
+
+      function buildGuessDimensions(base, opts) {
+        const dims = [];
+        const seen = new Set();
+        const addDim = (w, h) => {
+          const ww = clampInt(w, 0, 1);
+          const hh = clampInt(h, 0, 1);
+          const key = `${ww}x${hh}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            dims.push([ww, hh]);
+          }
+        };
+
+        const ratio = parseGuessAspect(opts.aspect, base);
+        const includeCurrent = opts.dimMode === "current_only" || opts.dimMode === "current_swap" || opts.dimMode === "current_and_standards";
+        const includeSwap = opts.dimMode === "current_swap";
+        const includeStandards = opts.dimMode === "standards_only" || opts.dimMode === "current_and_standards";
+
+        if (includeCurrent) {
+          addDim(base.width, base.height);
+        }
+        if (includeSwap && base.width !== base.height) {
+          addDim(base.height, base.width);
+        }
+        if (includeStandards) {
+          for (const w of opts.widths) {
+            const h = Math.max(1, Math.round(w / ratio));
+            addDim(w, h);
+          }
+        }
+        if (dims.length === 0) {
+          addDim(base.width, base.height);
+        }
+        return dims;
+      }
+
+      function buildGuessCandidates(slot, opts) {
+        const base = slot.settings;
+        const dims = buildGuessDimensions(base, opts);
+        const yuvFormats = ["nv12", "nv21", "nv16", "uyvy", "yuyv", "i420"];
+        const rgbFormats = ["rgb24", "rgba32"];
+        const bayerPatterns = ["RGGB", "BGGR", "GRBG", "GBRG"];
+        const bayerEndians = opts.bayerBothEndians ? ["little", "big"] : [base.byteOrder];
+        const bayerDepths = [...new Set([base.bayerBitDepth, 10, 12])].filter((x) => x >= 8 && x <= 16);
+        const candidates = [{ ...base }];
+        const wantsAny = opts.testYuv || opts.testRgb || opts.testBayer;
+        const enableYuv = wantsAny ? opts.testYuv : true;
+        const enableRgb = wantsAny ? opts.testRgb : true;
+        const enableBayer = wantsAny ? opts.testBayer : true;
+
+        for (const [w, h] of dims) {
+          if (enableYuv) {
+            for (const fmt of yuvFormats) {
+              candidates.push({ ...base, width: w, height: h, format: fmt });
+            }
+          }
+          if (enableRgb) {
+            for (const fmt of rgbFormats) {
+              candidates.push({ ...base, width: w, height: h, format: fmt });
+            }
+          }
+          if (enableBayer) {
+            for (const patt of bayerPatterns) {
+              for (const endian of bayerEndians) {
+                candidates.push({ ...base, width: w, height: h, format: "bayer10mipi", bayerPattern: patt, byteOrder: endian, bayerBitDepth: 10 });
+                candidates.push({ ...base, width: w, height: h, format: "bayer12mipi", bayerPattern: patt, byteOrder: endian, bayerBitDepth: 12 });
+                for (const depth of bayerDepths) {
+                  candidates.push({ ...base, width: w, height: h, format: "bayer16", bayerPattern: patt, bayerBitDepth: depth, byteOrder: endian });
+                }
+              }
+            }
+          }
+        }
+
+        const seen = new Set();
+        const ranked = [];
+        for (const c of candidates) {
+          const k = candidateKey(c);
+          if (seen.has(k)) continue;
+          seen.add(k);
+          const expected = estimateBytes(c);
+          if (expected <= 0) continue;
+          const ratio = slot.bytes.length / expected;
+          const score = Math.abs(Math.log2(Math.max(1e-9, ratio)));
+          ranked.push({ c, score });
+        }
+
+        ranked.sort((a, b) => a.score - b.score);
+        const maxCandidates = Math.max(96, dims.length * 24);
+        return ranked.slice(0, maxCandidates).map((x) => x.c);
+      }
+
+      async function runGuessMode() {
+        const slot = slots[activeSlot];
+        if (!slot.bytes || guessRunning) return;
+
+        guessRunning = true;
+        guessBtn.disabled = true;
+        guessRunBtn.disabled = true;
+        guessBtn.textContent = "Guessing...";
+        guessGrid.innerHTML = "";
+        setGuessOverlayVisible(true);
+
+        try {
+          const opts = readGuessOptions();
+          const dims = buildGuessDimensions(slot.settings, opts);
+          const candidates = buildGuessCandidates(slot, opts);
+          guessInfo.textContent =
+            `Rendering ${candidates.length} candidates (${dims.length} dimensions) for slot ${activeSlot + 1}. ` +
+            `Click one to apply or close to keep current settings.`;
+
+          for (const candidate of candidates) {
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+
+            const card = document.createElement("button");
+            card.type = "button";
+            card.className = "guess-card";
+
+            const label = document.createElement("div");
+            label.className = "guess-label";
+            label.textContent = settingsLabel(candidate);
+
+            try {
+              const decoded = decodeFrame(slot.bytes, candidate);
+              const thumb = document.createElement("canvas");
+              thumb.width = 320;
+              thumb.height = 200;
+              const tctx = thumb.getContext("2d");
+              tctx.fillStyle = "#0b1017";
+              tctx.fillRect(0, 0, thumb.width, thumb.height);
+              tctx.imageSmoothingEnabled = false;
+              const scale = Math.min(thumb.width / decoded.width, thumb.height / decoded.height);
+              const dw = Math.max(1, decoded.width * scale);
+              const dh = Math.max(1, decoded.height * scale);
+              const dx = (thumb.width - dw) * 0.5;
+              const dy = (thumb.height - dh) * 0.5;
+              tctx.drawImage(decoded.canvas, dx, dy, dw, dh);
+
+              card.append(thumb, label);
+              card.addEventListener("click", () => applyGuessCandidate(candidate));
+            } catch (err) {
+              const errorLabel = document.createElement("div");
+              errorLabel.className = "guess-label";
+              errorLabel.textContent = `${settingsLabel(candidate)} (decode fail)`;
+              card.append(errorLabel);
+            }
+
+            guessGrid.append(card);
+          }
+        } finally {
+          guessRunning = false;
+          guessBtn.disabled = false;
+          guessRunBtn.disabled = false;
+          guessBtn.textContent = "Guess Format (Overlay)";
+        }
+      }
+
+      function attachEvents() {
+        for (let i = 0; i < slotButtons.length; i += 1) {
+          slotButtons[i].addEventListener("click", () => setActiveSlot(i));
+        }
+
+        profileSelect.addEventListener("change", () => {
+          if (syncingControls) return;
+          const slot = slots[activeSlot];
+          applyProfile(profileSelect.value, slot);
+          invalidateSlot(slot);
+          syncControlsFromSlot();
+          updateStatus();
+          scheduleRender();
+        });
+
+        loadBtn.addEventListener("click", () => fileInput.click());
+        fileInput.addEventListener("change", async (ev) => {
+          const file = ev.target.files && ev.target.files[0];
+          if (!file) return;
+          await loadFileToActiveSlot(file);
+          fileInput.value = "";
+        });
+
+        fitBtn.addEventListener("click", () => {
+          const decoded = getRenderTarget().decoded;
+          if (!decoded) return;
+          fitViewToImage(decoded);
+          scheduleRender();
+        });
+        diffBtn.addEventListener("click", () => {
+          setDiffMode(!diffMode);
+        });
+        saveBtn.addEventListener("click", () => {
+          saveCurrentImage();
+        });
+
+        resetViewBtn.addEventListener("click", () => {
+          resetView();
+        });
+
+        guessBtn.addEventListener("click", () => {
+          runGuessMode();
+        });
+        guessRunBtn.addEventListener("click", () => {
+          runGuessMode();
+        });
+        guessCloseBtn.addEventListener("click", () => {
+          setGuessOverlayVisible(false);
+        });
+        const guessOptionControls = [
+          guessDimModeSelect,
+          guessAspectSelect,
+          guessWidthsInput,
+          guessYuvInput,
+          guessRgbInput,
+          guessBayerInput,
+          guessBayerEndianBothInput
+        ];
+        for (const control of guessOptionControls) {
+          control.addEventListener("keydown", (ev) => {
+            if (ev.key === "Enter" && guessOverlay.classList.contains("open")) {
+              runGuessMode();
+            }
+          });
+        }
+        saveProfileBtn.addEventListener("click", () => {
+          saveCurrentProfile();
+        });
+        deleteProfileBtn.addEventListener("click", () => {
+          deleteSelectedSavedProfile();
+        });
+
+        const controls = [
+          formatSelect,
+          widthInput,
+          heightInput,
+          offsetInput,
+          stride0Input,
+          stride1Input,
+          stride2Input,
+          byteOrderSelect,
+          bayerBitDepthSelect,
+          colorSpaceSelect,
+          treatLinearInput,
+          demosaicInput,
+          swapUVInput,
+          swapRBInput,
+          bayerPatternSelect
+        ];
+
+        for (const control of controls) {
+          control.addEventListener("input", readControlsToActiveSlot);
+          control.addEventListener("change", readControlsToActiveSlot);
+        }
+
+        window.addEventListener("resize", scheduleRender);
+
+        viewerCanvas.addEventListener("wheel", onWheel, { passive: false });
+        viewerCanvas.addEventListener("mousedown", beginPan);
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", endPan);
+        viewerCanvas.addEventListener("mouseleave", () => {
+          pointerX = -1;
+          pointerY = -1;
+          scheduleRender();
+        });
+        viewerCanvas.addEventListener("mouseenter", onMouseMove);
+
+        canvasWrap.addEventListener("dragover", (ev) => {
+          ev.preventDefault();
+        });
+
+        canvasWrap.addEventListener("drop", async (ev) => {
+          ev.preventDefault();
+          if (!ev.dataTransfer || !ev.dataTransfer.files || !ev.dataTransfer.files[0]) return;
+          await loadFileToActiveSlot(ev.dataTransfer.files[0]);
+        });
+
+        window.addEventListener("keydown", (ev) => {
+          const target = ev.target;
+          if (target instanceof HTMLElement) {
+            const tag = target.tagName.toLowerCase();
+            if (tag === "input" || tag === "select" || tag === "textarea") return;
+          }
+
+          if (ev.key === "1") {
+            setActiveSlot(0);
+          } else if (ev.key === "2") {
+            setActiveSlot(1);
+          } else if (ev.key === "3") {
+            setActiveSlot(2);
+          } else if (ev.key === "4") {
+            setActiveSlot(3);
+          } else if (ev.key === "f" || ev.key === "F") {
+            const decoded = getRenderTarget().decoded;
+            if (decoded) {
+              fitViewToImage(decoded);
+              scheduleRender();
+            }
+          } else if (ev.key === "0") {
+            setDiffMode(!diffMode);
+          } else if (ev.key === "Escape") {
+            setGuessOverlayVisible(false);
+          }
+        });
+      }
+
+      function init() {
+        savedProfiles = loadSavedProfiles();
+        rebuildProfileSelect();
+        populateFormats();
+        attachEvents();
+        syncControlsFromSlot();
+        updateSlotButtons();
+        updateDiffButtonState();
+        updateStatus();
+        scheduleRender();
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

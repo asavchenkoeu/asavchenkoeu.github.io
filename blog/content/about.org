@@ -1,5 +1,10 @@
 #+TITLE: About me
+#+OPTIONS: toc:nil title:nil
 
 #+INCLUDE: preamble.org
 
-This is the page about me.
+Hi! I use this space to experiment with a blog generated directly from Emacs org-mode,
+host tools and to have automated public digest generator with interesting topics.
+
+* Connect
+- LinkedIn:

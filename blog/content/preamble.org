@@ -6,12 +6,13 @@
 
 #+ATTR_HTML: :id home :class horizontal
 #+begin_home
-[[file:index.org][ASV]]
+[[file:index.org][Home]]
 #+end_home
 
 #+ATTR_HTML: :id home-nav :class horizontal
 #+begin_home-nav
-[[file:posts.org][Posts]]
+[[file:posts.org][Blog]]
+[[file:tools.org][Tools]]
 [[file:about.org][About]]
 #+end_home-nav
 

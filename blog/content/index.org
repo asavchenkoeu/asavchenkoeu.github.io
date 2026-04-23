@@ -1,15 +1,11 @@
-#+TITLE: Personal blog
+#+TITLE: Aleksandr Savchenko Blog
 #+OPTIONS: toc:nil title:nil
-#+MACRO: doc-title Personal blog
 
 #+INCLUDE: preamble.org
 
-#+ATTR_HTML: :id title
-#+begin_title
-{{{doc-title}}}
-#+end_title
+* Latest posts
+- [[file:feed-2026-04-21.org][Technical Digest: 2026-04-21]]
 
-#+ATTR_HTML: :id page_content
-#+begin_page_content
-[[file:posts.org][Posts]]
-#+end_page_content
+* Tools
+- [[file:tools/raw-pixel-viewer/index.html][Raw Pixel Viewer]]
+
