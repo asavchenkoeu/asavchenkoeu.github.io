@@ -1,11 +1,8 @@
-#+TITLE: ASV Technical Digest
+#+TITLE: Technical Digest 2026-04-21
 #+DATE: 2026-04-21
 
 #+INCLUDE: preamble.org
 #+OPTIONS: toc:nil title:nil
-
-* Summary
-A curated set of 12 posts, papers, and projects selected for technical depth and relevance.
 
 #+begin_export html
 <div class="digest-page">
@@ -16,7 +13,6 @@ A curated set of 12 posts, papers, and projects selected for technical depth and
 ** [[https://arxiv.org/abs/2604.17046v1][A Real-Time Bike-Pedestrian Safety System with Wide-Angle Perception and Evaluation Testbed for Urban Intersections]]
    arXiv Vision | Mehmet Kerem Turkcan | 2026-04-18
 
-   - This is one of the strongest items in the bundle.
    - It presents a real-time urban safety system built around a wide-angle fisheye camera, and the paper goes well beyond detection by detailing a calibration pipeline, a lookup-table-based ground-plane projection stage, a conformance simulation framework, and explicit deployment-risk analysis.
    - The combination of geometry, edge deployment, and testbench thinking makes it far more useful than a generic perception paper.
    - Distinctive point: It couples fisheye calibration, closed-form projection, and deployment gating in a single end-to-end safety system.
@@ -24,7 +20,7 @@ A curated set of 12 posts, papers, and projects selected for technical depth and
 ** [[https://arxiv.org/abs/2604.17231v1][Fringe Projection Based Vision Pipeline for Autonomous Hard Drive Disassembly]]
    arXiv Vision | Badrinath Balasubramaniam | 2026-04-19
 
-   - This paper is a strong engineering piece because it uses structured-light style sensing through fringe projection and then integrates it with segmentation and depth completion for robotic disassembly.
+   - It uses structured-light style sensing through fringe projection and then integrates it with segmentation and depth completion for robotic disassembly.
    - The pixel-wise alignment argument is especially compelling: the same camera-projector system supports both depth and semantic localization, which simplifies downstream 3D reasoning in a way many RGB-D pipelines do not.
    - Distinctive point: It combines fringe projection, depth completion, and segmentation in one inherently aligned 3D pipeline.
 
@@ -86,7 +82,7 @@ A curated set of 12 posts, papers, and projects selected for technical depth and
 ** [[https://github.com/astar-ai/calicam_mono][astar-ai/calicam_mono]]
    GitHub Vision Geometry C++ | astar-ai | 2026-03-16
 
-   - CaliCam_Mono looks like a practical tool for rectifying fisheye imagery into multiple output parameterizations such as cylindrical, perspective, and longitude-latitude projections.
+   - =CaliCam_Mono= looks like a practical tool for rectifying fisheye imagery into multiple output parameterizations such as cylindrical, perspective, and longitude-latitude projections.
    - That makes it useful as a working reference for the downstream side of calibration, where the question is not only estimating parameters but also choosing how to remap the imagery for later perception tasks.
    - Distinctive point: It emphasizes multiple fisheye rectification targets rather than only calibration parameter estimation.
 
