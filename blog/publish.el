@@ -4,7 +4,7 @@
 (require 'subr-x)
 
 (defgroup asv/blog nil
-  "Publishing settings for asv.github.io."
+  "Publishing settings for asavchenkodev.github.io."
   :group 'org)
 
 (defcustom asv/blog-goatcounter-endpoint "https://asv.goatcounter.com/count"
