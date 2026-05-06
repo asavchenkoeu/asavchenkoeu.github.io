@@ -5,3 +5,5 @@
 
 * Browser tools
 - [[file:tools/raw-pixel-viewer/index.html][Raw Pixel Viewer]] :: Inspect raw image data in the browser.
+
+- [[file:tools/sync-reader/index.html][Sync Reader]] :: Language learning tool.
