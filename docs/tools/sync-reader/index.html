@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sync Reader</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="sr-book-open" viewBox="0 0 24 24">
+      <path d="M12 6.5c-1.9-1.5-4.2-2.3-7-2.3-1 0-1.8.8-1.8 1.8v12.2c0 .9.7 1.6 1.6 1.6 2.8 0 5.2.7 7.2 2"/>
+      <path d="M12 6.5c1.9-1.5 4.2-2.3 7-2.3 1 0 1.8.8 1.8 1.8v12.2c0 .9-.7 1.6-1.6 1.6-2.8 0-5.2.7-7.2 2"/>
+      <path d="M12 6.5V22"/>
+    </symbol>
+    <symbol id="sr-library" viewBox="0 0 24 24">
+      <path d="M5 4h11.5A2.5 2.5 0 0 1 19 6.5V20H7.5A2.5 2.5 0 0 0 5 22V4Z"/>
+      <path d="M5 4a2 2 0 0 0-2 2v13.5A2.5 2.5 0 0 0 5.5 22H19"/>
+      <path d="M8 8h7"/><path d="M8 11h6"/>
+    </symbol>
+    <symbol id="sr-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+    <symbol id="sr-close" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="sr-sidebar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/><path d="m15 9 3 3-3 3"/></symbol>
+    <symbol id="sr-swap" viewBox="0 0 24 24"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></symbol>
+    <symbol id="sr-zen" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="sr-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.3-6 9.5-6 9.5 6 9.5 6-3.3 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="sr-eye-off" viewBox="0 0 24 24"><path d="m3 3 18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.4 5.4A10.5 10.5 0 0 1 12 5c6.2 0 9.5 7 9.5 7a17 17 0 0 1-3 4"/><path d="M6.2 6.2C3.8 8 2.5 12 2.5 12s3.3 7 9.5 7c1.5 0 2.8-.3 4-.8"/></symbol>
+    <symbol id="sr-graduation" viewBox="0 0 24 24"><path d="M2.5 8.5 12 4l9.5 4.5L12 13 2.5 8.5Z"/><path d="M6.5 10.5V15c0 2 2.5 3.5 5.5 3.5s5.5-1.5 5.5-3.5v-4.5"/><path d="M21.5 8.5V15"/></symbol>
+    <symbol id="sr-cards" viewBox="0 0 24 24"><rect x="7" y="4" width="12" height="16" rx="2"/><path d="M5 7v11a2 2 0 0 0 2 2h9"/><path d="M10 9h6"/><path d="M10 13h5"/></symbol>
+    <symbol id="sr-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/><path d="M9 12h6"/></symbol>
+    <symbol id="sr-export" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M5 20h14"/></symbol>
+    <symbol id="sr-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M9 7V4h6v3"/></symbol>
+  </svg>
+  <main class="app" id="appRoot">
+    <header class="topbar">
+      <div class="brand">
+        <span class="language-mark" style="width: 34px; height: 34px;"><svg class="icon" aria-hidden="true"><use href="#sr-book-open"></use></svg></span>
+        <h1 data-i18n="appTitle">Sync Reader</h1>
+        <nav class="nav" aria-label="Main navigation">
+          <button class="active" data-view-target="reading" data-i18n="reading">Чтение</button>
+          <button data-view-target="words" data-i18n="wordReview">Обзор слов</button>
+          <button data-view-target="stats" data-i18n="stats">Статистика</button>
+        </nav>
+      </div>
+      <div class="top-actions">
+        <div class="segmented" aria-label="UI language">
+          <button data-lang="ru">RU</button>
+          <button data-lang="de">DE</button>
+          <button data-lang="en">EN</button>
+        </div>
+        <button class="icon-button" id="toggleZen" title="Zen mode" aria-label="Zen mode"><svg class="icon" aria-hidden="true"><use href="#sr-zen"></use></svg></button>
+      </div>
+    </header>
+
+    <section class="shell">
+      <aside class="library-panel">
+        <div class="library-head">
+          <span class="library-title"><svg class="icon" aria-hidden="true"><use href="#sr-library"></use></svg><span data-i18n="library">Библиотека</span></span>
+          <div class="row">
+            <button class="icon-button" id="openGenerator" title="Import" aria-label="Import"><svg class="icon" aria-hidden="true"><use href="#sr-plus"></use></svg></button>
+            <button class="icon-button" id="toggleLibrary" title="Collapse library" aria-label="Collapse library"><svg class="icon" aria-hidden="true"><use href="#sr-sidebar"></use></svg></button>
+          </div>
+        </div>
+        <div class="library-tools">
+          <label class="field">
+            <input id="librarySearch" type="search" data-i18n-placeholder="searchTexts" placeholder="Поиск текстов...">
+          </label>
+        </div>
+        <div class="library-list" id="libraryList"></div>
+        <div class="library-import">
+          <button class="button wide" id="openImportInline"><svg class="icon" aria-hidden="true"><use href="#sr-plus"></use></svg><span data-i18n="importText">Добавить новый текст</span></button>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <div class="toolbar">
+          <strong id="currentTitle"></strong>
+          <select id="textSelect" hidden></select>
+          <div class="meta" id="docMeta"></div>
+        </div>
+
+        <div class="reader" id="reader">
+          <button class="icon-button swap-mid" id="swapTexts" title="Swap texts" aria-label="Swap texts"><svg class="icon" aria-hidden="true"><use href="#sr-swap"></use></svg></button>
+          <article class="pane" id="pane-ru">
+            <div class="pane-head">
+              <div class="language-title"><span class="language-mark">RU</span><span data-i18n="russian">Русский</span></div>
+              <div class="pane-controls">
+                <span class="pill" id="ruCount">0</span>
+                <button class="icon-button" id="toggleRussian" aria-label="Hide Russian" title="Hide Russian"><svg class="icon" aria-hidden="true"><use href="#sr-eye-off"></use></svg></button>
+              </div>
+            </div>
+            <div class="pane-body" id="ruText"></div>
+          </article>
+
+          <article class="pane" id="pane-de">
+            <div class="pane-head">
+              <div class="language-title"><span class="language-mark">DE</span><span data-i18n="german">Немецкий</span></div>
+              <div class="pane-controls">
+                <span class="pill" id="deCount">0</span>
+                <button class="icon-button" id="toggleGerman" aria-label="Hide German" title="Hide German"><svg class="icon" aria-hidden="true"><use href="#sr-eye-off"></use></svg></button>
+              </div>
+            </div>
+            <div class="pane-body" id="deText"></div>
+          </article>
+        </div>
+
+        <section class="overview-view" id="wordsView" aria-label="Words overview">
+          <div class="overview-grid">
+            <section class="panel">
+              <div class="panel-head">
+                <h2 class="panel-title"><svg class="icon" aria-hidden="true"><use href="#sr-cards"></use></svg><span data-i18n="newWords">Новые слова</span></h2>
+                <span class="pill" id="flashCount">0</span>
+              </div>
+              <div class="panel-body">
+                <div class="flash-actions">
+                  <button class="button primary" id="overviewStudyCurrent"><svg class="icon" aria-hidden="true"><use href="#sr-graduation"></use></svg><span data-i18n="studyCurrent">Учить слова этого текста</span></button>
+                  <button class="button" id="startStudyAll"><svg class="icon" aria-hidden="true"><use href="#sr-cards"></use></svg><span data-i18n="studyAll">Учить все сохраненные слова</span></button>
+                  <button class="button" id="downloadAnki"><svg class="icon" aria-hidden="true"><use href="#sr-export"></use></svg><span data-i18n="downloadAnki">Скачать TSV</span></button>
+                  <button class="button danger" id="clearFlashcards"><svg class="icon" aria-hidden="true"><use href="#sr-trash"></use></svg><span data-i18n="clear">Очистить</span></button>
+                </div>
+                <div class="flash-list" id="flashList"></div>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <h2 class="panel-title"><svg class="icon" aria-hidden="true"><use href="#sr-archive"></use></svg><span data-i18n="archive">Архив слов</span></h2>
+                <span class="pill" id="historyCount">0</span>
+              </div>
+              <div class="panel-body">
+                <div class="flash-actions">
+                  <button class="button" id="startStudyArchive"><svg class="icon" aria-hidden="true"><use href="#sr-graduation"></use></svg><span data-i18n="studyArchive">Учить архив</span></button>
+                  <button class="button" id="restoreArchive"><svg class="icon" aria-hidden="true"><use href="#sr-archive"></use></svg><span data-i18n="restoreArchive">Вернуть архив в новые слова</span></button>
+                </div>
+                <div class="hint" data-i18n="archiveHint">Здесь остаются слова, которые уже были добавлены или изучены. Они хранятся локально в браузере.</div>
+                <div class="flash-list" id="historyList"></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="overview-view" id="statsView" aria-label="Statistics">
+          <section class="panel">
+            <div class="panel-head">
+              <h2 class="panel-title"><svg class="icon" aria-hidden="true"><use href="#sr-cards"></use></svg><span data-i18n="stats">Статистика</span></h2>
+            </div>
+            <div class="panel-body">
+              <div class="stats-grid">
+                <div class="stat-card"><div class="stat-value" id="statActive">0</div><div class="stat-label" data-i18n="statActive">Новые карточки</div></div>
+                <div class="stat-card"><div class="stat-value" id="statArchive">0</div><div class="stat-label" data-i18n="statArchive">В архиве</div></div>
+                <div class="stat-card"><div class="stat-value" id="statStudied">0</div><div class="stat-label" data-i18n="statStudied">Изучались</div></div>
+                <div class="stat-card"><div class="stat-value" id="statTexts">0</div><div class="stat-label" data-i18n="statTexts">Текстов</div></div>
+              </div>
+              <button class="button danger wide" id="resetLocalData"><svg class="icon" aria-hidden="true"><use href="#sr-trash"></use></svg><span data-i18n="resetLocalData">Сбросить все локальные данные</span></button>
+            </div>
+          </section>
+        </section>
+      </div>
+    </section>
+
+    <div class="reading-tray" id="readingWordTray" hidden>
+      <div>
+        <strong data-i18n="trayTitle">Есть новые слова</strong>
+        <span class="muted-inline" id="trayCount">0</span>
+      </div>
+      <div class="tray-actions">
+        <button class="button primary" id="startStudyCurrent"><svg class="icon" aria-hidden="true"><use href="#sr-graduation"></use></svg><span data-i18n="studyCurrentShort">Учить</span></button>
+        <button class="button" id="copyAnki"><svg class="icon" aria-hidden="true"><use href="#sr-export"></use></svg><span data-i18n="copyAnkiShort">Anki TSV</span></button>
+        <button class="button" id="openWordsFromTray"><svg class="icon" aria-hidden="true"><use href="#sr-cards"></use></svg><span data-i18n="wordReview">Обзор слов</span></button>
+      </div>
+    </div>
+  </main>
+
+  <section class="drawer" id="generatorDrawer" aria-hidden="true">
+    <div class="drawer-panel">
+      <div class="panel-head">
+        <h2 class="panel-title"><svg class="icon" aria-hidden="true"><use href="#sr-plus"></use></svg><span data-i18n="generator">Импорт текста</span></h2>
+        <button class="icon-button" id="closeGenerator" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#sr-close"></use></svg></button>
+      </div>
+      <div class="drawer-body stack">
+        <div class="import-steps">
+          <strong data-i18n="importStepsTitle">Как добавить новый текст</strong>
+          <ol>
+            <li data-i18n="importStep1">Сначала настройте тему, уровень и язык заметок ниже.</li>
+            <li data-i18n="importStep2">Скопируйте промпт и вставьте его в ChatGPT или Codex.</li>
+            <li data-i18n="importStep3">Скопируйте полученный JSON в поле импорта и нажмите «Импортировать JSON».</li>
+          </ol>
+        </div>
+        <label class="field">
+          <span data-i18n="topic">Тема или исходный текст</span>
+          <textarea id="topicInput">Неполитическая новость о науке, природе, технологиях, культуре или городской жизни.</textarea>
+        </label>
+        <div class="row">
+          <label class="field" style="flex: 1 1 130px;">
+            <span data-i18n="level">Уровень</span>
+            <select id="levelInput">
+              <option>A1</option>
+              <option selected>A2</option>
+              <option>B1</option>
+              <option>B2</option>
+              <option>C1</option>
+            </select>
+          </label>
+        </div>
+        <label class="field">
+          <span data-i18n="promptForAi">Промпт для Codex или ChatGPT</span>
+          <textarea id="promptOutput" readonly></textarea>
+        </label>
+        <div class="panel-actions">
+          <button class="button primary" id="copyPrompt" data-i18n="copyPrompt">Скопировать промпт</button>
+          <button class="button" id="importJson" data-i18n="importJson">Импортировать JSON</button>
+        </div>
+        <label class="field">
+          <span data-i18n="pasteJson">Вставить готовый JSON</span>
+          <textarea id="jsonInput" placeholder='{"title":"...","p":[["p1","RU","DE",[["DE","RU"]]]]}'></textarea>
+        </label>
+        <div class="hint" data-i18n="generatorHint">Скопируйте промпт в Codex или ChatGPT, затем вставьте JSON сюда. Импортированные тексты сохраняются локально.</div>
+        <div class="status" id="status"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal" id="studyModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="panel-head">
+        <h2 class="panel-title" id="studyTitle">Тренировка</h2>
+        <button class="icon-button" id="closeStudy" aria-label="Close"></button>
+      </div>
+      <div class="panel-body">
+        <div class="row" style="justify-content: space-between;">
+          <span class="pill" id="studyProgressText">0 / 0</span>
+          <span class="pill" id="studyQueueText">0</span>
+        </div>
+        <div class="progress"><span id="studyProgress"></span></div>
+        <div class="study-card" id="studyCard">
+          <div class="study-front" id="studyFront"></div>
+          <div class="study-back" id="studyBack"></div>
+        </div>
+        <div class="study-actions" id="studyActions">
+          <button class="button primary" id="showAnswer" data-i18n="showAnswer">Показать ответ</button>
+          <button class="button" data-grade="again" data-i18n="again">Снова</button>
+          <button class="button" data-grade="hard" data-i18n="hard">Трудно</button>
+          <button class="button" data-grade="good" data-i18n="good">Хорошо</button>
+          <button class="button" data-grade="easy" data-i18n="easy">Легко</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="texts/text-bank.js"></script>
+  <script src="src/text-bank.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
