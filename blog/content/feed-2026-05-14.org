@@ -1,0 +1,92 @@
+#+TITLE: Technical Digest 2026-05-14
+#+DATE: 2026-05-14
+
+#+INCLUDE: preamble.org
+#+OPTIONS: toc:nil title:nil
+
+#+begin_export html
+<div class="digest-page">
+#+end_export
+
+* Papers
+
+** [[https://www.sciencedirect.com/science/article/pii/S095741742600045X][BEVFormer++: Enhancing BEV fusion with normalized embedding and range attention for 3D object detection]]
+   ScienceDirect | 2026-05-01
+
+   - Recent BEV 3D detection paper with normalized embeddings and range-aware attention; useful for tracking where autonomous-driving fusion models are going.
+
+
+* Projects
+
+** [[https://github.com/PavelLekomtsev/NeoSmart][PavelLekomtsev/NeoSmart]]
+   GitHub Vision Python | PavelLekomtsev | 2026-05-11
+
+   - Six-camera parking project with YOLO, tracking, license plates, FastAPI, Docker, and synthetic data; useful as a small end-to-end smart parking reference.
+
+
+* Posts
+
+** [[https://www.techinsights.com/blog/deep-dive-teardown-continental-surround-view-camera-svc210-automotive-camera][Deep Dive Teardown of the Continental Surround View Camera SVC210 Automotive Camera]]
+   TechInsights | 2026-02-20
+
+   - Hardware teardown of a real Continental surround-view camera; useful because it shows the camera is mainly a 60 FPS video source and processing happens in the car compute unit.
+
+** [[https://www.nxp.com/applications/SURROUND-VIEW-PARK-ASSIST-SYSTEM][Surround View / Park Assist System]]
+   NXP Video | 2026-05-14
+
+   - Short vendor video plus architecture notes for surround view; useful for seeing the camera count, HDR streams, ISP, and embedded processing blocks in one place.
+
+** [[https://www.bosch-mobility.com/en/solutions/assistance-systems/360-degree-surround-view/][360 degree surround view]]
+   Bosch Mobility | 2026-05-14
+
+   - Real supplier overview of 3D surround view, transparent hood, and park assist; useful for understanding what production systems promise beyond simple image stitching.
+
+** [[https://developer.nvidia.com/blog/making-robot-perception-more-efficient-on-nvidia-jetson-thor/][Making Robot Perception More Efficient on NVIDIA Jetson Thor]]
+   NVIDIA Computer Vision Blog | 2026-05-14
+
+   - Good look at edge perception on Jetson Thor; useful for thinking about model/runtime tradeoffs on embedded vision hardware.
+
+** [[https://www.tangramvision.com/blog/the-innovative-brown-conrady-model][Aug 15, 2025 The Innovative Brown-Conrady Model]]
+   Tangram Vision Blog | 2026-05-14
+
+   - Clear camera-model article around Brown-Conrady distortion; useful for calibration work where the exact distortion model matters.
+
+** [[https://blog.pragmaticengineer.com/the-pulse-ai-load-breaks-github/][The Pulse: AI load breaks GitHub - why not other vendors?]]
+   The Pragmatic Engineer | 2026-05-07
+
+   - Good operational read on AI-agent load breaking GitHub workflows; useful for thinking about capacity planning, reliability, and tool dependence.
+
+** [[https://developer.nvidia.com/blog/accelerating-av-simulation-with-neural-reconstruction-and-world-foundation-models/][Accelerating AV Simulation with Neural Reconstruction and World Foundation Models]]
+   NVIDIA Computer Vision Blog | 2026-05-14
+
+   - Practical AV simulation article; useful for understanding how neural reconstruction and world models can shorten perception testing loops.
+
+** [[https://pytorch.org/blog/in-kernel-broadcast-optimization-co-designing-kernels-for-recsys-inference/][In-Kernel Broadcast Optimization: Co-Designing Kernels for RecSys Inference]]
+   PyTorch Blog | 2026-05-14
+
+   - Low-level PyTorch inference article about doing broadcast work inside kernels; useful for understanding where memory traffic can dominate model serving.
+
+** [[https://www.wholetomato.com/blog/cpp26-reflection-large-codebases/][C++26 Reflection: What It Actually Changes for Large Codebases]]
+   Whole Tomato | 2026-05-01
+
+   - Practical C++26 reflection overview; useful because it explains what reflection changes for real code generation and large codebases.
+
+
+* Filtered But Worth Checking
+
+These did not make the main digest, but they are still worth a quick look.
+
+- [[https://www.tangramvision.com/blog/a-different-way-to-think-about-plane-fitting][Jul 23, 2025 Plane Fitting, Part 1: A Different Way To Think about Plane Fitting]]
+  Plane fitting from a calibration perspective
+- [[https://developer.nvidia.com/blog/r2d2-perception-guided-task-amp-motion-planning-for-long-horizon-manipulation/][R²D²: Perception-Guided Task & Motion Planning for Long-Horizon Manipulation]]
+  Robotics planning work that keeps perception in the loop
+- [[https://www.tangramvision.com/blog/introducing-local-navigation-systems-metrical-s-latest-calibration-capability][Jul 30, 2025 Introducing Local Navigation Systems: MetriCal's Latest Modality]]
+  Calibration note for local-navigation systems
+- [[https://www.citadelsecurities.com/careers/career-perspectives/why-c-is-growing-and-what-c26-means-for-production-systems/][Why C++ Is Growing and What C++26 Means for Production Systems]]
+  Production C++26 viewpoint from a low-latency systems shop
+- [[https://www.tangramvision.com/blog/building-robust-filesystem-interactions-in-rust][Jul 15, 2025 Building Robust Filesystem Interactions in Rust]]
+  Practical Rust note on safer filesystem operations
+
+#+begin_export html
+</div>
+#+end_export

@@ -3,9 +3,6 @@
 
 #+INCLUDE: preamble.org
 
-* Latest posts
-- [[file:feed-2026-04-21.org][Technical Digest: 2026-04-21]]
+#+INCLUDE: posts.org :lines "6-"
 
-* Tools
-- [[file:tools/raw-pixel-viewer/index.html][Raw Pixel Viewer]]
-
+#+INCLUDE: tools.org :lines "6-"
