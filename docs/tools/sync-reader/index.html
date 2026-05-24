@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sync Reader</title>
+  <title>Sync Reader - Parallel Text Reader for Contextual Vocabulary Study</title>
+  <meta name="description" content="Sync Reader is a parallel text reader for bilingual reading and vocabulary study in context, with linked translated words, Anki-style review, and Anki TSV export.">
+  <meta property="og:title" content="Sync Reader - Parallel Text Reader for Contextual Vocabulary Study">
+  <meta property="og:description" content="Read parallel translated texts, check vocabulary in context, study clicked words with Anki-style cards, and export ready-to-use Anki TSV files.">
   <link rel="stylesheet" href="assets/styles.css">
 <script data-goatcounter="https://asv.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -23,6 +26,13 @@
     <symbol id="sr-close" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
     <symbol id="sr-sidebar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/><path d="m15 9 3 3-3 3"/></symbol>
     <symbol id="sr-swap" viewBox="0 0 24 24"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></symbol>
+    <symbol id="sr-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="sr-folder" viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-10Z"/></symbol>
+    <symbol id="sr-folder-plus" viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-10Z"/><path d="M12 11v6"/><path d="M9 14h6"/></symbol>
+    <symbol id="sr-file-text" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4v13H7a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z"/><path d="M14 3.5v5h5"/><path d="M8.5 13h7"/><path d="M8.5 17h5"/></symbol>
+    <symbol id="sr-more" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></symbol>
+    <symbol id="sr-pencil" viewBox="0 0 24 24"><path d="m4 20 4.2-1 10.6-10.6a2.8 2.8 0 0 0-4-4L4.2 15 4 20Z"/><path d="m13.5 5.5 5 5"/></symbol>
+    <symbol id="sr-move" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m14 7 5 5-5 5"/><path d="M5 6v12"/></symbol>
     <symbol id="sr-zen" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
     <symbol id="sr-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.3-6 9.5-6 9.5 6 9.5 6-3.3 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="3"/></symbol>
     <symbol id="sr-eye-off" viewBox="0 0 24 24"><path d="m3 3 18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.4 5.4A10.5 10.5 0 0 1 12 5c6.2 0 9.5 7 9.5 7a17 17 0 0 1-3 4"/><path d="M6.2 6.2C3.8 8 2.5 12 2.5 12s3.3 7 9.5 7c1.5 0 2.8-.3 4-.8"/></symbol>
@@ -40,7 +50,9 @@
         <nav class="nav" aria-label="Main navigation">
           <button class="active" data-view-target="reading" data-i18n="reading">Чтение</button>
           <button data-view-target="words" data-i18n="wordReview">Обзор слов</button>
+          <button data-view-target="rules" data-i18n="rules">Правила</button>
           <button data-view-target="stats" data-i18n="stats">Статистика</button>
+          <button data-view-target="about" data-i18n="about">О проекте</button>
         </nav>
       </div>
       <div class="top-actions">
@@ -58,7 +70,8 @@
         <div class="library-head">
           <span class="library-title"><svg class="icon" aria-hidden="true"><use href="#sr-library"></use></svg><span data-i18n="library">Библиотека</span></span>
           <div class="row">
-            <button class="icon-button" id="openGenerator" title="Import" aria-label="Import"><svg class="icon" aria-hidden="true"><use href="#sr-plus"></use></svg></button>
+            <button class="icon-button" id="newFolder" title="New folder" aria-label="New folder"><svg class="icon" aria-hidden="true"><use href="#sr-folder-plus"></use></svg></button>
+            <button class="icon-button library-primary-action" id="openGenerator" title="Import" aria-label="Import"><svg class="icon" aria-hidden="true"><use href="#sr-plus"></use></svg></button>
             <button class="icon-button" id="toggleLibrary" title="Collapse library" aria-label="Collapse library"><svg class="icon" aria-hidden="true"><use href="#sr-sidebar"></use></svg></button>
           </div>
         </div>
@@ -68,9 +81,6 @@
           </label>
         </div>
         <div class="library-list" id="libraryList"></div>
-        <div class="library-import">
-          <button class="button wide" id="openImportInline"><svg class="icon" aria-hidden="true"><use href="#sr-plus"></use></svg><span data-i18n="importText">Добавить новый текст</span></button>
-        </div>
       </aside>
 
       <div class="workspace">
@@ -139,6 +149,232 @@
           </div>
         </section>
 
+        <section class="overview-view rules-view" id="rulesView" aria-labelledby="rulesTitle">
+          <section class="panel rules-panel">
+            <div class="panel-head">
+              <h2 class="panel-title" id="rulesTitle"><svg class="icon" aria-hidden="true"><use href="#sr-book-open"></use></svg><span data-i18n="rulesTitle">Немецкая грамматика A1-B1</span></h2>
+            </div>
+            <div class="panel-body rules-copy">
+              <section class="rule-section">
+                <h3>Падежи: вопросы и базовая логика</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table">
+                    <thead><tr><th>Падеж</th><th>W-вопросы</th><th>Когда использовать</th><th>Пример DE</th><th>RU</th></tr></thead>
+                    <tbody>
+                      <tr><td>Nominativ</td><td>wer? was?</td><td>подлежащее: кто/что делает действие</td><td>Der Mann liest.</td><td>Мужчина читает.</td></tr>
+                      <tr><td>Akkusativ</td><td>wen? was? wohin?</td><td>прямой объект; направление куда</td><td>Ich sehe den Mann. Ich gehe in die Bank.</td><td>Я вижу мужчину. Я иду в банк.</td></tr>
+                      <tr><td>Dativ</td><td>wem? wo? wann?</td><td>кому/чему; место где; время с am/im</td><td>Ich helfe dem Mann. Ich bin in der Bank.</td><td>Я помогаю мужчине. Я в банке.</td></tr>
+                      <tr><td>Genitiv</td><td>wessen?</td><td>чей/кого; часто в письменной речи B1+</td><td>Das ist das Auto des Vaters.</td><td>Это машина отца.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Артикли и окончания по падежам</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table">
+                    <thead><tr><th>Падеж</th><th>Maskulin</th><th>Neutrum</th><th>Feminin</th><th>Plural</th><th>Смысл</th></tr></thead>
+                    <tbody>
+                      <tr><td>Nominativ</td><td>der / ein / kein</td><td>das / ein / kein</td><td>die / eine / keine</td><td>die / - / keine</td><td>кто? что?</td></tr>
+                      <tr><td>Akkusativ</td><td>den / einen / keinen</td><td>das / ein / kein</td><td>die / eine / keine</td><td>die / - / keine</td><td>кого? что?</td></tr>
+                      <tr><td>Dativ</td><td>dem / einem / keinem</td><td>dem / einem / keinem</td><td>der / einer / keiner</td><td>den + -n / - / keinen</td><td>кому? где?</td></tr>
+                      <tr><td>Genitiv</td><td>des / eines / keines + -s</td><td>des / eines / keines + -s</td><td>der / einer / keiner</td><td>der / - / keiner</td><td>чей? кого?</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Личные местоимения: Akkusativ и Dativ</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table">
+                    <thead><tr><th>Nominativ</th><th>Akkusativ: кого?</th><th>Dativ: кому?</th><th>RU</th><th>Пример</th></tr></thead>
+                    <tbody>
+                      <tr><td>ich</td><td>mich</td><td>mir</td><td>я / меня / мне</td><td>Er sieht mich. Er hilft mir.</td></tr>
+                      <tr><td>du</td><td>dich</td><td>dir</td><td>ты / тебя / тебе</td><td>Ich frage dich. Ich danke dir.</td></tr>
+                      <tr><td>er</td><td>ihn</td><td>ihm</td><td>он / его / ему</td><td>Wir kennen ihn. Wir helfen ihm.</td></tr>
+                      <tr><td>sie</td><td>sie</td><td>ihr</td><td>она / её / ей</td><td>Ich sehe sie. Ich antworte ihr.</td></tr>
+                      <tr><td>es</td><td>es</td><td>ihm</td><td>оно / его / ему</td><td>Ich kaufe es. Ich folge ihm.</td></tr>
+                      <tr><td>wir</td><td>uns</td><td>uns</td><td>мы / нас / нам</td><td>Sie besucht uns. Sie schreibt uns.</td></tr>
+                      <tr><td>ihr</td><td>euch</td><td>euch</td><td>вы / вас / вам</td><td>Ich höre euch. Ich gebe euch Zeit.</td></tr>
+                      <tr><td>sie/Sie</td><td>sie/Sie</td><td>ihnen/Ihnen</td><td>они/Вы / их/Вас / им/Вам</td><td>Ich sehe Sie. Ich helfe Ihnen.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Предлоги: какой падеж после них</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table">
+                    <thead><tr><th>Группа</th><th>Предлоги</th><th>RU</th><th>Пример</th></tr></thead>
+                    <tbody>
+                      <tr><td>Всегда Akkusativ</td><td>durch, für, gegen, ohne, um, bis</td><td>через, для, против/около, без, вокруг/в, до</td><td>für den Kurs; ohne eine Karte</td></tr>
+                      <tr><td>Всегда Dativ</td><td>aus, bei, mit, nach, seit, von, zu, gegenüber</td><td>из, у/при, с, после/в, с тех пор, от, к, напротив</td><td>mit dem Bus; zu der Bank</td></tr>
+                      <tr><td>Genitiv</td><td>während, wegen, trotz, statt/anstatt, außerhalb, innerhalb</td><td>во время, из-за, несмотря на, вместо, вне, внутри</td><td>während des Kurses; wegen des Wetters</td></tr>
+                      <tr><td>Wechselpräpositionen</td><td>an, auf, hinter, in, neben, über, unter, vor, zwischen</td><td>двойные предлоги: Dativ для места где? Akkusativ для направления куда?</td><td>wo? in der Bank; wohin? in die Bank</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Wechselpräpositionen: wo? или wohin?</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table">
+                    <thead><tr><th>Предлог</th><th>Dativ: wo? где?</th><th>RU</th><th>Akkusativ: wohin? куда?</th><th>RU</th></tr></thead>
+                    <tbody>
+                      <tr><td>in</td><td>Ich bin in der Bank.</td><td>Я в банке.</td><td>Ich gehe in die Bank.</td><td>Я иду в банк.</td></tr>
+                      <tr><td>auf</td><td>Das Buch liegt auf dem Tisch.</td><td>Книга лежит на столе.</td><td>Ich lege das Buch auf den Tisch.</td><td>Я кладу книгу на стол.</td></tr>
+                      <tr><td>an</td><td>Das Bild hängt an der Wand.</td><td>Картина висит на стене.</td><td>Ich hänge das Bild an die Wand.</td><td>Я вешаю картину на стену.</td></tr>
+                      <tr><td>unter</td><td>Die Tasche steht unter dem Stuhl.</td><td>Сумка стоит под стулом.</td><td>Ich stelle die Tasche unter den Stuhl.</td><td>Я ставлю сумку под стул.</td></tr>
+                      <tr><td>vor</td><td>Wir warten vor dem Haus.</td><td>Мы ждём перед домом.</td><td>Wir gehen vor das Haus.</td><td>Мы идём к месту перед домом.</td></tr>
+                      <tr><td>zwischen</td><td>Der Stuhl steht zwischen den Tischen.</td><td>Стул стоит между столами.</td><td>Ich stelle den Stuhl zwischen die Tische.</td><td>Я ставлю стул между столами.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Предлоги с Genitiv</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table">
+                    <thead><tr><th>Предлог</th><th>RU</th><th>Пример DE</th><th>RU пример</th></tr></thead>
+                    <tbody>
+                      <tr><td>während</td><td>во время</td><td>während des Unterrichts</td><td>во время урока</td></tr>
+                      <tr><td>wegen</td><td>из-за</td><td>wegen des Regens</td><td>из-за дождя</td></tr>
+                      <tr><td>trotz</td><td>несмотря на</td><td>trotz des Problems</td><td>несмотря на проблему</td></tr>
+                      <tr><td>statt / anstatt</td><td>вместо</td><td>statt des Autos</td><td>вместо машины</td></tr>
+                      <tr><td>außerhalb</td><td>вне, за пределами</td><td>außerhalb der Stadt</td><td>за пределами города</td></tr>
+                      <tr><td>innerhalb</td><td>внутри, в течение</td><td>innerhalb einer Woche</td><td>в течение недели</td></tr>
+                      <tr><td>oberhalb / unterhalb</td><td>выше / ниже</td><td>oberhalb des Dorfes</td><td>выше деревни</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Глаголы: спряжение в Präsens</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table compact-rules-table">
+                    <thead><tr><th>Глагол</th><th>RU</th><th>ich</th><th>du</th><th>er/sie/es</th><th>wir</th><th>ihr</th><th>sie/Sie</th></tr></thead>
+                    <tbody>
+                      <tr><td>sein</td><td>быть</td><td>bin</td><td>bist</td><td>ist</td><td>sind</td><td>seid</td><td>sind</td></tr>
+                      <tr><td>haben</td><td>иметь</td><td>habe</td><td>hast</td><td>hat</td><td>haben</td><td>habt</td><td>haben</td></tr>
+                      <tr><td>werden</td><td>становиться; будущее</td><td>werde</td><td>wirst</td><td>wird</td><td>werden</td><td>werdet</td><td>werden</td></tr>
+                      <tr><td>machen</td><td>делать</td><td>mache</td><td>machst</td><td>macht</td><td>machen</td><td>macht</td><td>machen</td></tr>
+                      <tr><td>gehen</td><td>идти</td><td>gehe</td><td>gehst</td><td>geht</td><td>gehen</td><td>geht</td><td>gehen</td></tr>
+                      <tr><td>sprechen</td><td>говорить</td><td>spreche</td><td>sprichst</td><td>spricht</td><td>sprechen</td><td>sprecht</td><td>sprechen</td></tr>
+                      <tr><td>fahren</td><td>ехать</td><td>fahre</td><td>fährst</td><td>fährt</td><td>fahren</td><td>fahrt</td><td>fahren</td></tr>
+                      <tr><td>lesen</td><td>читать</td><td>lese</td><td>liest</td><td>liest</td><td>lesen</td><td>lest</td><td>lesen</td></tr>
+                      <tr><td>nehmen</td><td>брать</td><td>nehme</td><td>nimmst</td><td>nimmt</td><td>nehmen</td><td>nehmt</td><td>nehmen</td></tr>
+                      <tr><td>geben</td><td>давать</td><td>gebe</td><td>gibst</td><td>gibt</td><td>geben</td><td>gebt</td><td>geben</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Модальные глаголы</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table compact-rules-table">
+                    <thead><tr><th>Глагол</th><th>RU</th><th>ich</th><th>du</th><th>er/sie/es</th><th>wir</th><th>ihr</th><th>sie/Sie</th><th>Пример</th></tr></thead>
+                    <tbody>
+                      <tr><td>können</td><td>мочь, уметь</td><td>kann</td><td>kannst</td><td>kann</td><td>können</td><td>könnt</td><td>können</td><td>Ich kann lesen.</td></tr>
+                      <tr><td>müssen</td><td>быть должным</td><td>muss</td><td>musst</td><td>muss</td><td>müssen</td><td>müsst</td><td>müssen</td><td>Sie muss bezahlen.</td></tr>
+                      <tr><td>wollen</td><td>хотеть</td><td>will</td><td>willst</td><td>will</td><td>wollen</td><td>wollt</td><td>wollen</td><td>Wir wollen lernen.</td></tr>
+                      <tr><td>möchten</td><td>хотел бы</td><td>möchte</td><td>möchtest</td><td>möchte</td><td>möchten</td><td>möchtet</td><td>möchten</td><td>Ich möchte öffnen.</td></tr>
+                      <tr><td>dürfen</td><td>мочь, иметь разрешение</td><td>darf</td><td>darfst</td><td>darf</td><td>dürfen</td><td>dürft</td><td>dürfen</td><td>Du darfst gehen.</td></tr>
+                      <tr><td>sollen</td><td>следует, должен</td><td>soll</td><td>sollst</td><td>soll</td><td>sollen</td><td>sollt</td><td>sollen</td><td>Er soll warten.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Порядок слов и времена</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table">
+                    <thead><tr><th>Правило</th><th>Схема</th><th>Пример DE</th><th>RU</th></tr></thead>
+                    <tbody>
+                      <tr><td>Обычное предложение</td><td>позиция 1 + глагол на позиции 2</td><td>Heute liest Mira.</td><td>Сегодня Мира читает.</td></tr>
+                      <tr><td>Вопрос без W-слова</td><td>глагол на позиции 1</td><td>Liest Mira heute?</td><td>Мира сегодня читает?</td></tr>
+                      <tr><td>W-вопрос</td><td>W-слово + глагол на позиции 2</td><td>Was liest Mira?</td><td>Что читает Мира?</td></tr>
+                      <tr><td>Придаточное</td><td>weil/dass/wenn + глагол в конце</td><td>Ich lerne, weil ich Deutsch brauche.</td><td>Я учу, потому что мне нужен немецкий.</td></tr>
+                      <tr><td>Perfekt</td><td>haben/sein + Partizip II в конце</td><td>Ich habe den Text gelesen.</td><td>Я прочитал текст.</td></tr>
+                      <tr><td>Будущее</td><td>werden + инфинитив в конце</td><td>Sie wird morgen kommen.</td><td>Она придёт завтра.</td></tr>
+                      <tr><td>Отделяемый глагол</td><td>приставка уходит в конец</td><td>Ich fülle das Formular aus.</td><td>Я заполняю формуляр.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Частые глаголы и управление</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table">
+                    <thead><tr><th>DE</th><th>RU</th><th>Падеж/предлог</th><th>Пример</th></tr></thead>
+                    <tbody>
+                      <tr><td>haben</td><td>иметь</td><td>Akkusativ</td><td>Ich habe einen Termin.</td></tr>
+                      <tr><td>brauchen</td><td>нуждаться, нужно</td><td>Akkusativ</td><td>Sie braucht eine Karte.</td></tr>
+                      <tr><td>sehen</td><td>видеть</td><td>Akkusativ</td><td>Wir sehen den Betrag.</td></tr>
+                      <tr><td>fragen</td><td>спрашивать</td><td>Akkusativ; nach + Dativ</td><td>Ich frage den Lehrer. Ich frage nach dem Preis.</td></tr>
+                      <tr><td>helfen</td><td>помогать</td><td>Dativ</td><td>Er hilft mir.</td></tr>
+                      <tr><td>danken</td><td>благодарить</td><td>Dativ</td><td>Ich danke dir.</td></tr>
+                      <tr><td>gefallen</td><td>нравиться</td><td>Dativ</td><td>Das gefällt mir.</td></tr>
+                      <tr><td>warten</td><td>ждать</td><td>auf + Akkusativ</td><td>Wir warten auf den Bus.</td></tr>
+                      <tr><td>sprechen</td><td>говорить</td><td>mit + Dativ; über + Akkusativ</td><td>Sie spricht mit dem Nachbarn über die Miete.</td></tr>
+                      <tr><td>denken</td><td>думать</td><td>an + Akkusativ</td><td>Ich denke an dich.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rule-section">
+                <h3>Таблица неправильных глаголов</h3>
+                <div class="rules-table-wrap">
+                  <table class="rules-table compact-rules-table">
+                    <thead><tr><th>Infinitiv</th><th>RU</th><th>Präsens: du / er</th><th>Präteritum</th><th>Perfekt</th><th>Вспом.</th></tr></thead>
+                    <tbody>
+                      <tr><td>sein</td><td>быть</td><td>bist / ist</td><td>war</td><td>ist gewesen</td><td>sein</td></tr>
+                      <tr><td>haben</td><td>иметь</td><td>hast / hat</td><td>hatte</td><td>hat gehabt</td><td>haben</td></tr>
+                      <tr><td>werden</td><td>становиться</td><td>wirst / wird</td><td>wurde</td><td>ist geworden</td><td>sein</td></tr>
+                      <tr><td>gehen</td><td>идти</td><td>gehst / geht</td><td>ging</td><td>ist gegangen</td><td>sein</td></tr>
+                      <tr><td>kommen</td><td>приходить</td><td>kommst / kommt</td><td>kam</td><td>ist gekommen</td><td>sein</td></tr>
+                      <tr><td>fahren</td><td>ехать</td><td>fährst / fährt</td><td>fuhr</td><td>ist gefahren</td><td>sein</td></tr>
+                      <tr><td>laufen</td><td>бежать, ходить</td><td>läufst / läuft</td><td>lief</td><td>ist gelaufen</td><td>sein</td></tr>
+                      <tr><td>fliegen</td><td>лететь</td><td>fliegst / fliegt</td><td>flog</td><td>ist geflogen</td><td>sein</td></tr>
+                      <tr><td>bleiben</td><td>оставаться</td><td>bleibst / bleibt</td><td>blieb</td><td>ist geblieben</td><td>sein</td></tr>
+                      <tr><td>finden</td><td>находить</td><td>findest / findet</td><td>fand</td><td>hat gefunden</td><td>haben</td></tr>
+                      <tr><td>geben</td><td>давать</td><td>gibst / gibt</td><td>gab</td><td>hat gegeben</td><td>haben</td></tr>
+                      <tr><td>nehmen</td><td>брать</td><td>nimmst / nimmt</td><td>nahm</td><td>hat genommen</td><td>haben</td></tr>
+                      <tr><td>sehen</td><td>видеть</td><td>siehst / sieht</td><td>sah</td><td>hat gesehen</td><td>haben</td></tr>
+                      <tr><td>lesen</td><td>читать</td><td>liest / liest</td><td>las</td><td>hat gelesen</td><td>haben</td></tr>
+                      <tr><td>sprechen</td><td>говорить</td><td>sprichst / spricht</td><td>sprach</td><td>hat gesprochen</td><td>haben</td></tr>
+                      <tr><td>helfen</td><td>помогать</td><td>hilfst / hilft</td><td>half</td><td>hat geholfen</td><td>haben</td></tr>
+                      <tr><td>essen</td><td>есть</td><td>isst / isst</td><td>aß</td><td>hat gegessen</td><td>haben</td></tr>
+                      <tr><td>trinken</td><td>пить</td><td>trinkst / trinkt</td><td>trank</td><td>hat getrunken</td><td>haben</td></tr>
+                      <tr><td>schreiben</td><td>писать</td><td>schreibst / schreibt</td><td>schrieb</td><td>hat geschrieben</td><td>haben</td></tr>
+                      <tr><td>verstehen</td><td>понимать</td><td>verstehst / versteht</td><td>verstand</td><td>hat verstanden</td><td>haben</td></tr>
+                      <tr><td>bringen</td><td>приносить</td><td>bringst / bringt</td><td>brachte</td><td>hat gebracht</td><td>haben</td></tr>
+                      <tr><td>denken</td><td>думать</td><td>denkst / denkt</td><td>dachte</td><td>hat gedacht</td><td>haben</td></tr>
+                      <tr><td>wissen</td><td>знать</td><td>weißt / weiß</td><td>wusste</td><td>hat gewusst</td><td>haben</td></tr>
+                      <tr><td>kennen</td><td>знать, быть знакомым</td><td>kennst / kennt</td><td>kannte</td><td>hat gekannt</td><td>haben</td></tr>
+                      <tr><td>liegen</td><td>лежать</td><td>liegst / liegt</td><td>lag</td><td>hat gelegen</td><td>haben</td></tr>
+                      <tr><td>stehen</td><td>стоять</td><td>stehst / steht</td><td>stand</td><td>hat gestanden</td><td>haben</td></tr>
+                      <tr><td>sitzen</td><td>сидеть</td><td>sitzt / sitzt</td><td>saß</td><td>hat gesessen</td><td>haben</td></tr>
+                      <tr><td>schlafen</td><td>спать</td><td>schläfst / schläft</td><td>schlief</td><td>hat geschlafen</td><td>haben</td></tr>
+                      <tr><td>tragen</td><td>носить</td><td>trägst / trägt</td><td>trug</td><td>hat getragen</td><td>haben</td></tr>
+                      <tr><td>waschen</td><td>мыть, стирать</td><td>wäschst / wäscht</td><td>wusch</td><td>hat gewaschen</td><td>haben</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </section>
+        </section>
+
         <section class="overview-view" id="statsView" aria-label="Statistics">
           <section class="panel">
             <div class="panel-head">
@@ -152,6 +388,23 @@
                 <div class="stat-card"><div class="stat-value" id="statTexts">0</div><div class="stat-label" data-i18n="statTexts">Текстов</div></div>
               </div>
               <button class="button danger wide" id="resetLocalData"><svg class="icon" aria-hidden="true"><use href="#sr-trash"></use></svg><span data-i18n="resetLocalData">Сбросить все локальные данные</span></button>
+            </div>
+          </section>
+        </section>
+
+        <section class="overview-view about-view" id="aboutView" aria-labelledby="aboutTitle">
+          <section class="panel about-panel">
+            <div class="panel-head">
+              <h2 class="panel-title" id="aboutTitle" data-i18n="aboutTitle">О Sync Reader</h2>
+            </div>
+            <div class="panel-body about-copy">
+              <p data-i18n="aboutIdea">Sync Reader был разработан на основе моей личной идеи читать больше. Мне понравился формат параллельных переводов в книгах, и я решил повторить его в удобном приложении, где смогу добавить любой текст по своему желанию.</p>
+              <p data-i18n="aboutContext">Главная идея - смотреть слово сразу в контексте предложения, а не только иметь прямой перевод слова. Либо можно сначала прочитать текст на родном языке, а потом на изучаемом. Тогда легче будет понимать текст.</p>
+              <p data-i18n="aboutStudy">По словам можно кликать, сохраняя их во время чтения, потом повторять в стиле Anki или скачать готовый TSV-файл для импорта в Anki.</p>
+              <p>
+                <span data-i18n="aboutPet">Это pet project. Больше заметок о разработке:</span>
+                <a href="https://asavchenkodev.github.io" target="_blank" rel="noreferrer">asavchenkodev.github.io</a>
+              </p>
             </div>
           </section>
         </section>
@@ -170,6 +423,29 @@
       </div>
     </div>
   </main>
+
+  <dialog class="library-dialog" id="libraryDialog">
+    <form class="library-dialog-card" id="libraryDialogForm">
+      <div class="panel-head">
+        <h2 class="panel-title" id="libraryDialogTitle">Library</h2>
+        <button class="icon-button" type="button" id="closeLibraryDialog" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#sr-close"></use></svg></button>
+      </div>
+      <div class="panel-body">
+        <label class="field" id="libraryDialogNameField">
+          <span id="libraryDialogLabel">Name</span>
+          <input id="libraryDialogName" autocomplete="off">
+        </label>
+        <label class="field" id="libraryDialogFolderField" hidden>
+          <span data-i18n="folder">Папка</span>
+          <select id="libraryDialogFolder"></select>
+        </label>
+        <div class="panel-actions">
+          <button class="button primary" id="libraryDialogSubmit" type="submit">Save</button>
+          <button class="button" type="button" id="cancelLibraryDialog" data-i18n="cancel">Отмена</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
 
   <section class="drawer" id="generatorDrawer" aria-hidden="true">
     <div class="drawer-panel">
@@ -208,12 +484,14 @@
         </label>
         <div class="panel-actions">
           <button class="button primary" id="copyPrompt" data-i18n="copyPrompt">Скопировать промпт</button>
-          <button class="button" id="importJson" data-i18n="importJson">Импортировать JSON</button>
         </div>
         <label class="field">
           <span data-i18n="pasteJson">Вставить готовый JSON</span>
-          <textarea id="jsonInput" placeholder='{"title":"...","p":[["p1","RU","DE",[["DE","RU"]]]]}'></textarea>
+          <textarea id="jsonInput" placeholder='{"title":"...","p":[["p1",[["RU sentence.","DE sentence.",[["DE","RU"]]]]]]}'></textarea>
         </label>
+        <div class="panel-actions">
+          <button class="button primary" id="importJson" data-i18n="importJson">Импортировать JSON</button>
+        </div>
         <div class="hint" data-i18n="generatorHint">Скопируйте промпт в Codex или ChatGPT, затем вставьте JSON сюда. Импортированные тексты сохраняются локально.</div>
         <div class="status" id="status"></div>
       </div>
@@ -249,6 +527,7 @@
 
   <script src="texts/text-bank.js"></script>
   <script src="src/text-bank.js"></script>
+  <script src="src/text-format.js"></script>
   <script src="src/app.js"></script>
 </body>
 </html>

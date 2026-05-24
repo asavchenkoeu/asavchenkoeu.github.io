@@ -1,10 +1,11 @@
 const iconHref = (id) => `#${id}`;
 const iconSvg = (id) => `<svg class="icon" aria-hidden="true"><use href="${iconHref(id)}"></use></svg>`;
+const textFormat = window.SyncReaderTextFormat;
 
 const i18n = {
   ru: {
     appTitle: "Sync Reader", subtitle: "Синхронное чтение: русский и немецкий", preparePrompt: "Подготовить промпт",
-    reading: "Чтение", wordReview: "Обзор слов", stats: "Статистика", library: "Библиотека", importText: "Добавить новый текст", searchTexts: "Поиск текстов...",
+    reading: "Чтение", wordReview: "Обзор слов", rules: "Правила", rulesTitle: "Немецкая грамматика A1-B1", stats: "Статистика", about: "О проекте", library: "Библиотека", importText: "Добавить новый текст", searchTexts: "Поиск текстов...",
     chooseText: "Выбрать текст", saveText: "Сохранить текст", deleteText: "Удалить", russian: "Русский", german: "Немецкий",
     newWords: "Новые слова", studyCurrent: "Учить слова этого текста", studyAll: "Учить все сохраненные слова",
     copyAnki: "Скопировать TSV", downloadAnki: "Скачать TSV", clear: "Очистить", archive: "Архив слов",
@@ -16,11 +17,18 @@ const i18n = {
     showAnswer: "Показать ответ", again: "Снова", hard: "Трудно", good: "Хорошо", easy: "Легко", sentence: "Предложение",
     noWords: "Нажмите на слово или фразу в тексте, чтобы добавить карточку.", noStudy: "Нет слов для тренировки.", done: "Сессия завершена.",
     hide: "Скрыть", show: "Показать", words: "слов", cards: "карточек", copiedPrompt: "Промпт скопирован.", imported: "Текст импортирован и сохранен.",
-    saved: "Текст сохранен.", deleted: "Текст удален.", copiedAnki: "TSV скопирован.", downloaded: "TSV скачан.", importStepsTitle: "Как добавить новый текст", importStep1: "Сначала настройте тему, уровень и язык заметок ниже.", importStep2: "Скопируйте промпт и вставьте его в ChatGPT или Codex.", importStep3: "Скопируйте JSON в поле импорта или сохраните файл в texts/ и добавьте его имя в texts/index.json.", statActive: "Новые карточки", statArchive: "В архиве", statStudied: "Изучались", statTexts: "Текстов", trayTitle: "Есть новые слова", studyCurrentShort: "Учить", copyAnkiShort: "Anki TSV", resetLocalData: "Сбросить все локальные данные", resetConfirm: "Удалить все локальные тексты, слова, архив, статистику и настройки Sync Reader?", resetDone: "Локальные данные удалены."
+    allTexts: "Все тексты", noTexts: "В библиотеке нет текстов.", folder: "Папка", folders: "Папки", newFolder: "Новая папка", unfiled: "Без папки", cancel: "Отмена", save: "Сохранить",
+    renameFolder: "Переименовать папку", deleteFolder: "Удалить папку", folderName: "Название папки", folderAdded: "Папка добавлена.", folderRenamed: "Папка переименована.", folderDeleted: "Папка удалена. Тексты оставлены без папки.",
+    renameLibraryText: "Переименовать текст", moveLibraryText: "Переместить текст", textName: "Название текста", textRenamed: "Текст переименован.", textMoved: "Текст перемещен.", deleteTextConfirm: "Удалить этот текст из локальной библиотеки?", deleteFolderConfirm: "Удалить папку? Тексты останутся в библиотеке без папки.",
+    aboutTitle: "О Sync Reader", aboutIdea: "Sync Reader был разработан на основе моей личной идеи читать больше. Мне понравился формат параллельных переводов в книгах, и я решил повторить его в удобном приложении, где смогу добавить любой текст по своему желанию.",
+    aboutContext: "Главная идея - смотреть слово сразу в контексте предложения, а не только иметь прямой перевод слова. Либо можно сначала прочитать текст на родном языке, а потом на изучаемом. Тогда легче будет понимать текст.",
+    aboutStudy: "По словам можно кликать, сохраняя их во время чтения, потом повторять в стиле Anki или скачать готовый TSV-файл для импорта в Anki.",
+    aboutPet: "Это pet project. Больше заметок о разработке:",
+    saved: "Текст сохранен.", deleted: "Текст удален.", copiedAnki: "TSV скопирован.", downloaded: "TSV скачан.", importStepsTitle: "Как добавить новый текст", importStep1: "Сначала настройте тему, уровень и язык заметок ниже.", importStep2: "Скопируйте промпт и вставьте его в ChatGPT или Codex.", importStep3: "Скопируйте JSON в поле импорта или сохраните файл в texts/ и добавьте его имя в texts/index.json.", mappingWarnings: "Предупреждения связей", statActive: "Новые карточки", statArchive: "В архиве", statStudied: "Изучались", statTexts: "Текстов", trayTitle: "Есть новые слова", studyCurrentShort: "Учить", copyAnkiShort: "Anki TSV", resetLocalData: "Сбросить все локальные данные", resetConfirm: "Удалить все локальные тексты, слова, архив, статистику и настройки Sync Reader?", resetDone: "Локальные данные удалены."
   },
   de: {
     appTitle: "Sync Reader", subtitle: "Synchrones Lesen: Russisch und Deutsch", preparePrompt: "Prompt vorbereiten",
-    reading: "Lesen", wordReview: "Wortübersicht", stats: "Statistik", library: "Bibliothek", importText: "Neuen Text hinzufügen", searchTexts: "Texte suchen...",
+    reading: "Lesen", wordReview: "Wortübersicht", rules: "Regeln", rulesTitle: "Deutsche Grammatik A1-B1", stats: "Statistik", about: "Über", library: "Bibliothek", importText: "Neuen Text hinzufügen", searchTexts: "Texte suchen...",
     chooseText: "Text wählen", saveText: "Text speichern", deleteText: "Löschen", russian: "Russisch", german: "Deutsch",
     newWords: "Neue Wörter", studyCurrent: "Wörter dieses Textes lernen", studyAll: "Alle gespeicherten Wörter lernen",
     copyAnki: "TSV kopieren", downloadAnki: "TSV laden", clear: "Leeren", archive: "Wortarchiv",
@@ -32,11 +40,18 @@ const i18n = {
     showAnswer: "Antwort zeigen", again: "Nochmal", hard: "Schwer", good: "Gut", easy: "Leicht", sentence: "Satz",
     noWords: "Klicke auf ein Wort oder eine Phrase im Text, um eine Karte hinzuzufügen.", noStudy: "Keine Wörter zum Lernen.", done: "Sitzung abgeschlossen.",
     hide: "Ausblenden", show: "Einblenden", words: "Wörter", cards: "Karten", copiedPrompt: "Prompt kopiert.", imported: "Text importiert und gespeichert.",
-    saved: "Text gespeichert.", deleted: "Text gelöscht.", copiedAnki: "TSV kopiert.", downloaded: "TSV geladen.", importStepsTitle: "Neuen Text hinzufügen", importStep1: "Wähle zuerst Thema, Niveau und Notizsprache unten.", importStep2: "Kopiere den Prompt in ChatGPT oder Codex.", importStep3: "JSON importieren oder in texts/ speichern und den Dateinamen in texts/index.json eintragen.", statActive: "Neue Karten", statArchive: "Im Archiv", statStudied: "Geübt", statTexts: "Texte", trayTitle: "Neue Wörter vorhanden", studyCurrentShort: "Lernen", copyAnkiShort: "Anki TSV", resetLocalData: "Alle lokalen Daten löschen", resetConfirm: "Alle lokalen Texte, Wörter, Archive, Statistiken und Sync-Reader-Einstellungen löschen?", resetDone: "Lokale Daten gelöscht."
+    allTexts: "Alle Texte", noTexts: "Die Bibliothek enthält keine Texte.", folder: "Ordner", folders: "Ordner", newFolder: "Neuer Ordner", unfiled: "Ohne Ordner", cancel: "Abbrechen", save: "Speichern",
+    renameFolder: "Ordner umbenennen", deleteFolder: "Ordner löschen", folderName: "Ordnername", folderAdded: "Ordner hinzugefügt.", folderRenamed: "Ordner umbenannt.", folderDeleted: "Ordner gelöscht. Texte bleiben ohne Ordner.",
+    renameLibraryText: "Text umbenennen", moveLibraryText: "Text verschieben", textName: "Textname", textRenamed: "Text umbenannt.", textMoved: "Text verschoben.", deleteTextConfirm: "Diesen Text aus der lokalen Bibliothek löschen?", deleteFolderConfirm: "Ordner löschen? Die Texte bleiben ohne Ordner in der Bibliothek.",
+    aboutTitle: "Über Sync Reader", aboutIdea: "Sync Reader wurde aus meiner persönlichen Idee heraus entwickelt, mehr zu lesen. Mir gefiel das Format paralleler Übersetzungen in Büchern, und ich wollte es in einer bequemen Anwendung nachbauen, in der ich beliebige Texte hinzufügen kann.",
+    aboutContext: "Die Hauptidee ist, ein Wort sofort im Satzkontext zu sehen und nicht nur eine direkte Wortübersetzung zu haben. Alternativ kann man zuerst den Text in der Muttersprache lesen und danach in der Sprache, die man lernt. So lässt sich der Text leichter verstehen.",
+    aboutStudy: "Du kannst Wörter anklicken und sie beim Lesen speichern, sie später im Anki-Stil wiederholen oder eine fertige TSV-Datei für den Import in Anki herunterladen.",
+    aboutPet: "Das ist mein Pet Project. Mehr Notizen zur Entwicklung:",
+    saved: "Text gespeichert.", deleted: "Text gelöscht.", copiedAnki: "TSV kopiert.", downloaded: "TSV geladen.", importStepsTitle: "Neuen Text hinzufügen", importStep1: "Wähle zuerst Thema, Niveau und Notizsprache unten.", importStep2: "Kopiere den Prompt in ChatGPT oder Codex.", importStep3: "JSON importieren oder in texts/ speichern und den Dateinamen in texts/index.json eintragen.", mappingWarnings: "Verknuepfungswarnungen", statActive: "Neue Karten", statArchive: "Im Archiv", statStudied: "Geübt", statTexts: "Texte", trayTitle: "Neue Wörter vorhanden", studyCurrentShort: "Lernen", copyAnkiShort: "Anki TSV", resetLocalData: "Alle lokalen Daten löschen", resetConfirm: "Alle lokalen Texte, Wörter, Archive, Statistiken und Sync-Reader-Einstellungen löschen?", resetDone: "Lokale Daten gelöscht."
   },
   en: {
     appTitle: "Sync Reader", subtitle: "Synchronized reading: Russian and German", preparePrompt: "Prepare prompt",
-    reading: "Reading", wordReview: "Words", stats: "Stats", library: "Library", importText: "Add new text", searchTexts: "Search texts...",
+    reading: "Reading", wordReview: "Words", rules: "Rules", rulesTitle: "German Grammar A1-B1", stats: "Stats", about: "About", library: "Library", importText: "Add new text", searchTexts: "Search texts...",
     chooseText: "Choose text", saveText: "Save text", deleteText: "Delete", russian: "Russian", german: "German",
     newWords: "New words", studyCurrent: "Study this text", studyAll: "Study all saved words",
     copyAnki: "Copy TSV", downloadAnki: "Download TSV", clear: "Clear", archive: "Word archive",
@@ -48,7 +63,14 @@ const i18n = {
     showAnswer: "Show answer", again: "Again", hard: "Hard", good: "Good", easy: "Easy", sentence: "Sentence",
     noWords: "Click a word or phrase in the text to add a card.", noStudy: "No words to study.", done: "Session finished.",
     hide: "Hide", show: "Show", words: "words", cards: "cards", copiedPrompt: "Prompt copied.", imported: "Text imported and saved.",
-    saved: "Text saved.", deleted: "Text deleted.", copiedAnki: "TSV copied.", downloaded: "TSV downloaded.", importStepsTitle: "How to add a new text", importStep1: "First set the topic, level, and note language below.", importStep2: "Copy the prompt into ChatGPT or Codex.", importStep3: "Paste JSON into the import field or save it in texts/ and add its filename to texts/index.json.", statActive: "New cards", statArchive: "Archived", statStudied: "Practiced", statTexts: "Texts", trayTitle: "New words saved", studyCurrentShort: "Study", copyAnkiShort: "Anki TSV", resetLocalData: "Reset all local data", resetConfirm: "Delete all local Sync Reader texts, words, archive, stats, and settings?", resetDone: "Local data deleted."
+    allTexts: "All texts", noTexts: "The library has no texts.", folder: "Folder", folders: "Folders", newFolder: "New folder", unfiled: "Unfiled", cancel: "Cancel", save: "Save",
+    renameFolder: "Rename folder", deleteFolder: "Delete folder", folderName: "Folder name", folderAdded: "Folder added.", folderRenamed: "Folder renamed.", folderDeleted: "Folder deleted. Texts were kept unfiled.",
+    renameLibraryText: "Rename text", moveLibraryText: "Move text", textName: "Text name", textRenamed: "Text renamed.", textMoved: "Text moved.", deleteTextConfirm: "Delete this text from the local library?", deleteFolderConfirm: "Delete this folder? Its texts will stay in the library as unfiled.",
+    aboutTitle: "About Sync Reader", aboutIdea: "Sync Reader was developed from my personal idea to read more. I liked the parallel translation format in books and decided to recreate it in a convenient application where I can add any text I want.",
+    aboutContext: "The main idea is to see a word immediately in sentence context instead of having only a direct word translation. You can also read the text first in your native language and then in the language you are learning. That makes the text easier to understand.",
+    aboutStudy: "You can click words and save them while reading, then review them in an Anki-style flow or download a ready-to-use TSV file for Anki import.",
+    aboutPet: "This is my pet project. More notes about my work:",
+    saved: "Text saved.", deleted: "Text deleted.", copiedAnki: "TSV copied.", downloaded: "TSV downloaded.", importStepsTitle: "How to add a new text", importStep1: "First set the topic, level, and note language below.", importStep2: "Copy the prompt into ChatGPT or Codex.", importStep3: "Paste JSON into the import field or save it in texts/ and add its filename to texts/index.json.", mappingWarnings: "Mapping warnings", statActive: "New cards", statArchive: "Archived", statStudied: "Practiced", statTexts: "Texts", trayTitle: "New words saved", studyCurrentShort: "Study", copyAnkiShort: "Anki TSV", resetLocalData: "Reset all local data", resetConfirm: "Delete all local Sync Reader texts, words, archive, stats, and settings?", resetDone: "Local data deleted."
   }
 };
 
@@ -57,10 +79,25 @@ const TEXT_FOLDER = "texts";
 const TEXT_FILE_LIMIT = 50;
 const STORAGE = {
   library: "sync-reader-pairs-v2-library",
+  folders: "sync-reader-pairs-v2-folders",
+  bundledAdditions: "sync-reader-pairs-v2-bundled-additions",
   currentId: "sync-reader-pairs-v2-current-id",
   flashcards: "sync-reader-pairs-v2-flashcards",
   history: "sync-reader-pairs-v2-word-history"
 };
+const DEFAULT_LIBRARY_FOLDERS = [
+  { id: "wicos-neg", name: "Wicos Neg A2" },
+  { id: "level-a2", name: "A2" },
+  { id: "level-c1", name: "C1" }
+];
+const LEVEL_FOLDER_IDS = { A2: "level-a2", C1: "level-c1" };
+const BUNDLED_LIBRARY_ADDITION_IDS = new Set([
+  "a2-geld-bank-kapitel1-v3",
+  "a2-wicos-neg-kapitel2-family",
+  "a2-wicos-neg-kapitel3-wg",
+  "a2-wicos-neg-kapitel4-transport",
+  "a2-wicos-neg-kapitel5-termine"
+]);
 const schemaExample = {
   id: "custom-id",
   title: "Заголовок / Titel",
@@ -71,11 +108,15 @@ const schemaExample = {
   p: [
     [
       "p1",
-      "Русский абзац.",
-      "Deutscher Absatz.",
       [
-        [["der", "Absatz"], "абзац", "", "Der Absatz: мужской род, именительный падеж."],
-        ["Deutscher", "немецкий", "", "Окончание -er для мужского рода в именительном падеже."]
+        [
+          "Русское предложение.",
+          "Deutscher Satz.",
+          [
+            ["Deutscher", "Русское", "", "Окончание -er для мужского рода в именительном падеже."],
+            ["Satz", "предложение", "", "Der Satz: мужской род, именительный падеж."]
+          ]
+        ]
       ]
     ]
   ]
@@ -84,18 +125,21 @@ const schemaExample = {
 let uiLang = localStorage.getItem("sync-reader-ui-lang") || "ru";
 let activeView = localStorage.getItem("sync-reader-view") || "reading";
 let library = loadLibrary();
+let libraryFolders = loadLibraryFolders(library);
 let currentDocument = loadCurrentDocument();
 let flashcards = loadJson(STORAGE.flashcards, []);
 let wordHistory = loadJson(STORAGE.history, []);
 let study = null;
+let libraryDialogState = null;
 const els = {};
 
 document.addEventListener("DOMContentLoaded", () => {
   [
-    "appRoot", "openGenerator", "openImportInline", "closeGenerator", "generatorDrawer", "topicInput", "levelInput",
-    "promptOutput", "copyPrompt", "jsonInput", "importJson", "status", "textSelect", "libraryList", "librarySearch",
+    "appRoot", "openGenerator", "closeGenerator", "generatorDrawer", "topicInput", "levelInput",
+    "promptOutput", "copyPrompt", "jsonInput", "importJson", "status", "textSelect", "libraryList", "librarySearch", "newFolder",
+    "libraryDialog", "libraryDialogForm", "libraryDialogTitle", "libraryDialogNameField", "libraryDialogLabel", "libraryDialogName", "libraryDialogFolderField", "libraryDialogFolder", "libraryDialogSubmit", "closeLibraryDialog", "cancelLibraryDialog",
     "docMeta", "currentTitle", "reader", "ruText", "deText", "ruCount", "deCount", "pane-ru", "pane-de", "toggleRussian", "toggleGerman",
-    "swapTexts", "toggleZen", "toggleLibrary", "wordsView", "statsView", "overviewStudyCurrent", "resetLocalData", "statActive", "statArchive", "statStudied", "statTexts",
+    "swapTexts", "toggleZen", "toggleLibrary", "wordsView", "rulesView", "statsView", "aboutView", "overviewStudyCurrent", "resetLocalData", "statActive", "statArchive", "statStudied", "statTexts",
     "flashCount", "historyCount", "flashList", "historyList", "readingWordTray", "trayCount", "startStudyCurrent", "startStudyAll", "startStudyArchive", "restoreArchive", "copyAnki", "downloadAnki", "openWordsFromTray",
     "clearFlashcards", "studyModal", "closeStudy", "studyTitle", "studyProgressText", "studyQueueText",
     "studyProgress", "studyCard", "studyFront", "studyBack", "showAnswer", "studyActions"
@@ -154,13 +198,17 @@ function bindEvents() {
   if (savedSwap === null || savedSwap === "1") els.reader.classList.add("swapped");
   els.librarySearch.addEventListener("input", renderTextOptions);
   els.openGenerator.addEventListener("click", () => openDrawer(true));
-  els.openImportInline.addEventListener("click", () => openDrawer(true));
+  els.newFolder.addEventListener("click", () => openLibraryDialog("new-folder"));
   els.closeGenerator.addEventListener("click", () => openDrawer(false));
   els.generatorDrawer.addEventListener("click", (event) => { if (event.target === els.generatorDrawer) openDrawer(false); });
   els.topicInput.addEventListener("input", updatePrompt);
   els.levelInput.addEventListener("change", updatePrompt);
   els.copyPrompt.addEventListener("click", copyPrompt);
   els.importJson.addEventListener("click", importJson);
+  els.libraryDialogForm.addEventListener("submit", submitLibraryDialog);
+  els.closeLibraryDialog.addEventListener("click", closeLibraryDialog);
+  els.cancelLibraryDialog.addEventListener("click", closeLibraryDialog);
+  els.libraryDialog.addEventListener("click", (event) => { if (event.target === els.libraryDialog) closeLibraryDialog(); });
   els.textSelect.addEventListener("change", () => {
     const nextDocument = library.find((doc) => doc.id === els.textSelect.value) || library[0];
     if (!nextDocument) return;
@@ -194,7 +242,7 @@ function bindEvents() {
   });
   document.body.addEventListener("mouseover", (event) => {
     const token = event.target.closest(".token");
-    if (token) setActiveToken(token.dataset.tokenId);
+    if (token) setActiveToken(token.dataset.tokenIds || token.dataset.tokenId);
   });
   document.body.addEventListener("mouseout", (event) => {
     if (event.target.closest(".token")) clearActiveTokens();
@@ -245,7 +293,7 @@ function t(key) {
 }
 
 function setView(view) {
-  activeView = ["reading", "words", "stats"].includes(view) ? view : "reading";
+  activeView = ["reading", "words", "rules", "stats", "about"].includes(view) ? view : "reading";
   localStorage.setItem("sync-reader-view", activeView);
   els.appRoot.dataset.view = activeView;
   document.querySelectorAll("[data-view-target]").forEach((button) => {
@@ -313,6 +361,7 @@ function renderLanguage(side, container) {
       const span = document.createElement("span");
       span.className = `token ${isUnknown(token.id, lang) ? "unknown" : ""}`;
       span.dataset.tokenId = token.id;
+      span.dataset.tokenIds = piece.tokenIds.join(" ");
       span.dataset.lang = lang;
       span.textContent = piece.value;
       body.appendChild(span);
@@ -326,16 +375,27 @@ function buildParagraphPieces(paragraph, side) {
   const text = paragraph[side] || "";
   const pieces = [];
   const placements = [];
+  const alignedSentenceRanges = findAlignedSentenceRanges(paragraph, side);
 
   paragraph.tokens.forEach((token) => {
     const parts = side === "left" ? token.leftParts : token.rightParts;
+    const sentenceRange = alignedSentenceRanges.get(token.id);
+    const joinedPlacement = side === "right" ? findJoinedGermanTokenPlacement(text, parts, placements, sentenceRange) : null;
+    if (joinedPlacement) {
+      placements.push({ type: "token", token, tokenIds: [token.id], ...joinedPlacement });
+      return;
+    }
     parts.forEach((phrase) => {
       if (!phrase) return;
-      const index = findFreeIndex(text, phrase, placements);
-      if (index < 0) return;
+      const index = findFreeIndex(text, phrase, placements, sentenceRange);
+      if (index < 0) {
+        addSharedPlacementToken(text, phrase, placements, token, sentenceRange);
+        return;
+      }
       placements.push({
         type: "token",
         token,
+        tokenIds: [token.id],
         value: phrase,
         index,
         end: index + phrase.length
@@ -348,18 +408,113 @@ function buildParagraphPieces(paragraph, side) {
   placements.forEach((placement) => {
     if (placement.index < cursor) return;
     if (placement.index > cursor) pieces.push({ type: "text", value: text.slice(cursor, placement.index) });
-    pieces.push({ type: "token", token: placement.token, value: placement.value });
+    pieces.push({ type: "token", token: placement.token, tokenIds: placement.tokenIds, value: placement.value });
     cursor = placement.end;
   });
   if (cursor < text.length) pieces.push({ type: "text", value: text.slice(cursor) });
   return pieces.length ? pieces : [{ type: "text", value: text }];
 }
 
-function findFreeIndex(text, phrase, placements) {
+function findAlignedSentenceRanges(paragraph, side) {
+  if (paragraph.sentences?.length) {
+    const ranges = explicitSentenceRanges(paragraph, side);
+    const alignedRanges = new Map();
+    paragraph.tokens.forEach((token) => {
+      const range = ranges[token.sentenceIndex];
+      if (range) alignedRanges.set(token.id, range);
+    });
+    return alignedRanges;
+  }
+  if (side !== "left") return new Map();
+  const textRanges = sentenceRanges(paragraph[side] || "");
+  const pairedText = paragraph.right || "";
+  const pairedRanges = sentenceRanges(pairedText);
+  if (textRanges.length !== pairedRanges.length) return new Map();
+
+  const pairedPlacements = [];
+  const alignedRanges = new Map();
+  paragraph.tokens.forEach((token) => {
+    const placement = placeTokenPart(pairedText, "right", token.rightParts, pairedPlacements);
+    if (!placement) return;
+    pairedPlacements.push(placement);
+    const sentenceIndex = findSentenceRangeIndex(pairedRanges, placement.index);
+    if (sentenceIndex >= 0) alignedRanges.set(token.id, textRanges[sentenceIndex]);
+  });
+  return alignedRanges;
+}
+
+function explicitSentenceRanges(paragraph, side) {
+  const key = side === "left" ? "left" : "right";
+  let cursor = 0;
+  return paragraph.sentences.map((sentence) => {
+    const text = sentence[key] || "";
+    const range = { start: cursor, end: cursor + text.length };
+    cursor = range.end + 1;
+    return range;
+  });
+}
+
+function placeTokenPart(text, side, parts, placements) {
+  const joinedPlacement = side === "right" ? findJoinedGermanTokenPlacement(text, parts, placements) : null;
+  if (joinedPlacement) return joinedPlacement;
+  for (const phrase of parts) {
+    if (!phrase) continue;
+    const index = findFreeIndex(text, phrase, placements);
+    if (index >= 0) return { value: phrase, index, end: index + phrase.length };
+  }
+  return null;
+}
+
+function addSharedPlacementToken(text, phrase, placements, token, range) {
+  const sharedPlacement = findSharedPlacement(text, phrase, placements, range);
+  if (!sharedPlacement || sharedPlacement.tokenIds.includes(token.id)) return false;
+  sharedPlacement.tokenIds.push(token.id);
+  return true;
+}
+
+function findSharedPlacement(text, phrase, placements, range) {
+  const start = range?.start || 0;
+  const limit = range?.end || text.length;
+  return placements.find((placement) => {
+    if (placement.index < start || placement.end > limit) return false;
+    if (placement.end - placement.index !== phrase.length) return false;
+    return text.slice(placement.index, placement.end) === phrase;
+  }) || null;
+}
+
+function sentenceRanges(text) {
+  const ranges = [];
   let start = 0;
-  while (start < text.length) {
+  for (const match of String(text || "").matchAll(/[.!?]+/gu)) {
+    const end = match.index + match[0].length;
+    if (text.slice(start, end).trim()) ranges.push({ start, end });
+    start = end;
+  }
+  if (text.slice(start).trim()) ranges.push({ start, end: text.length });
+  return ranges;
+}
+
+function findSentenceRangeIndex(ranges, index) {
+  return ranges.findIndex((range) => index >= range.start && index < range.end);
+}
+
+function findJoinedGermanTokenPlacement(text, parts, placements, range) {
+  if (parts.length !== 2 || !parts.every(isWordPart)) return null;
+  // Generated pairs keep separable verbs split even when clauses join prefix and verb.
+  const candidates = [`${parts[1]}${parts[0]}`, `${parts[0]}${parts[1]}`];
+  for (const phrase of candidates) {
+    const index = findFreeIndex(text, phrase, placements, range);
+    if (index >= 0) return { value: text.slice(index, index + phrase.length), index, end: index + phrase.length };
+  }
+  return null;
+}
+
+function findFreeIndex(text, phrase, placements, range) {
+  let start = range?.start || 0;
+  const limit = range?.end || text.length;
+  while (start < limit) {
     const index = text.indexOf(phrase, start);
-    if (index < 0) return -1;
+    if (index < 0 || index + phrase.length > limit) return -1;
     const end = index + phrase.length;
     const overlaps = placements.some((item) => index < item.end && end > item.index);
     if (!overlaps && hasPhraseBoundary(text, index, end)) return index;
@@ -376,6 +531,10 @@ function isWordChar(char) {
   return !!char && /[\p{L}\p{N}-]/u.test(char);
 }
 
+function isWordPart(value) {
+  return /^[\p{L}\p{N}-]+$/u.test(String(value || ""));
+}
+
 function uniqueExplanations(...items) {
   const unique = [];
   items.filter(Boolean).forEach((item) => {
@@ -389,6 +548,8 @@ function togglePane(lang) {
   localStorage.setItem(`sync-reader-hide-${lang}`, isHidden(lang) ? "0" : "1");
   updatePaneVisibility();
   applyI18n();
+  // Toggle clicks can leave hover-linked tokens active until the pointer moves again.
+  clearActiveTokens();
 }
 
 function isHidden(lang) {
@@ -402,9 +563,14 @@ function updatePaneVisibility() {
   els.toggleGerman.innerHTML = iconSvg(isHidden("de") ? "sr-eye" : "sr-eye-off");
 }
 
-function setActiveToken(tokenId) {
+function setActiveToken(tokenIds) {
   clearActiveTokens();
-  document.querySelectorAll(`[data-token-id="${cssEscape(tokenId)}"]`).forEach((node) => node.classList.add("active"));
+  const selectors = String(tokenIds || "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((tokenId) => `[data-token-ids~="${cssEscape(tokenId)}"]`);
+  if (!selectors.length) return;
+  document.querySelectorAll(selectors.join(",")).forEach((node) => node.classList.add("active"));
 }
 
 function clearActiveTokens() {
@@ -760,19 +926,23 @@ function buildPrompt() {
     "- Верни только валидный JSON без markdown. Сделай JSON minified: в одну строку, без переносов строк и лишних пробелов.",
     "- Не используй words, word ids, links, tokens, lemma, meaning, leftParts, rightParts, sentenceNotes.",
     "- Используй поле p вместо paragraphs.",
-    "- Каждый абзац: [id, RU, DE, pairs].",
-    "- pairs: массив коротких соответствий [DE, RU, tip?, formTip?, sentenceTip?].",
+    "- Каждый абзац: [id, sentences].",
+    "- sentences: массив предложений [RU sentence, DE sentence, pairs]. Не складывай pairs всего абзаца в один массив.",
+    "- В каждом предложении pairs: массив коротких соответствий [DE, RU, tip?, formTip?, sentenceTip?].",
+    "- Каждая pair должна связывать фрагменты только внутри своего RU/DE предложения. Это нужно для повторяющихся слов.",
     "- Главный принцип: одна pair = одно немецкое слово или одна немецкая грамматическая мини-группа.",
-    "- DE и RU в pair должны быть видимыми словами/короткими фрагментами из соответствующего абзаца, не id.",
-    "- RU тоже должен точно встречаться в русском абзаце как видимый фрагмент. Не выдумывай служебный перевод, если его нет в русском тексте: для немецкого es не ставь «это», если отдельного «это» нет в русском предложении.",
+    "- DE и RU в pair должны быть видимыми словами/короткими фрагментами из соответствующего предложения, не id.",
+    "- RU тоже должен точно встречаться в этом русском предложении как видимый фрагмент. Не выдумывай служебный перевод, если его нет в русском тексте: для немецкого es не ставь «это», если отдельного «это» нет в русском предложении.",
     "- Артикли, притяжательные слова и указательные слова НЕ делай отдельными pair. Связывай их с существительным массивом видимых частей: [[\"die\", \"Natur\"], \"природу\", \"Die Natur: женский род, винительный падеж.\"]. Тогда приложение подсветит и артикль, и слово.",
-    "- Для отделяемых немецких глаголов DE должен быть массивом видимых частей: [[\"zeichnet\", \"auf\"], \"записывает\", \"Aufzeichnen = записывать звук.\", \"Отделяемая приставка auf стоит в конце рамки.\", \"Личная форма zeichnen стоит на позиции 2, приставка закрывает предложение.\"].",
+    "- Для отделяемых немецких глаголов DE должен быть массивом видимых частей только если они реально разделены в предложении: [[\"zeichnet\", \"auf\"], \"записывает\", \"Aufzeichnen = записывать звук.\", \"Отделяемая приставка auf стоит в конце рамки.\", \"Личная форма zeichnen стоит на позиции 2, приставка закрывает предложение.\"].",
+    "- Если отделяемый глагол виден слитно, используй слитное видимое слово из предложения: [\"abhebt\", \"снимать\"], а не [\"hebt\", \"ab\"].",
     "- Для отделяемой приставки указывай только отдельное видимое слово-приставку. Никогда не бери буквы внутри другого слова: Jeans - это одно слово, в нем нельзя выделять an.",
     "- Каждая строка DE должна совпадать с полным видимым словом или фразой по границам слова. Не используй куски внутри слов.",
     "- Делай пары постепенно: глагол отдельно, отрицание отдельно, прилагательное отдельно, наречие отдельно; артикль/детерминатив вместе с существительным.",
-    "- Обязательно покрой pairs весь немецкий текст: каждое немецкое смысловое слово, глагол, артикль, предлог, наречие и важную служебную форму. Нельзя оставлять половину абзаца без соответствий.",
+    "- Обязательно покрой pairs все видимые слова в каждом RU и DE предложении. Каждое слово должно находиться хотя бы в одной pair, иначе импорт покажет предупреждение.",
     "- Не объединяй целое предложение в одну pair.",
     "- Группируй только грамматические мини-группы: артикль+существительное, детерминатив+существительное, отделяемый глагол как массив частей, устойчивое выражение или короткий предлог с артиклем вроде im/am/zum.",
+    "- Не делай всю именную группу одной pair. Например eine kleine, aber angenehme Nachricht надо разбить на [[\"eine\", \"Nachricht\"], \"новость\"], [\"kleine\", \"небольшая\"], [\"aber\", \"но\"], [\"angenehme\", \"приятная\"].",
     "- tip добавляй только для контекстного значения или синонимов.",
     "- formTip добавляй только если есть конкретная грамматика немецкого: артикль, падеж, окончание прилагательного, множественное число, время, спряжение, отделяемая приставка, zu-инфинитив, управление предлога.",
     "- sentenceTip добавляй только если важна конструкция немецкого предложения: позиция глагола, рамка, придаточное, инфинитивная группа, порядок слов.",
@@ -790,7 +960,10 @@ function buildPrompt() {
 
 function importJson() {
   try {
-    const parsed = normalizeDocument(JSON.parse(els.jsonInput.value));
+    const rawDocument = JSON.parse(els.jsonInput.value);
+    const validation = validateTextMapping(rawDocument);
+    if (validation.errors.length) throw new Error(formatTextIssue(validation.errors[0]));
+    const parsed = normalizeDocument(rawDocument);
     parsed.id = parsed.id || `user-${Date.now()}`;
     parsed.source = parsed.source || "user generated";
     currentDocument = parsed;
@@ -798,11 +971,27 @@ function importJson() {
     persistCurrentDocument();
     renderTextOptions();
     render();
-    setStatus(t("imported"));
-    openDrawer(false);
+    if (validation.warnings.length) {
+      setStatus(formatImportWarnings(validation.warnings));
+    } else {
+      setStatus(t("imported"));
+      openDrawer(false);
+    }
   } catch (error) {
     setStatus(error.message);
   }
+}
+
+function validateTextMapping(doc) {
+  return textFormat.validateDocument(doc);
+}
+
+function formatImportWarnings(warnings) {
+  return `${t("imported")} ${t("mappingWarnings")}: ${warnings.length}. ${formatTextIssue(warnings[0])}`;
+}
+
+function formatTextIssue(entry) {
+  return `${entry.path}: ${entry.message}`;
 }
 
 function renderTextOptions() {
@@ -811,44 +1000,264 @@ function renderTextOptions() {
   const query = (els.librarySearch?.value || "").trim().toLocaleLowerCase();
   const filtered = library.filter((doc) => !query || `${doc.title} ${doc.level} ${doc.topic}`.toLocaleLowerCase().includes(query));
   const currentId = currentDocument?.id;
-  filtered.forEach((doc) => {
+  library.forEach((doc) => {
     const option = document.createElement("option");
     option.value = doc.id;
     option.textContent = `${doc.title} · ${doc.level}`;
     if (doc.id === currentId) option.selected = true;
     els.textSelect.appendChild(option);
-
-    const button = document.createElement("button");
-    button.className = `button library-item ${doc.id === currentId ? "active" : ""}`;
-    button.innerHTML = `<span>${escapeHtml(doc.title)}<span class="library-meta">${escapeHtml(doc.level)} · ${escapeHtml(doc.topic || "")}</span></span>`;
-    button.addEventListener("click", () => {
-      currentDocument = structuredClone(doc);
-      persistCurrentDocument();
-      renderTextOptions();
-      render();
-    });
-    els.libraryList.appendChild(button);
   });
+  renderLibraryGroups(filtered, query, currentId);
+}
+
+function renderLibraryGroups(filtered, query, currentId) {
+  if (!filtered.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty library-empty";
+    empty.textContent = t("noTexts");
+    els.libraryList.appendChild(empty);
+    return;
+  }
+  libraryFolders.forEach((folder) => {
+    const docs = filtered.filter((doc) => doc.folderId === folder.id);
+    if (!docs.length && query) return;
+    els.libraryList.appendChild(createLibraryFolderNode(folder, docs, currentId));
+  });
+  const folderIds = new Set(libraryFolders.map((folder) => folder.id));
+  const unfiled = filtered.filter((doc) => !doc.folderId || !folderIds.has(doc.folderId));
+  if (unfiled.length) els.libraryList.appendChild(createLibraryFolderNode(null, unfiled, currentId));
+}
+
+function createLibraryFolderNode(folder, docs, currentId) {
+  const group = document.createElement("section");
+  group.className = `library-folder ${folder?.collapsed ? "collapsed" : ""}`;
+
+  const head = document.createElement("div");
+  head.className = "library-folder-head";
+  const toggle = document.createElement("button");
+  toggle.className = "library-folder-toggle";
+  toggle.type = "button";
+  toggle.innerHTML = `
+    ${buttonIcon("sr-chevron")}
+    ${buttonIcon(folder ? "sr-folder" : "sr-library")}
+    <span>${escapeHtml(folder?.name || t("unfiled"))}</span>
+    <strong>${docs.length}</strong>
+  `;
+  toggle.addEventListener("click", () => {
+    if (!folder) return;
+    folder.collapsed = !folder.collapsed;
+    saveLibraryState();
+    renderTextOptions();
+  });
+  head.appendChild(toggle);
+  if (folder) head.appendChild(createFolderMenu(folder));
+  group.appendChild(head);
+
+  const list = document.createElement("div");
+  list.className = "library-folder-texts";
+  docs.forEach((doc) => list.appendChild(createLibraryTextNode(doc, currentId)));
+  group.appendChild(list);
+  return group;
+}
+
+function createLibraryTextNode(doc, currentId) {
+  const row = document.createElement("article");
+  row.className = `library-text ${doc.id === currentId ? "active" : ""}`;
+
+  const open = document.createElement("button");
+  open.className = "library-text-open";
+  open.type = "button";
+  open.title = [doc.title, doc.level, doc.topic].filter(Boolean).join(" · ");
+  open.innerHTML = `
+    ${buttonIcon("sr-file-text")}
+    <span>
+      <strong>${escapeHtml(doc.title)}</strong>
+    </span>
+  `;
+  open.addEventListener("click", () => selectLibraryText(doc));
+  row.appendChild(open);
+  row.appendChild(createTextMenu(doc));
+  return row;
+}
+
+function createFolderMenu(folder) {
+  return createLibraryMenu([
+    { icon: "sr-pencil", label: t("renameFolder"), action: () => openLibraryDialog("rename-folder", folder.id) },
+    { icon: "sr-trash", label: t("deleteFolder"), action: () => deleteLibraryFolder(folder.id), danger: true }
+  ]);
+}
+
+function createTextMenu(doc) {
+  return createLibraryMenu([
+    { icon: "sr-pencil", label: t("renameLibraryText"), action: () => openLibraryDialog("rename-text", doc.id) },
+    { icon: "sr-move", label: t("moveLibraryText"), action: () => openLibraryDialog("move-text", doc.id) },
+    { icon: "sr-trash", label: t("deleteText"), action: () => deleteLibraryText(doc.id), danger: true }
+  ]);
+}
+
+function createLibraryMenu(actions) {
+  const menu = document.createElement("details");
+  menu.className = "library-menu";
+  const summary = document.createElement("summary");
+  summary.title = t("show");
+  summary.setAttribute("aria-label", t("show"));
+  summary.innerHTML = buttonIcon("sr-more");
+  menu.appendChild(summary);
+  const panel = document.createElement("div");
+  panel.className = "library-menu-panel";
+  actions.forEach((action) => {
+    const button = document.createElement("button");
+    button.className = action.danger ? "danger" : "";
+    button.type = "button";
+    button.innerHTML = `${buttonIcon(action.icon)}<span>${escapeHtml(action.label)}</span>`;
+    button.addEventListener("click", () => {
+      menu.open = false;
+      action.action();
+    });
+    panel.appendChild(button);
+  });
+  menu.appendChild(panel);
+  return menu;
+}
+
+function selectLibraryText(doc) {
+  currentDocument = structuredClone(doc);
+  persistCurrentDocument();
+  renderTextOptions();
+  render();
 }
 
 function upsertDocument(doc) {
   normalizeDocument(doc);
+  doc.folderId = findUsableFolderId(doc.folderId) || defaultFolderIdForDoc(doc);
   const index = library.findIndex((item) => item.id === doc.id);
   if (index >= 0) library[index] = structuredClone(doc);
   else library.unshift(structuredClone(doc));
-  saveJson(STORAGE.library, library);
+  saveLibraryState();
   renderTextOptions();
 }
 
-function deleteCurrentText() {
-  if (!currentDocument || library.length <= 1) return;
-  library = library.filter((doc) => doc.id !== currentDocument.id);
-  currentDocument = structuredClone(library[0]);
-  saveJson(STORAGE.library, library);
+function deleteLibraryText(docId) {
+  if (!library.some((doc) => doc.id === docId) || !confirm(t("deleteTextConfirm"))) return;
+  library = library.filter((doc) => doc.id !== docId);
+  if (currentDocument?.id === docId) currentDocument = library[0] ? structuredClone(library[0]) : null;
+  saveLibraryState();
   persistCurrentDocument();
   renderTextOptions();
   render();
   setStatus(t("deleted"));
+}
+
+function deleteLibraryFolder(folderId) {
+  const folder = libraryFolders.find((item) => item.id === folderId);
+  if (!folder || !confirm(t("deleteFolderConfirm"))) return;
+  libraryFolders = libraryFolders.filter((item) => item.id !== folderId);
+  library.forEach((doc) => {
+    if (doc.folderId === folderId) doc.folderId = "";
+  });
+  if (currentDocument?.folderId === folderId) currentDocument.folderId = "";
+  saveLibraryState();
+  renderTextOptions();
+  setStatus(t("folderDeleted"));
+}
+
+function openLibraryDialog(mode, targetId = "") {
+  libraryDialogState = { mode, targetId };
+  const isMove = mode === "move-text";
+  const folder = mode === "rename-folder" ? libraryFolders.find((item) => item.id === targetId) : null;
+  const doc = mode === "rename-text" || isMove ? library.find((item) => item.id === targetId) : null;
+  if ((mode === "rename-folder" && !folder) || ((mode === "rename-text" || isMove) && !doc)) return;
+  const titleKeys = {
+    "new-folder": "newFolder",
+    "rename-folder": "renameFolder",
+    "rename-text": "renameLibraryText",
+    "move-text": "moveLibraryText"
+  };
+  els.libraryDialogTitle.textContent = t(titleKeys[mode]);
+  els.libraryDialogNameField.hidden = isMove;
+  els.libraryDialogFolderField.hidden = !isMove;
+  els.libraryDialogLabel.textContent = t(mode.includes("folder") ? "folderName" : "textName");
+  els.libraryDialogName.value = folder?.name || doc?.title || "";
+  els.libraryDialogSubmit.textContent = isMove ? t("moveLibraryText") : t(mode === "new-folder" ? "newFolder" : "save");
+  if (isMove) populateLibraryFolderSelect(doc.folderId || "");
+  els.libraryDialog.showModal();
+  if (!isMove) els.libraryDialogName.focus();
+}
+
+function populateLibraryFolderSelect(selectedId) {
+  els.libraryDialogFolder.innerHTML = "";
+  const unfiled = document.createElement("option");
+  unfiled.value = "";
+  unfiled.textContent = t("unfiled");
+  if (!selectedId) unfiled.selected = true;
+  els.libraryDialogFolder.appendChild(unfiled);
+  libraryFolders.forEach((folder) => {
+    const option = document.createElement("option");
+    option.value = folder.id;
+    option.textContent = folder.name;
+    if (folder.id === selectedId) option.selected = true;
+    els.libraryDialogFolder.appendChild(option);
+  });
+}
+
+function submitLibraryDialog(event) {
+  event.preventDefault();
+  if (!libraryDialogState) return;
+  const { mode, targetId } = libraryDialogState;
+  const name = els.libraryDialogName.value.trim();
+  if (mode !== "move-text" && !name) {
+    els.libraryDialogName.focus();
+    return;
+  }
+  if (mode === "new-folder") {
+    libraryFolders.push({ id: createFolderId(), name });
+    saveLibraryState();
+    renderTextOptions();
+    setStatus(t("folderAdded"));
+  }
+  if (mode === "rename-folder") renameLibraryFolder(targetId, name);
+  if (mode === "rename-text") renameLibraryText(targetId, name);
+  if (mode === "move-text") moveLibraryText(targetId, els.libraryDialogFolder.value);
+  closeLibraryDialog();
+}
+
+function closeLibraryDialog() {
+  libraryDialogState = null;
+  if (els.libraryDialog.open) els.libraryDialog.close();
+}
+
+function renameLibraryFolder(folderId, name) {
+  const folder = libraryFolders.find((item) => item.id === folderId);
+  if (!folder) return;
+  folder.name = name;
+  saveLibraryState();
+  renderTextOptions();
+  setStatus(t("folderRenamed"));
+}
+
+function renameLibraryText(docId, name) {
+  const doc = library.find((item) => item.id === docId);
+  if (!doc) return;
+  doc.title = name;
+  if (currentDocument?.id === doc.id) currentDocument.title = name;
+  saveLibraryState();
+  renderTextOptions();
+  render();
+  setStatus(t("textRenamed"));
+}
+
+function moveLibraryText(docId, folderId) {
+  const doc = library.find((item) => item.id === docId);
+  if (!doc) return;
+  doc.folderId = findUsableFolderId(folderId);
+  if (currentDocument?.id === doc.id) currentDocument.folderId = doc.folderId;
+  saveLibraryState();
+  renderTextOptions();
+  setStatus(t("textMoved"));
+}
+
+function createFolderId() {
+  return `folder-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
 async function copyAnki() {
@@ -882,12 +1291,10 @@ function resetLocalData() {
   Object.keys(localStorage)
     .filter((key) => key.startsWith("sync-reader-"))
     .forEach((key) => localStorage.removeItem(key));
-  library = [];
-  currentDocument = null;
+  resetLibraryToBundledTexts();
   flashcards = [];
   wordHistory = [];
   activeView = "reading";
-  persistCurrentDocument();
   renderTextOptions();
   render();
   renderFlashcards();
@@ -914,6 +1321,9 @@ function buildAnkiTsv(cards) {
 }
 
 function findSentenceForToken(paragraph, token, side) {
+  if (paragraph.sentences?.[token.sentenceIndex]) {
+    return paragraph.sentences[token.sentenceIndex][side] || "";
+  }
   const text = paragraph[side] || "";
   const phrase = token[side] || "";
   if (!text || !phrase) return "";
@@ -943,6 +1353,10 @@ function normalizeDocument(doc) {
 function normalizeParagraph(paragraph, paragraphIndex) {
   const fromArray = Array.isArray(paragraph);
   const id = fromArray ? paragraph[0] : paragraph.id;
+  const rawSentences = textFormat.isSentenceParagraph(paragraph)
+    ? (fromArray ? paragraph[1] : (paragraph.s || paragraph.sentences))
+    : null;
+  if (rawSentences) return normalizeSentenceParagraph(id, rawSentences, paragraphIndex);
   const left = fromArray ? paragraph[1] : (paragraph.ru || paragraph.left || "");
   const right = fromArray ? paragraph[2] : (paragraph.de || paragraph.right || "");
   const pairs = fromArray ? paragraph[3] : (paragraph.pairs || paragraph.a || []);
@@ -960,7 +1374,39 @@ function normalizeParagraph(paragraph, paragraphIndex) {
   return normalized;
 }
 
-function normalizePair(pair, paragraphId, pairIndex) {
+function normalizeSentenceParagraph(id, rawSentences, paragraphIndex) {
+  const normalized = {
+    id: id || `p${paragraphIndex + 1}`,
+    left: "",
+    right: "",
+    pairs: [],
+    sentences: [],
+    tokens: []
+  };
+  rawSentences.forEach((rawSentence) => {
+    const sentence = textFormat.getParagraphSentences(["sentence", [rawSentence]])[0];
+    if (!sentence) return;
+    normalized.sentences.push({
+      left: sentence.left,
+      right: sentence.right,
+      pairs: sentence.pairs
+    });
+  });
+  normalized.left = normalized.sentences.map((sentence) => sentence.left).join(" ");
+  normalized.right = normalized.sentences.map((sentence) => sentence.right).join(" ");
+  let pairIndex = 0;
+  normalized.sentences.forEach((sentence, sentenceIndex) => {
+    sentence.pairs.forEach((pair) => {
+      normalized.pairs.push(pair);
+      normalized.tokens.push(normalizePair(pair, normalized.id, pairIndex, sentenceIndex));
+      pairIndex += 1;
+    });
+  });
+  normalized.tokens = mergeGermanDeterminers(normalized.tokens.filter((token) => token.left && token.right), normalized.id);
+  return normalized;
+}
+
+function normalizePair(pair, paragraphId, pairIndex, sentenceIndex = -1) {
   const fromArray = Array.isArray(pair);
   const rightValue = fromArray ? pair[0] : (pair.de || pair.right || "");
   const leftValue = fromArray ? pair[1] : (pair.ru || pair.left || "");
@@ -977,7 +1423,8 @@ function normalizePair(pair, paragraphId, pairIndex) {
     rightParts,
     note: note || "",
     formTip: formTip || "",
-    sentenceNote: sentenceNote || ""
+    sentenceNote: sentenceNote || "",
+    sentenceIndex
   };
 }
 
@@ -991,7 +1438,7 @@ function mergeGermanDeterminers(tokens, paragraphId) {
   for (let index = 0; index < tokens.length; index += 1) {
     const token = tokens[index];
     const next = tokens[index + 1];
-    if (next && isGermanDeterminer(token.right) && normalKey(token.left) === normalKey(next.left)) {
+    if (next && token.sentenceIndex === next.sentenceIndex && isGermanDeterminer(token.right) && normalKey(token.left) === normalKey(next.left)) {
       merged.push({
         ...next,
         id: `${paragraphId}a${merged.length + 1}`,
@@ -1051,13 +1498,40 @@ function isUnknown(tokenId, lang) {
 
 function loadLibrary() {
   const saved = loadJson(STORAGE.library, null);
-  if (Array.isArray(saved) && saved.length) {
+  if (Array.isArray(saved)) {
     return saved.filter((doc) => doc.id !== "seed-c1-energy-news").map(normalizeDocument);
   }
   return structuredClone(seedTexts);
 }
 
+function loadLibraryFolders(docs) {
+  const saved = loadJson(STORAGE.folders, null);
+  const folders = Array.isArray(saved) ? saved.map(normalizeLibraryFolder).filter(Boolean) : defaultLibraryFolders();
+  docs.forEach((doc) => {
+    doc.folderId = findFolderIdIn(doc.folderId, folders) || defaultFolderIdForDoc(doc, folders);
+  });
+  return folders;
+}
+
+function normalizeLibraryFolder(folder, index) {
+  if (!folder || !String(folder.name || "").trim()) return null;
+  const id = String(folder.id || `folder-${index + 1}`);
+  return {
+    id,
+    name: id === "wicos-neg" && String(folder.name).trim() === "Wicos Neg" ? "Wicos Neg A2" : String(folder.name).trim(),
+    collapsed: !!folder.collapsed
+  };
+}
+
+function defaultLibraryFolders() {
+  return structuredClone(DEFAULT_LIBRARY_FOLDERS);
+}
+
 async function loadExternalTexts() {
+  if (Array.isArray(loadJson(STORAGE.library, null))) {
+    mergeBundledLibraryAdditions(loadScriptedTextBank());
+    return;
+  }
   const scriptedTexts = loadScriptedTextBank();
   if (scriptedTexts.length) {
     replaceLibraryWithExternalTexts(scriptedTexts);
@@ -1093,6 +1567,31 @@ async function loadExternalTexts() {
   }
   replaceLibraryWithExternalTexts(loaded);
   if (failed.length) setStatus(`Skipped text files: ${failed.join(", ")}`);
+}
+
+function mergeBundledLibraryAdditions(docs) {
+  const appliedIds = new Set(loadJson(STORAGE.bundledAdditions, []));
+  let changed = false;
+  docs.filter((doc) => BUNDLED_LIBRARY_ADDITION_IDS.has(doc.id)).forEach((doc) => {
+    if (appliedIds.has(doc.id)) return;
+    appliedIds.add(doc.id);
+    if (library.some((saved) => saved.id === doc.id)) return;
+    ensureLibraryFolder(doc.folderId);
+    doc.folderId = defaultFolderIdForDoc(doc);
+    library.push(doc);
+    changed = true;
+  });
+  saveJson(STORAGE.bundledAdditions, [...appliedIds]);
+  if (!changed) return;
+  saveLibraryState();
+  renderTextOptions();
+  render();
+}
+
+function ensureLibraryFolder(folderId) {
+  if (findFolderIdIn(folderId, libraryFolders)) return;
+  const folder = DEFAULT_LIBRARY_FOLDERS.find((item) => item.id === folderId);
+  if (folder) libraryFolders.push(structuredClone(folder));
 }
 
 function loadScriptedTextBank() {
@@ -1161,12 +1660,28 @@ function replaceLibraryWithExternalTexts(docs) {
     else deduped.push(structuredClone(doc));
   });
   library = deduped;
+  libraryFolders = defaultLibraryFolders();
+  library.forEach((doc) => {
+    doc.folderId = defaultFolderIdForDoc(doc);
+  });
   const preferred = library.find((item) => item.id === currentId) || library.find((item) => item.id === savedId) || library[0];
   currentDocument = preferred ? structuredClone(preferred) : null;
-  saveJson(STORAGE.library, library);
+  saveLibraryState();
   persistCurrentDocument();
   renderTextOptions();
   render();
+}
+
+function resetLibraryToBundledTexts() {
+  const docs = loadScriptedTextBank();
+  library = docs.length ? docs : structuredClone(seedTexts).map(normalizeDocument);
+  libraryFolders = defaultLibraryFolders();
+  library.forEach((doc) => {
+    doc.folderId = defaultFolderIdForDoc(doc);
+  });
+  currentDocument = library[0] ? structuredClone(library[0]) : null;
+  saveLibraryState();
+  persistCurrentDocument();
 }
 
 function loadCurrentDocument() {
@@ -1176,7 +1691,10 @@ function loadCurrentDocument() {
 }
 
 function persistCurrentDocument() {
-  if (!currentDocument) return;
+  if (!currentDocument) {
+    localStorage.removeItem(STORAGE.currentId);
+    return;
+  }
   localStorage.setItem(STORAGE.currentId, currentDocument.id);
 }
 
@@ -1194,6 +1712,11 @@ function saveJson(key, value) {
   localStorage.setItem(key, JSON.stringify(savedValue));
 }
 
+function saveLibraryState() {
+  saveJson(STORAGE.library, library);
+  saveJson(STORAGE.folders, libraryFolders);
+}
+
 function compactDocumentForStorage(doc) {
   return {
     id: doc.id,
@@ -1201,9 +1724,27 @@ function compactDocumentForStorage(doc) {
     level: doc.level,
     topic: doc.topic,
     source: doc.source,
+    folderId: doc.folderId || "",
     hintLanguage: doc.hintLanguage || "ru",
-    p: doc.paragraphs.map((paragraph) => [paragraph.id, paragraph.left, paragraph.right, paragraph.pairs])
+    p: doc.paragraphs.map((paragraph) => paragraph.sentences?.length
+      ? [paragraph.id, paragraph.sentences.map((sentence) => [sentence.left, sentence.right, sentence.pairs])]
+      : [paragraph.id, paragraph.left, paragraph.right, paragraph.pairs])
   };
+}
+
+function defaultFolderIdForDoc(doc, folders = libraryFolders) {
+  const savedFolderId = findFolderIdIn(doc.folderId, folders);
+  if (savedFolderId) return savedFolderId;
+  const folderId = LEVEL_FOLDER_IDS[String(doc.level || "").trim().toUpperCase()] || "";
+  return findFolderIdIn(folderId, folders);
+}
+
+function findUsableFolderId(folderId) {
+  return findFolderIdIn(folderId, libraryFolders);
+}
+
+function findFolderIdIn(folderId, folders) {
+  return folders.some((folder) => folder.id === folderId) ? folderId : "";
 }
 
 function setStatus(message) {
