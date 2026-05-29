@@ -3,7 +3,45 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Raw viewer</title>
+  <title>Raw Pixel Viewer - Browser NV12, YUV, Bayer and RGB File Viewer</title>
+  <meta
+    name="description"
+    content="Open raw pixel files in the browser. Preview NV12, NV21, YUV420/YUV422 planar, YUYV, UYVY, Bayer RAW, RGB and grayscale data with stride, endian, bit-depth, histogram, diff and format guessing tools."
+  />
+  <meta
+    name="keywords"
+    content="raw pixel viewer, raw image viewer, NV12 viewer, YUV viewer, YUV420 viewer, YUV422 viewer, Bayer RAW viewer, RAW10 viewer, RAW12 viewer, browser image viewer"
+  />
+  <meta name="robots" content="index, follow" />
+  <meta name="application-name" content="Raw Pixel Viewer" />
+  <meta name="theme-color" content="#0c1117" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Raw Pixel Viewer - Browser NV12, YUV, Bayer and RGB File Viewer" />
+  <meta
+    property="og:description"
+    content="Inspect raw pixel buffers directly in your browser, including NV12, planar YUV, packed YUV422, Bayer RAW, RGB and grayscale formats."
+  />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Raw Pixel Viewer - Browser NV12, YUV, Bayer and RGB File Viewer" />
+  <meta
+    name="twitter:description"
+    content="Inspect raw pixel buffers directly in your browser, including NV12, planar YUV, packed YUV422, Bayer RAW, RGB and grayscale formats."
+  />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Raw Pixel Viewer",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any modern web browser",
+      "description": "Browser-based raw pixel viewer for NV12, NV21, YUV420/YUV422 planar, YUYV, UYVY, Bayer RAW, RGB and grayscale files with stride, endian, bit-depth, histogram, diff and format guessing tools.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  </script>
   <style>
     :root {
       --bg: #0c1117;
@@ -86,6 +124,35 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
+    }
+
+    .save-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 1px 92px;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .save-row button {
+      white-space: nowrap;
+    }
+
+    .save-format-label select {
+      padding-left: 7px;
+      padding-right: 7px;
+    }
+
+    .save-divider {
+      width: 1px;
+      height: 30px;
+      background: var(--line);
+      align-self: end;
+    }
+
+    .view-tools-row {
+      border-top: 1px solid var(--line);
+      padding-top: 8px;
+      margin-top: 2px;
     }
 
     .compact-input {
@@ -212,16 +279,43 @@
     .status {
       padding: 8px 10px;
       display: grid;
-      gap: 2px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
       font-size: 12px;
       color: var(--muted);
       min-height: 54px;
       background: rgba(5, 8, 12, 0.35);
     }
 
+    .status-lines {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
     .status strong {
       color: var(--text);
       font-weight: 600;
+    }
+
+    .status-action {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+    }
+
+    .status-action svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .warn {
@@ -402,28 +496,25 @@
         <button id="loadBtn" type="button">Load To Active Slot</button>
         <div class="muted">
           <span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span><span class="kbd">4</span>switch slots
+          <span class="kbd">0</span>diff latest
         </div>
       </div>
 
       <div class="section">
-        <div><strong>View</strong></div>
-        <div class="row">
-          <button id="fitBtn" type="button">Fit Image</button>
-          <button id="resetViewBtn" type="button">Reset View</button>
-        </div>
-        <div class="row">
-          <label>
+        <div class="save-row">
+          <button id="saveBtn" type="button">Save Image To File</button>
+          <div class="save-divider" aria-hidden="true"></div>
+          <label class="save-format-label">
             Save As
             <select id="saveFormatSelect">
               <option value="image/png">PNG</option>
               <option value="image/jpeg">JPEG</option>
             </select>
           </label>
-          <button id="saveBtn" type="button">Save Current</button>
         </div>
-        <div class="row">
-          <button id="guessBtn" type="button">Guess Format (Overlay)</button>
-          <button id="diffBtn" type="button">Diff Latest (0): Off</button>
+        <div class="row view-tools-row">
+          <button id="guessBtn" type="button">Guess Format</button>
+          <button id="diffBtn" type="button">Diff Latest: Off</button>
         </div>
       </div>
 
@@ -444,6 +535,18 @@
               <option value="big">Big-Endian</option>
             </select>
           </label>
+          <label>
+            YUV Bit Depth
+            <select id="yuvBitDepthSelect">
+              <option value="8" selected>8</option>
+              <option value="10">10</option>
+              <option value="12">12</option>
+              <option value="14">14</option>
+              <option value="16">16</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
           <label>
             Bayer Pattern
             <select id="bayerPatternSelect">
@@ -578,9 +681,23 @@
         </div>
       </div>
       <div class="status">
-        <div id="fileStatus">No file loaded</div>
-        <div id="pixelStatus">Pixel: -</div>
-        <div id="warnStatus"></div>
+        <div class="status-lines">
+          <div id="fileStatus">No file loaded</div>
+          <div id="pixelStatus">Pixel: -</div>
+          <div id="warnStatus"></div>
+        </div>
+        <button id="fitStatusBtn" class="status-action" type="button" title="Fit image" aria-label="Fit image">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 3H3v5"></path>
+            <path d="M3 3l6 6"></path>
+            <path d="M16 3h5v5"></path>
+            <path d="M21 3l-6 6"></path>
+            <path d="M8 21H3v-5"></path>
+            <path d="M3 21l6-6"></path>
+            <path d="M16 21h5v-5"></path>
+            <path d="M21 21l-6-6"></path>
+          </svg>
+        </button>
       </div>
     </section>
   </div>
@@ -620,6 +737,7 @@
         stride1: 0,
         stride2: 0,
         byteOrder: "little",
+        yuvBitDepth: 8,
         colorSpace: "srgb",
         treatLinear: false,
         demosaic: true,
@@ -638,8 +756,7 @@
       const loadBtn = document.getElementById("loadBtn");
       const guessBtn = document.getElementById("guessBtn");
       const diffBtn = document.getElementById("diffBtn");
-      const fitBtn = document.getElementById("fitBtn");
-      const resetViewBtn = document.getElementById("resetViewBtn");
+      const fitStatusBtn = document.getElementById("fitStatusBtn");
       const saveFormatSelect = document.getElementById("saveFormatSelect");
       const saveBtn = document.getElementById("saveBtn");
       const fileInput = document.getElementById("fileInput");
@@ -655,6 +772,7 @@
       const stride1Input = document.getElementById("stride1Input");
       const stride2Input = document.getElementById("stride2Input");
       const byteOrderSelect = document.getElementById("byteOrderSelect");
+      const yuvBitDepthSelect = document.getElementById("yuvBitDepthSelect");
       const bayerBitDepthSelect = document.getElementById("bayerBitDepthSelect");
       const colorSpaceSelect = document.getElementById("colorSpaceSelect");
       const treatLinearInput = document.getElementById("treatLinearInput");
@@ -726,6 +844,326 @@
 
       const slots = [createSlot(0), createSlot(1), createSlot(2), createSlot(3)];
 
+      const DEFAULT_NV12_SAMPLE = {
+        name: "lenna_nv12_128x128.yuv",
+        width: 128,
+        height: 128,
+        base64: [
+        "m5qbmJiWlZWWnKCko52QdmFjaGtsbW1ubWtwdHd6fH6Bf4OAf4CAg4GDg4ODgYSCg4WEhISBgIGBgoGBg4SCgoZ/gYF/gX9/f399fnp4c2pwgo2UmpeRk5SV",
+        "l5STk5OUlpaYlZu+yMvJlmZtdXh5d3p4eHh6e3x4e3x8enR1n52ZmZmWlpSUlJWaoaSjnIx0YGBma2pqa2tra290eHt7fICAgYB/gICCgoSDg4KBgYGDg4KC",
+        "g4F/gIGCf4CCgoCChIB+f35/fX9/fn58endyam5/i5OZmJOSk5SVlJOTlJSUlpaVlbfHysunamt0d3d4enh4ent6e3l6fHx7dn2AZZaWl5aWlZSUlZyho6KZ",
+        "iHNeXmRoaWpqaWlrb3N4ent8fn9/gIGAf4CBgoKCgoGBgoGAgX+BgX9+gIF+gIGBgH+AgH9+fn59fX5+fX16dnJuanSFj5aZlZSWl5aWlpSVlJSUlJSQn8HI",
+        "zMWKZnB0d3d4eHd5enl6ent8e3+Caj4zl5aWlpaVlJWboKGhn5eHcl9eZGhrbGtpaGlvc3Z5e319fn+BgYB/gIGBgoOBgYKBgIKBgYKBgICAgH+Ag4OBgICA",
+        "gH9/fn5/fX5/fnt4c3Fsa36Nk5mamJiam5mWlpWUlJKTk5KQsMfLzbNzanF1dnh4d3h4eXp6fHx/hGY/NzuXlpaXl5aUmJ6fn56clIh0X11laGtsampoaXBz",
+        "dnl7fH5/f4CAgYGAgYGBg4OBgoKAg4GCgoKCgICBfoCDhYOBgYGBfn9/fX1/gH5+fHl0c25pdYmRl5ubmZycm5iZl5SVlJKTk4+ZvsrMyplnbnN1eHl6eXp7",
+        "fH1/goVhODc6OJaWl5iYlpWan56em5qVindfX2RpbGlpaGlqb3J2eHp7fX+Af4CAf4CAgYCCgIB/gYCBgICAf3+AgH9+f4GEg4CAgIB+f359fH1+fX57enhx",
+        "bmpwg5GWm5yampubmZaXlZSTkpORkYyoxsrNvXtqcnV2eHl4eH1/f4SHYTk5PDk8lZaYmJiXmJ6gnpuZmpaJcVxbY2hqamppaGtucXd4en1+fX5/f39/f4B/",
+        "f4GAfn+ChIF9fHx8fX59fH19fn+BgICBfn1+fXx9fnx9fnt6eXFta3KAjpabm5yZmZiZl5aWlZOTkpKRjZO7yszOpmludHh5enh4enyChl48OTY3Oz+YmJiY",
+        "mZmdoaCdmJebmYlyXVxkaGtsamhpa21yd3l6e319fn19f4B/gIB/f4B/foGDgn17eXp7fnx8e3x+f3+AgYF9fX5+fXx8fH1+fXh3dG9sc4GLlJiampiZmJiY",
+        "lpaWlZaUk5KQiqPFys7IiGlzdnh5eHl7f4VfNDY3ODs7P5iXmZqanaGhoJyYmJuYiXJeX2Rna2tqaGhqbnJ1eXl6fH5+f319foCAf4B/f4B+f4F/fXt6eXl7",
+        "fXt6en1/f3+Cf359fn19fH18fX19eXZycGxzf4iRlpiZmJiZmJeXlpeVlpaUk5GMjLTJzdG4c2tzdXl5e3+EYDY1PDw8PDw+mpmbm52gn56empeZmpaIcVpb",
+        "ZGhpZ2hoaWlucnV3d3p6fXx+fHt8fn9+fX6AgX9+f318fHt5ent6eHh5fH5+gIF/fX1/fXx8fH18fXx5dnZybXF+iI+TlZeYlpeWlpeUl5aVlZSRkI6InMXN",
+        "z86YZG9yd3l+g101NDg/QT48OzmbmpqcoZ+bmpmamZmblodvWVtkaWhoaWhoaG1yd3d4enp6fHt7fH5+fn1+f35/f35/fX1+enp4dXZ1c3J1e36Af319fH1/",
+        "fH59fHx9enl0c3JucnyGjZCTlZeWlZWVlJOVl5WTkY+OjImJssvO0cB3Z29xeIJgNjU4PEI/PTo3N5uamZ+hmJSUlZuamZuXinFaW2NnamppaWhqb3J2d3l6",
+        "e3x9e3x+f39+e4B/gH9+fYB9e3+DgIaVmZaVj4J4c3V6fXx9foB/fX19fXx7eXVycm1weoaLjZCSlZaVlJSUlZSTk5CPjIyLi4iYwszPz6FobnN8Xjc2NztA",
+        "Q0A8OTc5m5mbo56TjoyTnJuanJeKcltbYmZqamhpaGtwcXZ5eHt8e3x8fn9/f35+foCAfn17g4uMkI+aoKSrqq6uramYg3Rzent/gH99fHx8fHp3dnJwbW96",
+        "hoyMjZCSlZWTlJSUlJKQj4yLi4qKiYqsyc3Rx4VsfF00NDY4Pj9BQDc1ODiZmp+hmYyEhpOdnJyemIlxWFpgZWlnaWlqa3B1d3l4e318e35/fn5/fnt7fX5+",
+        "f4mNk4uMkp6doamrpaKqrrW2qYpwdXt8fX58fHp6eHZ0cnFsb3yHjIyMjpCTlJORk5CQkI2MjImIiIqJh4+8zdHUtXtiNjM4OTw/PTs5Ozo3N5qeo52SgXeG",
+        "lp2dnZ6Yi3BWV2FkZWZnZmlrb3N1d3l6enp7fH19fnx7f4WLhnqBioqKjZGQk5ieoaamp6mtr7S7u6N4b3t8e3l7enl2c3JxbmtweoeNjYyOj5CTk5CPjo2N",
+        "jYuLiYiIiYmKg6DKz9LVkDQ0Nzg+Pj4+Ojs9OTc5nKOhl4lubYiXn56dnZmMcVZWXWFlZGVmaGpucXV1eHd5enl8fHx7f4OMioN7eHyEgIGJipKSm5yfoKeq",
+        "ra+ws7S2vrSMbnF4d3h3eHVzcW5saG16h46OjI2PjpGSko2Lio2Ni4uLiYmJi4uIibXO0t11KDc4Oj4+Pjc4Pzg4Oj6hpZuRe1lpiZifnp2dmIpxVFJaYGFj",
+        "ZWZoaWtuc3R1dnp6ent7enqScHh4d3l4foN+gYWHi4+VlqGkqK+vrrGxsbe3uruecml1dXR1dXNwbmxobHuIj5GNjIyMjI6SjoiJi42Li4uJiYmMi4uIl8fb",
+        "oDQyNTk/P0A4NTw6Njg/NKShlodlUGuGl6CenZ2Vh3BSUlxgZmdmZWdobG9zcXR1d3d6e3t5f3ltd3Z5enh/gn+ChYGGiZGao6enqqyusrS0trm4tsG2fGFo",
+        "bnFycW5tbWhreomRkpGOi4iIh46Qi4qMjYyKioqLi4yMjY+Otp49Mjc3Ozw/Ozo+PDc6SDknpJ2QdlVTbYaXoKCdnJWIblFTXGJlZmdlZWdrbnFzc3Z3dnh7",
+        "eICJbnRvcXZ7fH5+g4aDhIeJj5Sbn6WsrbG1tLW4ubi4t7u7h2pgbG9vbGxtZ2l5jJOVlZGLgn9+h5COi42PjIqKi4yMjo6QkJmCOzM3Nj0+PDk1QD45O0dD",
+        "KFueloRhV1Zth5ifoZ+cl4luUlRbY2ZkZmZnaGtucnRydnd3eXh5h31ubG92dHl8e4B+goaFhImPkZehqq6wr7G0trm1srS5v8nSzHdZbGtoaWlmanqMk5aV",
+        "k49/cXB+jJCMjY+MiouMjIyNjpCWj0kzNzU5Pj45Nj4/OjlGSy1Ml5mNcVdYWW6Ilp+goJyWh21TU15iZWVmZmdobG9yc3R3eHl4eH18bm1wdnV2eXl5e3yB",
+        "goODiYiRmKGtr7CwsrSvrLO9xMbIxsjZvFleaGdmZ2NpeYmSlZSUkIJmWWuDj4+LjYyLi4yNjI6PkpdbMTY2Oj49OzU7QDg3P1JDSYeckn5cWFxabYeXn6Cf",
+        "nZSFblZUXWFkZmZpZmdrb3JzdHZ4eHp7fW5rcHR1eHh4dXZ9gIaGhIWIiJGYoKqssLaopbG/xcTDwsLEw8nXnlFeZGVlYmd4iJSUk5SPhWZDU3iIj42NjYuL",
+        "i42LjY+acjEyMzo/Pj41Oj83OkJMS1CBkpCGZ1ZdXFpth5aen56elIVuVFReYmNmaGhmaGxtcXR0eHh4eXxwbG5xc3d1dnJ1e32Bh4WGiYuOjpSdp6yonqa7",
+        "xsTBvsLBv8HDxs3WhExfYWJhZneIlJaUk5GHbT89ZX6NkIuNi4uMjYyNloZBPDg5QD4/OThCOjc+SU9WfJSMiHNZXGBcWWuGlJygn52WhW1VVWBlZWRlZmZp",
+        "am5ydHV2eHl8dWtxcnJ2dXFwcnx/foWHioyOiYmMk6GomZm0w76+wsK9ur7AxcbGydHJZ0pYXF1leYmUlpSUkohuPzRWdIaPj4uKi4yMjZGXVS86OD0+Pjk1",
+        "QT05PD9KWXmPj4mWX1heX11Za4SUnJ+fnZWFblVTX2RmZmVmZ2lqbnN2c3Z3fHxxcnBwc3VzdHV4fX6AhoSIi4qFiI2XnoycuMC9wL29ubq+vb6+v8PExc7F",
+        "hkxUWmJ4iZOVlZOTiGxANUNjfIqQjIqKjI2PmHM0MTU/Qj87ND0/Nz5AQ0t2jpGJlp5aXV9fXltqhJScn5+dlYVvVlJcYmVlZmZoaGtucnR2d3aAdGpxc3Bx",
+        "c3R2eH+AgYeJh4iHhYKIiYmOqby2uLm8urq6ur2/wcHCw8TExszWkEVSX3aJlJWUlJWHbEQ0Mkltg46PiomMjpWJQDA1OUA/Pzk6QTg8Pz1EbIyNi5SfnFpf",
+        "YGBeXW2Fk5udnZuWh25XUl1hYmVoZWVnam5xdHZwgYllam1zcXFxcXZ5gIKLioOKiYeCgoF+lai4u7W1tLOzuL+/v8DBwcPBw8HFxsrSaEJddIeSlJSUkodv",
+        "RjU0NlR4h4uGhoqQllowNzg9Pz89OEA5OT88O2GPjYSPnZ6dXl9fX15aa4WUm52cnZiHb1VUW2BkZWdnZmhsb3Jzc2qbhGJtbm9wc3V2ent+h4iBg4iJg35y",
+        "fpu1tq+zt7GxtLa6vcC/v7/Bv7/Av8HIydS2UVFyhpGUlZWShm9INzcyPFhxkZ2LjJN0NTY4PT89QDo9PTpBPTBTipGFjJqbmptgXl5eXFhohZOcnpydmIdx",
+        "VlNbYWFkZmZma2xtcHNtdLJyZ2ptcHFvdXd7f4OGhoKEiIB6coGmtK6ws6+prLa7uri7v7+9vr28vMHEwcTGy92FQ3KHkZKUlJSIb0g2ODYnS6nGw7fBoz8z",
+        "OjtAPj9BPj04QDw0RH6Th4mZm5mYmF1dXF1dV2eDlJydnJyWh29RUFpdYWNjYmVoamxucGOPsWpna25ycnJ1dn6ChoKBgoZ+bXOPqa2xp6asra6xtbi4uLm5",
+        "ure6v8HAvsLCwsPF1bVJaIaQk5SUlIhtRzY0J1W6x7nCz9bMSjE5Pj9APzs+PDxCODZxlIuJmJ2ZmZiYXV1fYWBaaIKSnJ+dnJeHbFBOVl9iZWVkZWdqanBx",
+        "Zaqoa2VsbHNydHR7gXx5d4KDfXB1mKyqnqOppqWrsrG0tLe4srK2vL7AvLy7vcHAwMLJ1n5ahpKVlpWTh2tDLSpzxra0ys7OzuF7Kjk8Pz46PDo5Pz43XJCQ",
+        "iJWbmpqZmJdfX2BiYl1ogpKdoJ+elodsUlBXYGRlZmZmZ2ptcXFuu5xkZmpvbm10eoB6dXqAfn1tdp6ro52hoqarrKiztLCxsq+yurq6try8vL7AwcDBwcLN",
+        "v2Z8k5aXlpKEZi8zksmotc7IxMPC3JYrOTw+Ozo5NTxBOkaFlYqRmpiYmZeXmGFiZGRkYmqCkp2goJ+Zim5VUlthZGZnZ2ZqbG5yanjClWZna2dqdXl7d3Z4",
+        "hIN/bnqeop2enaGpraars62usqinsbW8ube4t728uLi5vL+/wcHLroGNlJWVkHlNXa/Eqr3LxcC8wMfblik8QTw3ODc7PjczbJeNj5qZmJiYl5WXZWVmZmRg",
+        "aYKTnZ+goJuLb1VUXGJmZ2hqZ2hub3RoicSDZ2JobHNwdHV2fH98fG56nJiUk5yeo6irr6eqrquipa20rrS5trm6vrGgtry+vr28u8DNuIyTk5KFeZfGuq/F",
+        "yMC/vL/EydqJKzw9Pzs4Oj89KUyQkoyXm5iXlpaWlZVmZ2ZmZWNthJKboKKhnItxVVRcYmZnZ2dmZmttcWGYuH1uZWpqZ21zcnx8dnZvfZqWj4+PlKSop6Wi",
+        "qquooqOwra2vr7C1u76wpbO3urq7u7q4uLrGopGOi6G+wLC3xsO+vb2+w8jK2G8tPjk8OzU5Pjc6eZeNkpuZmJeWl5aVlGZlZWZlY2+FlJ2ho6SejXBVVV9i",
+        "ZWZnZ2VnamxtXqmxg3Fpa2lobm11dnR5coaTjo6QiZKdnqainaKqppioqaasqaiorbKoq6qwr7G1uLaztbeysbqwjJyzwLaxwMW+vLy+wL/Bx83RWDNAPTs2",
+        "Nzs+QWGRj46YmpmYl5iWlZWUZmZmZWZkb4SWn6OlpaCOcVVTXmBkZmZkZGZoa2diurCKdWhram1wdHZ1fXKBkpGJioOOmZ2al6KqpZmdqKSnqKSlqrGyqKau",
+        "s6uytbWzr66xsK+trbWvvriyvMLBvbu8vsDAusDG0MZBNTs9PDU6PUNTg5OMlJuZmZeWl5WVlJVmZWVjZWVugpWgpaaln4xxVVJcYmNlZWVkZWhsZGvCrY9+",
+        "dm9pbW9weHxye5OKi4uAjZKTkZWjpKGanqakpaWlqKKlqqyuraqstbKyr6mlrq6qo5+ytbK1usPCuby8ury+wbivwMTTpy02OD06Nj88P3GTjo+ZmpmZmJeY",
+        "l5aWl2RlZWRkYmyClKCkpKWfjXNWVV5iZGZkZWRlaGpjcMOqlIeAc2trbHJ1a4CLi4uFfI6TlIiMlqGfkqGqnp6mqaSfoqCjqKapr6qwsqmrrKanqZuktLOt",
+        "t7/Av7q6vLu8vsC+nqC5udF2Kzk6Pjo3PjhMjJKNl5qbmZqYl5iXmJeXY2NiY2NjbIWXoaSko56OcVZVX2NlZmVlZGVnaWFwwaibj4d8bWBsdWx7jYSLhHaN",
+        "ko2OkpKOkpCkpZ2hoZ6hnp6enpqepKapsKmopqOupZagrbSxtb++u7a1ubu7vL6/w6aWpZGtvUQ1QD05Njg5TXWTjZOZmpmZmZiXl5eZlpZkYWFhYmNthpeg",
+        "o6Ojno9xVlReY2VlZGRkZmdnXHW/pZqRh4JrZmxpfoyAh4B3iYyNioqMlZCOnJeYop6enJuhmZqanaCko5+npaGkn56cpa+tsbzBvLa1tbe7vb29v8W2lqWP",
+        "kLmaKjU+PTM8OUFkkZCNmJqamZeYmZiWl5iWl2RjYWJhY3CGlqCjo6SfkHRXVV5jZWRkZGRmZWdXf8CrnZKJhHZtaHyKhIV6doqOi4eDh5KKjpuYmJqYkpOc",
+        "oJSTnJ+fnZ6gn5qcn5uUnK6trLe8uLO0tbi4vL6+vb/DxJ2dm5aUw2wrPDs7Oz06S4CVi5OZmpiWlpiYl5aXlpaXY2RjYmRocoaWoKSkpJ6RdFVSXGJjY2Jk",
+        "ZGRlZlSEx7GlnI+Of2N1iH2FfHeIiIuGf4CTh4iclYeFi5OIhHV6n5+cl5ifnJmanpqQlKquqbK8ubGvsbe4ury+v7++wMixmpN+b5zCOzE9PTpDQDxgk4+O",
+        "l5mYl5aWl5eWlpeXlpVlZGRkZWlyhpahpKSkoJFzU1FcY2VjY2RkZWVlUoLJtaablZWGcXt8g3tzh4uHhHqCjIOJlYdxf3VqbXCVlXWAiZCTk4uTiGl6kpWr",
+        "pqq7u7i0tLa3ury8vb++vb/JxJ9/YFl9zo0lNjs3OEA8Rn6VjJSZmZmXlpaWlpWVlpaUlGVlZWVnaXWIlqKlpaWgknRUUFphY2VmZmZlZWRTfsm3sJ+KkYxx",
+        "dnp3cISIhn94gISChY+Leoh6bmFQV5qdhXRnXWtnW0xIQjmgppysubu2t7i2tbm8vLy+v7/FxbSMaFZbdrjBPjE7OTY6PjdfkY6OmZqZmZiWlpaVlZWUlJWU",
+        "ZWhmZGhtdYmYo6SkpaCSdVNRW2JjZWVmZWVmZllvxbq6on2AfWx3d2qAh4R/e4KDgICNhXKGe29udGReb3tmS01hTkc6My4/g5ufur24tra4t7S3ubu8ub3G",
+        "waN9YltXYnqsxmgtOzw7OT82OXySipacmpqZmZeXlZSVlZWUlJRmaWdjZ212h5ijo6SkoJN0U1JcYmNlZGdlZmVjXF28wLykeIGHenJre4eGfnd/hX99iYR0",
+        "gH9yd2ZZSkRXcWNgalVGVjopQ5WRoLa4uLa1tLa2tba4uLvBxqtwWlRYZnONt7NOLjg8OTk8QTNRjo2PnJyamZqZmJeWlpWUlZSUlGtqZmRmanWIlqGjo6Sg",
+        "k3VVUVxhYmRkZmRlZWRjU6fDu6WBiZB/aHWEhn53fYN/fomGcXuGaFdZUj86T3VmQVtjXEBUJVGbhpu6q621tLOws7O0tra9w6iFfGFgaHqRnLC5Uyw7PT43",
+        "NUBEPnOTi5eenJuampmZmJeVlpWVlZSSbGppaGZpdIiWoKOio6CTdlVRWmBiZGVlZWRkZmdShMe1s5OGjnJxhIZ6cn5/fXeAgox5eFlHVkk+PDpvbDlJYVdC",
+        "NlFglYaquqyqsK6vr6+ztLS3w699XmWFjY2aop+qulMrPD8/PDk4QDhOi4+NnZ2dnZubmpiYl5WVlZaVlJJsamlnZ2hyhpahpKOkoZJ3VVFcYGJjZWZjZGRn",
+        "aVtpw7y0o5yAa3+Gfm57fHt3goBqd3NNSlZFO0IwVGA8SG1qRkQ+gI6Hrbysqa2tqqmqsLO0trqHU1B3bX6coaKesbxcKjk8Pj87Nz09N2mSipWfnp6em5ya",
+        "mJiXl5aWlZSUk2xsamdmZnCEl6Kjo6Sgk3lTT1tfYWNjZGNjZGlraFeczrCeqXF5gXxwfX13eICDf15OUE9XRjtdNTpdPTpPU09UVV2OhLO7s66rq6ulqKix",
+        "tbK1j0RTZHB8dI2bormlTSw3Oj5BQDs3PDtHfImKnZ+enpycnJuamJiXl5aWlJOSbWxraGVjbIOWoaSlpaCTd1NRWV5iZGRkZWRmaWtrYmK9va+ifH+AdneB",
+        "gHp5f3luYVZPXUAuT2IsR1I9RjxOSGJ3bnq3ubSwrKqsp6Ktra+urraiZlppZH92haS3jjwvODw+PEE8Nzk+Pl2EfI+hn5ycm5ydm5qZmJmYl5aVlJJtbGlo",
+        "ZmFogpahpKSmopN4VE5YXWJjY2RlZWdrbm9sVo/HuZ+AeHFzgnpze316dFJNVGFWPTVSUj9HOUBNSlFSYHd/o6+tsKmmp6emp6qtsrO3u7aHV2BlYoSIoXQv",
+        "NDk5QEA/QDg3PTxFcoJ8maGfnJycnZubm5mamZeXlpWUkm1raWdmX2aBlKCkpKajlHpTTlhdYmRkY2RkZ2pvcG5dfs+/qnt6b3h4dX6EcXZnTEQ+VFBHQEVf",
+        "VTI5OTsxP2NTc5OjqKyooKSnpqWjqLe6uLm5u51nRVBXco2NVzI1Nz8/QkM+NjY9OlaCe4Scn56enJydnJubmpuZmJiXlpSSa2prZ2ReZYCUoKSlpqKUeVRP",
+        "WmFkZWZlZWRna3FycF9/zsiHbHh5dHCEhX9nREdPODVJUVZDQVByQDs3MTNpZ3uVrKyyr5+bo6ydnqq2ury5ury6pXFKN1FkjJFPNTc5PkFDRTw3OTo7bYh8",
+        "j5idnp6dm5ubnJyampmYmJiXlZJpa2lnZmBmgJSgpKWloZV6Vk9ZYWNlZmZlZ2lpb3NyZ3LMu21rcnJ1f3ZydGEzUDw1Oj1PT0hKNG9bQi4rdXqNnoqqrbOm",
+        "mpuroZynsbe5vby/wsKyfVEyQliUkj83Ojs+QEZCODc8N0yCg4eVkZSZnJ2cm5qbnZuZmZeYmJaVkmhqaWdmYWWBlaCkpaajlXxYT1hfZWdpaWdnZHZ/cHNv",
+        "Y7uwandtcYJ7ZFhNR0NWMkBAOT9GRFpHWEkrKGuEj6qZjqCtraGio5qXo62zubu9vcLExbyQWzc2R4SaRzo9QEBCRz42Oz8zYIyAk5iSkZGSlJaZmpqbm5mZ",
+        "mJeWlpWSa2tnZmVfZn+ToKWmpqOUe1pSW2JnaGloZmZoe3VzdHVpkLhwcXV7foBtUEA2O1E5RD49PT8+YV1ZYx9hh42sqaOUobauoJ+VlaGlsba5vL6/w8TG",
+        "wZ1jPS49dZ5QOz4/Q0VIPDc9Ojt4iYacm5aUkpCPkZGRlJeampiXlZWUk5FqaWZmYl5kfpOgpaamopV7WFRfYmVnZ2loaGpzcnV3eHR2qXpxgoCCaUc+UzYz",
+        "UkFDQTtARjpORj9hUoaEo6eyq4qitqCZlpihpKevt7m8v7/CxMfGqXBIMzdln1Y2P0JCQ0Q7Oj81UYyEjp+cnJmXlZOTkY2NjpCSk5SUk5STkWhoZ2RkXmOA",
+        "k6GlpqeilnpXU1xiZmdpamhpa3B1c3NxcnhzdX2FfnZJQzhSQDo3UFI3OERHQEBUIU6Df5+Yo7GwlaqolpiZnaSmqay1ubq6vsDDxsa1fVU2M1ieXjg/QkVH",
+        "Pjk9OzdvioSXnpqamp2cnJeWkY2PjIuLjI+SlJOSaGhlZGRfYoCVoKSmp6SVelhSW2JnZ2loaGhscHR2d3OEfnuLc359ZURSMGE6OU9bPzU7RT9PR0Y0b3Gg",
+        "opyesrCxnIaUn6GjpqioqrC3uLi7vsDExb2HUDQ0SZptPkhDRkc8PD83R4GEhpqcm5qZm56fnJeVkY+Ni4uLiouNjpFnZmVmZWBifpSgpqeno5Z6WFNcYGZp",
+        "aGhnaGtxdXdxlZZLN22bd2dFXEBBZi88RD81OT9FQVFHL2Z4maiump22upRjZWxuf5mrrainq7W3tLe7v8fApW48MzNCkX09R0NKRDk8PjZbiYCPnJmZmZiY",
+        "mpucmJWWlJKQkI6KiYmIhmhoaGdmYGF+lKCmp6iklntXVFthZmlnZ2dnanB0dnyWei8reY5fS0paNlpkLkFGSEM3Mk1XTDNMgounr7CTrbqSgJCRhGNNU3Od",
+        "pqSnsrWytLiymHlmYVA4NTqFjT1HSUc9OjxAOW2IgZecmJeXl5aWl5mXlJWVlZaVko2LiYWCZmhqaGVeYH2SoKamqKaXfVhUXWNoaGdmZWdqamt/lo2PcV52",
+        "akdBYUlVSFQ/RTlFWS00Nk9BMXiNqKe7oqS3f298d2+Ncm9hWXWYnKKwtrOyp4BlYGhtWkU2OX6QREFIRjw7Pj1HfYOHmpmYl5eWlZWXmJaVlJSVlpeUkZGL",
+        "hoJnaGdmZFtefpOgp6iopJh+WVFZYGZoZ2ZlZWFzjYyUlZmPgUE9S15lS2c6RUZIOTBeSzE2MythhaOltriurmZOT0U/Oj40Unx/eomVnLG5ubSAWkk8QENI",
+        "QzM6epNPQUpAOTs/M1OKgI+amJaVlpaVlpaXlZOUlJOVlpKOjoyJhWNjYmFfV1h5kqGnqKijlX1YT1leY2ZkY2NabbOihZSPgVFBK1pYXFFabzxAP1ZALjpo",
+        "TTksQH+Zqam6uK9iQDs5OTNMe0spUYN/ho+bscHBczo6Vlk3P0E6NThzlVBGSTw4PD40ZY2GmJmWlZSUlJaUlZWUk5WTkpKSjoyJiIeEZGNhYFtUVXqSo6in",
+        "qqaVfFZRXWNlZGVkY1hzspGGk4R1QTVWS0s8Q21jODkyTFUyNTlBQDJpiamlsr65cU07P1RHQlS4r1pXcHiCi5m1z5I7PUdzlkg3PTo4PG6XVk5IOjo9OEJ9",
+        "ioyZl5eUk5OTk5STk5STk5GPkI2KiISCgIFmZGRhXVNTeJKiqKmrp5Z8W1RfZmloaG5nREl+mseSTDstVVA/TUVYbmk2OTg8VTY3OTIuTW+Unqu9u4FvdFZB",
+        "cF1NfMTEiGtwdH2JncHEcmlaUXuhVTU3NzdDZ5xXVkI7PT80UImGkZiWlpOTk5KTlJOTk5KPj46MiYeCfoGKmWdlZWFdU1J4kqGpqqunl31eWGFobW5uTEBf",
+        "faG5qFQ/N15jOURVVWdpdkY8NjU8Pjk7Ljdxi6Wovbh+c36KhWRqe4Ksua2SgHx3foWfyr5zfX2EqIZIQD87PkVfoVxXQDg6PzZjioaWl5WTkpGUmZOUlZKR",
+        "kI6NioiHgYOQnaevaWlnYFtTUniToairraqagF5YZGpvcXY7apmLjns6MmNoXlAtTFlNX3l3ZD00Nzg4PDYnW3uipbe9d2yEhYqNioB0eYJ8k5+Oen1+g5rG",
+        "xJqKhH9wTk5UQDlCRlenZ1E9OTw9RnuFi5mVlZOSkJOWkpKTk4+NioiHg4SOn6uxsrJoZmNdWVBNdZKhqKuuqpuBXVZiaW9reI6XhVVRUTg4PnR8aT1BUWBX",
+        "aX1jPTk4ODo6LTt9h6WswXhefoeQkZGQjYiGio+YlpB9hH9+l8LJpZOFfnVkaF1BNkBFVKhuSj04QTdNh4GRmZSUkpKTkpCRkZKPjouJh4GGm6yztLOzsmVg",
+        "XVdWSkdykaCorK2qmoFdVmFpbmtuhH5kV11AOk9cYllaMT9UT3dfY2Q4ODg2PDsvaXmfrsSCU3V9iJKWnJycmZqhoqCgj4WHf36Uvsqwn5WKgXl0ZEU5Q0NP",
+        "qXRFPDg8M12IhJWWlZOSkZKSkZGQj42MioiBhqO1uLa0s7KzYF9aV1NHSHCQoKiqrKmagV1VYGVteIGBjnl3Tj9NYG5mZkAvPF9eZ3J7YlBAOTc5NEp8ha7A",
+        "lEFod36GkJaeoaekpaSjpZyNi4Z/fY25zbGjlouEfnlqRTpFQUaofTw7Ojs4c4aJmZaUk5KRkpKQj46Ni4mHgoajt7q5tbSys7RcXVZWUEZGcpGhqKmsqZqB",
+        "XFRebHyFh4VhTEtAR1dfcXdNNzc1O1ZlVzJtfEQ3OTgwb3ueu7A7S3B5fYaPlJ2kp6iop6ilm5GOiIJ+ibXPtJ6ajIN/fWxDPUhEQZ6IPDY7N0KChZCalZWU",
+        "kpKRko+NjY2Lh4OCnrS4uLi2tLS3uldUUlFPRkVwkKCnqquomYFdVV9sb3RvVV5eUkRkS2x2UUM2Ojs6P0RBLm6GTi42LUd/ibW8WS9Yc3p9g4yRmKKnqqqm",
+        "paGYkI6KgX6JsNG2nZmQhoB+ZkA7R0Y8lZBANEI0UomImJmTlZORkZCPj46NjImGfZKyuLa2t7e3ur6/U1FQTktDQ26Qnqanp6aZgltUYmZocm14Z2BgZVE8",
+        "WXNOQDs+Ozg+Qz04ZHmENzAsaXiiyIYtQFVyeoCDio+UmqKnqaWjnZWKiId9fYmlzrqbl5CIgH1eOzlHRDWUmE8xRDdoiYyhlpWUk5GPjo6NjIuLh4CFqbi3",
+        "tra3ub3AwL9TUVJPSkBCcI+dpaOopZeCWk92ZXaLfEheemFGTlJgf2FARj0zMkBUQESEandxJEB6gMO0NzZFUWx5f4OIkJWZnqSkpKGclIaDg3t7hKDLwJmW",
+        "joeBe1M2P0xGMImWXTI+O3uIkZyXlZSTkZCOjoyLiomFf5q2uLW1trq/w8K+vVRSUU5IPj5uj56lpKelmIFZTW5/gH9hR3liVkRkY295bEQ/Oy80T2dGYpWS",
+        "Q1MeYnqhx1YlPUxQa3l+gYaNkpaZm5+gnpuRhYF/eniBm8PLmpSOhoF0RzRAUEYtgJ1jLzdKhoeVmZaTlZOSkY+PjYuIiIGJrbm2tra6wcLDwr+/VVNQT0Y7",
+        "OmuPnqWnqKeagVpMWnRxfmNQX2FVVWVaXoBiQTI+ODZPUXdyWmA1Lj5yfrl+JzBAVlBpd32BhYqQkpSWmpyblYx+eoJ9eIKVvdKakI+EgGo5NkJPRCtznXQ0",
+        "MmCLiZmXlJKSkpORj4+OjImFgJ24uLa2usHEwcHCwsJYVVNORzs4a46fpaapqJqCWll4cm12U1FkZVBNZEVjeWJQO0I7MlBmV3JQMy09kIOEplQsMkNcTmp4",
+        "fX+Eio2RkpaXmZmSi3N7i42DfJO70JeNjIJ9VzE5QVBDLGOhgTovdI+OmZWUkZGQkJGQj46MiIGIrbq3tri/w8G/wMLDwllVU1BKP0Bxjp6kpaiomoJlYWRi",
+        "b3NQUnRmN2NhQWF3cGBDPkcuPj9IZzMyI2azrLBvLTI0QmBUa3d8foSJjJCSk5aYmJSMeINwX3R1hK64kY6KgnI8NDtETEIwVKCDPjmDjpKZlJORkZGRjo+O",
+        "jIuIf5W1ube4vcDAwcLCw8PCVVNTUEpHT3uTnqSlqKmbhF9OXGZwaVdXaFM/dFROYHKAZ0E2VUoqNnVNNj06f5+1gyc3ODREZ1tudnt/g4iNj5CSlZeYlpCC",
+        "fG9obWl4oqiTjIaDWjY5PEhNQzRFmopFUI+NlZeUkpGQkZCPjYyMi4aCoLi5uLzBwsHCxMTEw8JUU1JRS05cgZWfoaOoqpuEXlJeZHFyQVJOOmhRU1VnZ3mC",
+        "USdhjCw+Vz5beIlohqE0M0c/MkdsW3F3e36BhYuNjZCTlZiXlI+GgomIiauzoZOMhHpBODo+T1NFOTuTikxhko2XlpSSkpCQkI+OjYuKg4apubi6wMPCwsLE",
+        "xMPCw1RRVFJKSmSEl56hpKmpnYZfUl5idYVCS1JtUjdOV2htZoFyP1VtRDtFfYaodWetWTRAQEM4Rm1gcXp8fYKHiYqLkZSVmJeUko+Jla6iu7agj4mGYTg6",
+        "OkRSUUdANIiLV3aQj5eUk5KSj4+Pjo6NiomBjK+5uL3Dw8HBw8PExMXFUE5OT0ZIZYaWn6KjqamdhV9QWWeFc0hTc09BP0tNUWZadn5XaEk4PXOWrpdSh28q",
+        "PTk/Rzg/a2NveX1/gYaJiImMkJGSlZGQkJCjwKi5t5yNioBDNzo7R1NOSD0ue4xkhI2SlpSSkZCPj4yNjY2KiYGRs7i7wsTCwcLCw8XFxcZOTEtLR0xggpWe",
+        "oqWoqp6HXk5afHRtSWdiNU5MSlJIXE1mfn1bK1hrc56sYm9+LUM/Oj5MOjlnYml4fX6BhomJh4iLjo2Ojo2Tl6rEsr66nIeMaDM8Oj1IVExGPy50jGyIjZSV",
+        "lJORj4+Pjo2MjIqFfpW1ur/Ew8LDwsHExsXFxklFSktHSl6Cl5+jpaqrn4ZfSXJwaHA9Wlo+R0ZTYFZQWkpiiU5GgKOqtXJgjz0xVjs5QFA+OWFdYnZ8f4CE",
+        "homGiIaCiIuMi4+Qj5mnmJiFf4lIND47PkpSUUxBKmqOdIyMlJWTkZCOkI+PjY2LiYZ9l7a9w8XDw8TDxMbHxsbGQUJGSUVMYISYoqaoqqqehlZheViEbjxL",
+        "SEhLPVJ3aV1PY2NdX4CFtsuEVpBgLThFPDdATUI3XFlccnyAfYGFiYuNb2BncHRya2Rlc3Zibm+NcDM6OzlDSk5UQ0cvXI2Bj46VlpKSkI+Pjo+Ni4yLhH2c",
+        "ucLFxcTDw8TFxsfHx8dAQkVIRVNmhpeip6irqpx/bn9WaoxhR0I5REtHVoRcamNfaU5eiX++rlqFiDI+Nj8+OkJGRzlWVllteHt7f4SHjo2CeXFvdHt/hYqY",
+        "n4aDjIlFND05OkVHUlNDTzRRkYuPkZaUk5OTkY6Nj42NjYqCfqK+xcbFxcTExcXHyMfHxkBBREZDVWaEl6Cnqaypn4t+VFKCc1tQXjQ7VUlhjEZbbV9IZoSO",
+        "fahyhZxBOT83OT85QUVIPE9SUWdydnh7foOKjo6Ef35+gI+hpaaniYySYTE6PTU9PUZXU0VROE6VkJGRlpWUk5OSkJCOjY6MioF9psTHxsXFxsbHyMfGxMPD",
+        "Pj1BQkBVYoCWn6iqq6qgjlpEcn1tSWBfL0tVTnaAYVtUbnFujIuKn4SvTjg/Qj48Pj5BRko+T1FKXmxwdXl+gYaJi4eBfX16fYSHgIGMkX5ANTo8Oz89SVRV",
+        "SVA9S5aUkpKVlZSUk5KRkI6NjIqIf3yryMnHxsfJyMjHw8HAwMA8PD48QV1ffJGeqamrqpyDWUp/a2U6alMvUkZAjnRpflVbhG9ueo+lr2M0Pz9CPD09QURE",
+        "Rz9HUUhTY2pudXuAg4aJh4SCf355eHuBkI6IVDo1OT1EPztOV1dIT0FJlpWRk5WUlJWUlZOQj42Liod9eK3LysfHyMrJxcLBwcLDxDw8OzdIaGh9jZynqKqp",
+        "nYhcSXdrVkhcQTRPRD6KfW2EcGNrb15xlsV5MD87PEI8PD48P0JFQT1KRUpXZGtye36DhoaHh4eIj5WYlJeSj2w+PDU7QUM+OFBZVkxSQ0SXmY+UlpaUlJOT",
+        "k5CPjYuKhXp3rszLycnJyMbExMbFxcXEOTo7OE9raX6NnaenqaidhV5JZm5SWFg7NlM8RHJobn95ZFh5dVuMnTk7PTs+RDk9PTw4QEJBPUVCR0ZSY2t1foKF",
+        "h4qMlJaXoaOdmZKSSj05OD5FQkE4V1tYTlNHRZeajpaXlZSTkpKTkZCMioiEeXm1zcvIx8bGx8fGxcPCwcA4PDk5T2Vof42ep6eoqZ2GXExiY0VKXj48TjtG",
+        "dlhDbIJ9anmFX2leQzw+OkFGOUA7Pjk6QUBAQ0NHRjhLXGt7gISIjZCXoZ6gn6Sek4A5Qjw8P0Y8QDlbXlhQT0pEl5uOlpeUkZKRkJGQjoqIh4N4f77PysXF",
+        "x8jIxsLAwMLEvTo7ODlFXW2Bjp6lpqmpn4dbQGRSNk5dP0ZJOzh8bUBabXmHeIxyXUc9PT47QUk6Qj0/PDo9QkFBRUJPPTdDV2ZteX+GjJCXnqKdnZaQcDlC",
+        "QUBASD8+PF5eVlVVT0aWmoyNkZCQkpKQkI+MiYeGgnSIxc/JxcbIyMbDwcK+rI1nNzk2NT1aZ3uRnqSkqKidhEtkhGc7UExCR0I6MnGIWU5pcWp2koSLezM5",
+        "PjxJTzZFPT0+Ozo+REVHQUxQQkZNU19pcnuDjZKXnpiVi4hjMjxCQkFHQD0/XWFYVlhNTpmUfHeBhYmLj4+RjoyKhoN/cZjKzMfFxsbFw7+4pHtLMjA8PjYy",
+        "OlRYdpCdpaWlp5t1fqFabDlHT0ZGQDo0aoh1R0pjcnCDhliHgzc1OktPNEY7Oj06OjtCQkM9QFNZbHh/g4eEhomSl5aYm52gq594UTo7P0M8PEBaYFpVWExU",
+        "m4pwbnB2eXp/gomMiomGgXpyqczHw8TEwsK+sZVVMDA7SUZEPDY4S09wjJyko6WllZqWTU9eLERXQkJPTDlbe3xjRXaKW2d/XFmcezg7Tkw3Sj48PD07PT9D",
+        "Qj4+U2V5f3x9goOGiY+Pjo2OmKazvsO3jFk5OTw6Q19eV1VZT1ubgnd7c3Jwb25wdHl8f4F+eHaxysLAw8TDvLWhYTQ4RFVWbltKP0BFQF2Em6Oio6iom1JN",
+        "e0otN05IOE1fSTpfemNqi2hYZXJihH5uaDJLSDVMPTo5Pzs7PERDQTxQaXh6fHuAhYWHi4mJio+bqLO4ur/FvpRSLi8/XFtUU1VJXpqCg4WDfHhybGhmZ2pq",
+        "a29pa67Gv8HDw8O7m1Y2PUdTWVqFfmlTTkU6VICboaOjqaOAXIVyKzYzR2MmQWtcRy9xbmRwUW9pc3h9hUZ0T0NFM0w8OzhAQTo+QUpGO0tnc3d6fn6DhoiI",
+        "iImNlKCrs7S3ury/ysB5LzlXWVFQUkdjl4eMiYmDgoB5cm1mYl1kdmNVp8W/xMPBuZ9XNE1SUllaW4OJhXFhTjdTgZuioqSkm4OMfUkxNC5VclNpYVJDU1FY",
+        "d1BNYHV8i3hgZkx1QUA4T0A/Oj5GPzxCSk48TGZzdn18foWKioeFi5CYoamxsrS2ur6+xc6VOkJWSU1TP2mWiZCNi4iHhoJ9eXNuY2+DZ16xxsPGxMKYSzZV",
+        "V1NcYltYgIySiHRWOFCCnKWkpaiWma5gRDg4NkVCX1hCR1ldN29HRU5gZH+FlEpuam9VNTlMQD89P0Y+PkhNXj5FZ3V8d3qGhoiJh4eNlZqepauusbS3u7/C",
+        "w9GcP0tDTFM7b5WKkY2MjIqHhoR+fHlxdoNqe7/GxsbBt24xVGFZWmhmW15wg5GSi2k6UIGcp6anqJedlG01Nz4/TT5APE1FNz46YVBFTV1jbYt/dmKLXmsy",
+        "PE5DPzw/SUA/S1BuSTxqeXN5g4eHiImIi5CWm52ipqitsLS5vsHExdSQODpITjt5kYuRjYuKiomIhYKAfXh6g3WWxsbHx72dVEliXl5ocmVcZEdzjZ2YeD1O",
+        "hJ2op6mpmZmFSDM1NEJFQDc8Y0k2RUw5YkdPT2Bve3yRc1h1gDUzSkM9ODxHPzhEVXlTOWRye4OBh4iIh4mLj5OYmp6kpqqts7e7v8PGydNwLkNCOYGMjI+N",
+        "jIyKiomGhIF9fYGGfKjKx8bGtnlNXmFgZ3JqYGNpMFWLoZyEQkWEnqeoqaibjopXMTY4TDs8OUVnQ0ExU0dNVltjVGNteJR/L2acPi5HRT04PEpAPD5delg1",
+        "YHaBgoKDiImJiYyQkpaanaGlqa2xtrq+wcTH0b4/Ojw6h4mOjo2LjImJh4eGgn57fYyWtsnIxsWnXFdfYWlwalxiamktQoWjoYo9QIOdqKioqaGFe1YyN0BA",
+        "NzszS2w8SS86VlRGWW1nU2eMk2M1a7I8MEhNPzg9RTo8QmZvWjlieX9+hISGiImKjo+QlJibn6Soq7C0ur7DxcjK2HwrMz2PipCOjYyLiYiFhYSAe3iJqLfC",
+        "ycjFv4hZYWBmb29fXGdoZy4/fKKjhzlBg56pqamroY2GUjQ7QTo3PTFfbzBIPEA/PEVUZ2RUYYiKfDBkmCw4Tk5BOj1FODtMZ3BkPGJ7gYCFh4eFh4iMjY+U",
+        "lpmfoqWrr7K4vsLEx8jSuDgpRZGLkJCOjYuKhoODgX54gq6+vcbKyMWsbF1gZW1zZ11jamVqKjR1nqSKOz2Bn6mpqqufkIE5O0E5NjgyN35iMTtDQDk6PUpc",
+        "cUJciop4X3eUXzJPRkE/PD8/P1hyfmZAZnuChIWFhYWFh4yMjpKVmZ2fpaiusre9wsTGyMrVYR1Rj46QjYyNioiGg4J+fnaXyMjBxsvJv45hXl9pcnFgXWhq",
+        "aGUrMW6gpY5COoCfqamrq6CQbDxENzY3NjdeY1MyPEo5MkA8Q0p0WmqMhXuImFpEPEFCQUBAPD5KbX19X0Vpe4CEhoeFhYeHiouOkJWYmp6kqK2yt7vAw8XH",
+        "x9eQG1qOj46NjIuIiIeDgn56dqbMyMPJyseueGZiYGxzaF5ka2dlXCowbZ2kkUw5fZ+opqSmnY52SDk2ODlATzpPXDc+SDg1QjxPQkJyg4VsXoGOa2BXSUVJ",
+        "P0A6QVVzfH5ZR259goKIioaFhIaIioyPk5eZnKGlq7K1ur/BxMfH0LcqXo6Pj4qLiYiIh4WBfnp9r8vCwcrKv5R1bGVlbXFkXmdqZV5XKi5knKWWTjl8n6in",
+        "pqiekHpCNzk4Ozw/OExSPEA9PjY9Qlg7M2N/eHtON0lQVGJrb1g/PjtJYHh8gVVPc4CDhIiIh4aChYeKi4+SlZiaoKKpr7S5vcHDxsfJzUtij42Qi4uJh4eI",
+        "hoJ9fIG0ysDBy8iwf3RtZGVtaFtfa2ZhXV4uLVqXpJhSPHudp6mpqqCTdTs8ODY3PUc6Q0dAN0FDMTxAWENWXW1ybYJNRi83P0FGVEU3PlVpen99TFp6g4SH",
+        "iImKhoSFiIiKjY+Ul5qfoaWts7i7wMLEx8bTdGSRkI+Li4mIiIiGgX+AgafEvsLMxKB2cm1iY2dYXWhpYmFfYjIsUZKjmFxAeJynqKipnZSDSDwyOUlQPTZF",
+        "Qz1BPEQ6P0tKVkVyenlNaH1gSD0/QUA5PTZHXW95f3FGZH2EiYiKiYeGhYWFh4qOkJOVmZ2epKqxtrq9wcPGxc+ico2Gi4uMjYyKiYaCgoWFi5+sxcvAlXBt",
+        "ZV9nW1FpamFdYWNfMi1JjaCYZ0N2m6anp6mfkIRSPzNDSDo2OkhDQUdARDpEUDBfS0VUd1NDeplNNzpAOzo3OU5mdXp+XkhwgoWIiIuLh4iHhYaIioyPkZOW",
+        "mZ2jqa60ubzBxMbGycCLemt1fISKjY2MiYaHjY6IgaLKy7iHb2leY2BSXmtlXF5iY1MwLEiKoZxoRHOZpKeoqaGNeVRANDw6ODtDRT5OQTY+MURCPmdzPzFP",
+        "UUxqazQ9Njw3MzlEVm91e3pIU32EhYiJi4uKiomFhoeJjI+Rk5WanaGkrLO2u8DExsfHzpVXVFhganN8gYWHiY6VjIKHsM3JqXpoWV1lUVZpZGFdZ2NZRS4s",
+        "PYepo3RDcJejpqiqopByXEI1Pzc2Q0JDPElFODU6OkNSaIBjQ0VJYFhNODY5ODY0P1Bld3R8Xj1pgoOEiIqMiYqJiIaFhYeLjI+RlZiboKKosbS6wMLFx8fT",
+        "nkxYUFFTV1pgaG59kJiMhZC/zr6SalVRYVlQZmZhX2NoYU8/MSs5h6elgEZulqKnp6qmiGdhPzg2M0FFO0Q6SEZCODw/OzRSdIpoYWtNMjs+NzgzNDZFWm91",
+        "eHA4T3uEhIWIiImJi4mIh4WEh4iLjZGSlpmeoaats7m9wcTGx8+3V2FiXFdPSEVDQ1Nshamen8bLrXdRRFVXU2NqXV9eZmZcRz1ARkeCqayISm6Wo6emq6iA",
+        "a1Y4OTk+Pj47Pz9IQkE/Njg/PDdUhYhpYmEzPDY4NzMyPFFmcnV5RTlvgYWFhoeHiIuMi4mIhoWHhomLj5KVl5qfpqqwt7vAwsXHyctwXmtoY1xSRzo0MEif",
+        "wZ+qycaVVUJMV01ebmNaWF9rZVFCPVxbXH+nr5BVbZWkqKetp35zWDM7Qz42PDs8Q0RIQzc3ODlKPzNZg4NmbTw3NTUxMzdLWm93ek40X3+ChIWIh4iIiouL",
+        "i4iHhoaIh4mNj5SVmJ6ip6+2ur7Cw8bG0Y1WbG1pY11URzsuSLG/nLXIrF09R1FMVmtmVVVYZnFgVEhCXGFsiKaumF1slKSoqa2penBTNzk4OTg+PTo4RUJF",
+        "RDVARENDSEpXa3lLNzg4NTE2QlNmenNHMVp5foGEhoiHh4iJjImLiYmGhomIiIyOkZSZnZ6lq7K3vMHDxsXOrFZmbWxlYVtTSD5OoMC2taVmOkBNSVJnaVhR",
+        "U2Bwal1URklRbHSFpKmWYWyUpKeqrKl5b0s0PDw+Oz8/NT9WQkxTMj9XQU5GT2dqS1A0ODcxMT1UYmRTOT9idHt/goSGh4iJiIqLi4yLi4qIiYeHio2Pkpeb",
+        "nqGlrrS5vsLFxsrEZF1pamdjY1pXV16hybyLXUNCTktQZWxdT1BabW9kXElKSUJiZnifq5hla5GjqausqX9fQzM8PUE9PUc2QFlGTWhEOlA2WFNCYIlSQDU2",
+        "Njc2PkZAPEFYbnd6fICBhIWFiIiHioqNjY6Ni4qHiYmJjI+RlZidoqarsbe8wMTGxs18VWZnamdnYWZnY5W1i1dPTFFQUGZwX1JIUWdybWVQRkxEOkxccZmn",
+        "mW9sj6Opq62pi0s6ODs5REFCTDdAVj5LdlsyW0c7Y0Zkd25GNTk3NTY6QU5cbHV4e31+fn+Cg4aGhomJiouNjoyLi4mJioqKjpGVmJugpquwtLm+wsbFz5lP",
+        "YGVqbmlpcXFtdXddVlpbVU5fbGJRSUhhcHVuX0tFRT1ARU9kmLCkd22PpKqrrql5RUE5PDhFQ0FQOjxZNEdkbTJWbC1TWkpwXkg0OzU2P1NibXB1eXt8fn9+",
+        "foOFhYSHiYmKio2NjI2NjouKi42OkJOWmZ6iqK2xtrvAxcTLs1NbZGpvb3N2c3JsZmFnal9UWWVdUVFMU253cmdTRUI/Oz5BQl2owLyMbpCkqquvpmtCPj04",
+        "PUJAQkhEPWcyTlxyWThnPzpmRFVlRDM0OkBSZG1zdXR6fH19foCBgYOEhoaGiImJjIyOjo2PjY2OjpCRkpWan6Gnq660ur7Bw8bEYlRkaWxzeXZzcm9rbHRu",
+        "X11lYFBMTlJneHhrW0hAQT1FOz49XbK+vZ5wjqOoqayje0c5OzxCQkZQQ0VNZDVXXFp2MV1TPFVNRGFtTSw9UF9pb3N3d3p9fH2AgYGAg4WFhIiIiImMjY2N",
+        "jo6Qj4+OkJOUlZuen6Wor7O4vcDDw81+TGFkaXN1eXl0cnR8e2phZV1XWFVTZHp9cWBLPTxBS1w5PTpSrby6mnGQoqqqraNjRDY6Pz9ISVBJRG5UOldXRWdY",
+        "YVYyS005TVNoSk9aYWtxdXh6fH19fn6AgYGChoWDhYeJiYyNjIyOjZCQkJCRkpaWmZ2eoqats7a5vsHCzJ5cX15mbXeBfXl6hIR2Y1xUUFpeV1tyf3xnSz03",
+        "PEpgaW2pa6poqmmraapnqGaqca59qXirdqx2rHWsc61wr2+wb65wrm+ub65vr26wbq9vrm6ucK5xrG+ucK1ur26vb69vrm+ucK5wrXGuca5zrHaqca1sqmmn",
+        "aatrqmmqaKxnq2ipaqpkoWGTZpt4qHSpcqp0qXKscaxyrHKscaxxrXGoaKtorGisaKxmqmSoY6xusHqsd651rnSudK5yrnGvbrBusW6vbrBusG6wbbFusG6x",
+        "b7BvsG+vbrBvr26vbq9usG6vb69vr3CvcK9wrnOtdat2q3Csa6lpqmiqZ6tnq2esaKtqqmioYplglW+kdqtyq3KrcqtxrHCtcK5ur3ioiJxprGesaKxpq2ao",
+        "ZalmrW+veat1r3SudK5zr3KvcLBvsW6xbrBusG6wbrFusW6xbrFvsW6xb7BvsG+vbrBvr2+vb69vsG+wb7BvsG+wc610rHerdKttqmqoaKlnqWiqaKxpq2qq",
+        "a6tlpGGUZJp0qXSrcqxyq3OqcaxtsHqnipmHm2isZ6xoq2epZqhnqmasbLF5rXWudK50rnOvcq9wsG+wbrBusW+xcLBusW6xbrNvsW+wbrNus2+xb7BvsHCw",
+        "cK9wr2+wb7BvsG+xb7FyrnStdqx1rG+ra6hqqWipZqtoq2qraaprqmqrYZxgkmqhdqtxq3Gsc6tvrnuoipqHnIWeaKtnq2epZalkqmerZa1rsnmtdq50rnSu",
+        "dK9yr3CwcLBvsG+xb7JwsW6yb7FxsW+yb7JutG6zbrNus2+ycLFxrnGucLBvsG+xb7FvsXGwc692rXWucKxsqmupaaloqmmraatpqmuqbKxlqGGUZZRyqHOt",
+        "cqtvrXqoi5uHm4Wfhp5nqmeqZqpkrmWtZ6tlrW2xea12rnSvdK50r3KwcLFwsG+xcLFvsnCyb7JvsW+ybrRvs3Cyca9yqXOlcqdxrHGwcbJwsHGvcLFvsW+y",
+        "cbF0r3WudK9wrW6rbalqqmqraaxorGmsa6xrrWquZJ5kkGaddqxyrHqnipuIm4achp2HnmesZalkr2e0Za1mqmWtbLJ5rXavdK90r3OxcbJvs26zbrNvsm+y",
+        "b7NvtG+yb7JzrnekeKB4nHaWdpJ1knSUdJl0pHKxcq9yr3CxcLJxsXOvdq50r26ubqxuq2yqaqxprGiuaa5rrmuua65oq2OVZJJspnynipuInIadh5yHnYae",
+        "Zqpkq2i0bLRkrGSrZK5rs3qseK11r3SvdLBysW+zcLJvs26yb7NvtHGvdad3qXijd6J2onaedZt1mHSVcpNykXOPdZh1qnOxcrBysXKxdLB2rXOwba9trW6t",
+        "bqtrrGquaa9pr2uvarBqr2uwZaNkjmibi52Jm4adh52InIechZ5kqWWxdLFusWOsZKpkrmu0e6t5rHetdq11rnOwcbFxsXCxb7JvtG6wc6x1qnapdqZ3pXal",
+        "dqF1nXSYc5VzlHKUcpN0jnWQdqJ1sHKwc7B1rnaudLFtsGyubq1vrW2ta69qsWqvaq9rr2uva65qrGKffpyLmoaehp2HnIichp2Hm2WtbLN7rG6xY61lqmSv",
+        "bLN7rHmseKx3rXaudK5ysHGxcLFws22zb7B0sHStdKt0qXWndaZ2pHWgc5pzlnOUcpJzknSRdo54i3mTd6p1rnaueK12r2yvaq5srnGwcbBsr2mxabFqsWuw",
+        "a69rrmmvfqSMmoadhZ+HnYibh5uImn+eZ7J2r3qsbrFjrWSqZK5ts3ureK13rnetdq50r3KwcbFwsm+yb7NysHSudK10rHSqdKh0qHSmc6VznXKWcpV0lXeR",
+        "d453jHaNdYh4lHmtd6x6q3avbLBprmuvc697rHCwa7BqsWuxa7FrsGiyeKiLmoaehp6HnYadiJqImoKdb6VwsnqreK1usWWtZapkrm2zfKp5q3eudq12rnOv",
+        "cbBwsnCycLFzsHWuc611rHWrc6pzqHKoc6dzpnKhcpt1l3eRd412jnaOdo13jHeHept8q3qpda9ssGqubK5zroWid6xssWuxbLFssWqyb6+Jm4edhZ+HnYad",
+        "h5yJmYWbdKNwo3mseKx5rG+xZa5nqmaubrJ7q3isd612rnWuc7BxsHGxcLFysHOvdK50rnWsdKp0qXOpcqhzqHOoc6J1l3aQdY92kHePdo53jneMd4x3iXqW",
+        "fKp0r2ywa65srnGwhqCBpG+yabJqs2yxabOBpIqbhZ+Gnoeehp2Im4ebd6Fyom6feKt4rHqrcLBnrWeqZ61vsX2qeKx2rnatda5zsHKxcq9trXSwdK9ysHOu",
+        "dKxzqnOpc6hzqXaqdqN0mHKTdJN1k3aRdo93jneNd413jHeLdod9nXawa7BrrmyucbCEooefeq5urm2sarJ3qoqbhZ+Fn4edh52HnYmbeqB0o3Cgbp95qnir",
+        "eaxwsGetZ6pnrW+xfap5rHaud613rHSuc7JxrGupd7BzsHOxdK9yrXOrcqpyq3aqd6FymHGXc5d0lnWSdpB2kHiOeI13jXeMeIt3iXmMeqxssGqubK5xroSi",
+        "ipyClnaQd4t1koiaiZuFnoedh5yGnYmcf590pHKgb6BvoXmrd614rXCxZq5mqmatbrJ9qnqrdq51r3Wvc7B0smyma6t4sHOwc7BzrnOtdKtxrXSsdaFynHOd",
+        "c5pzmXSUdZN2k3aSdpB2kHaOd414i3mLeYZ4nm2zaaxprnGwh5yBkHWOdYx2jHWIhZKKnYWeh56HnYichJ50pHOibqFvoW+hdq11rnavb7JmrWapZa1usXus",
+        "eKx1r3Swc7FxsXSyaaVsrXevdbBysHOvdK1zrXSscqVxoXOgc5xzmXSXdZZ1mHSWdZN2kXaQdpB2kXeNeIx4i3qKbqdksmixdqV7j3WOdo11jneOdIuDlIqc",
+        "hZ2HnoaeiZx5o3Ojb6Jvo3CicKJ1rnWudbBstWatZallq2yyeq14rHWvdLB0sHKxdLBnpG2wd691sHSwc7BzsHWscqhxpnSlc6BznHSbdJp0m3SZc5h0l3WV",
+        "dpN1lXaSeI53kHiPeot0lGiucZ10kHWOd412jnaOd4x1i4aViZuGnYaeh55/onOlcaJvom+icKJwo3auda50sGyzZa1jqGSqbLJ6rHeuda91sHWwc7F0rmOh",
+        "arF0sHWwc7FzsHWuc6lxqXOpc6Zzo3SddJ1yn3Kcc5tznHSZdJZ0mHaTd5B2k3aUeJJ4knaSc5N0jnWQdo52j3eOdZF2jXaNiJmInYech56Gn3Wmc6RwoXGi",
+        "cKJwonCidq12rXWvbrJkrWSoZKtssXusd611r3WvdLBzsXSsYqFmr22zdbF0sHSucqxyqXSpcahzpnSldKJzoHGfcZ9ynnOfc550m3WYdpV2lneYd5l1l3OU",
+        "dJF1kHWQdo92j3eOdZFznHKWepOKm4achp2JnXyjc6VxoXCicKJwoXChb6J2rXatdq9usmSsZahkq2yxe6x4rXWudbB0r3SxdKtfomWta7JzsXWvcqxzrHWq",
+        "catyqXSmc6ZypnSjdqB1oXGicqFzn3Ofc590nXecd5tzmXCWcpJ0kXWRdpB2j3eOd4xzmHOgc5uDlomchpuInYWfc6Zzo3ChcaJxoXChcKFwoXetdq11sGy1",
+        "Zaxkp2OrbLF7rHisdq91sHSwdbJ0qmCeY6llr26yc690q3Wqcaxzq3WpdKl0qHukf6KAn3yfe592oXegd6F8n3ufdZ9xmnKVc5J0kXaQdo92jneOdotzknWj",
+        "eKV2lIiZiJyHnIqceqRypXGhcKJxonCicKJwoXChdq13rHSyarZjrGSoY6trsXuseKx1rnWwdLFzs3SsYpxgp2ayb7B1rXeqca1zq3WrdKp0qnylf6SCo4uc",
+        "hpmNl4+Wi5iLm4+Vf5lzmXOTdJF0kXWQdo92j3SOdZF0m3emeqlymn+ViZ2GnYidhZ10pXOicKBwoXKhcqFxoXGhcKJ2rnWuc7NqtmSrZKhjqmuxe6t4rXWv",
+        "dbB0sHOydq9knV+kbbFyrHescq11q3WsdatyrXqpf6aJnYqcjZyPlo6YjZeQlY2UfZpym3OTdJFzk3SSdpB1jnSQeJZ4pnmpdadvnHyZiZ6HnYadipp8oXKk",
+        "cZ9xoHGgcp9zoHGhcaByoXWudq5zsmu1Zaxkp2OrarF7q3isda91r3Wvc7B3sGuhXp9pqXKtdK50rHasdK12qniqgKSLnIyai5yMmoqbjpePlY2TeZ5xmnOU",
+        "dJRzlHOUdJJ0kHeVgZqDmnKlaahooHyaiZ6FnYaehp2GnHWlcaJvnnCfcZ9yn3KfcqByn3Kgda11rXSwbLVlrGWoY6prsnyreax2rnWwdbBzsXOyc6pjnGak",
+        "ca11rXere6l7qnmqhaOLmo2Zi5qLm4qci52PlpGQhJlymXSRdZN0lHSVdpJ0k3KcgKSEm4OYdKNoo32ciJ6En4Wdhp6InYCfdaNvn2+fb59wn3Gfcp9xn3Of",
+        "c6B1rnWuda9vs2asZadjqmqyfKx5rHauda91sHSxcbF2sWueYp9xr3ireKt5q32phaGLnYubjJqNmYqbiJ2Lmo6Zj5V9lnOVdZV1lXWVdpV1lnSZcZt0rISe",
+        "hZl4oH2ji5yEn4SehZ6Gnoede6B1n26db55vn3CfcZ9xn3GfcZ9yoHatda12rnGxZ6xmp2Wqa7F7rHqsdq92r3WwdLFxsXS0a6Blo3awd6t2rXWugaSJnYqb",
+        "i5uMmo6YjJiKmoeafaKDlnaUdJV2mHWXc55ym3KYc5hylm+sg6aHm3yehaCHnoSfhJ6Fnoeegp52oXOfcJ9vnm+fb59wn3KfcaBwoHKhda11rXetcLFnrGan",
+        "ZKlssH2qeax2rnWvdrBzsHCwcrRuqGunc7Jzr3ithKKJnYqbiZyJnIybjpmNlYiZd6Rxn32XepJ1lXWdcKdwonKacpdyl3OTbqV9rIqcfZyFnYaehZ6FnoWe",
+        "iJx7oHKhcJ5zn3Ofcp9xn3Gecp9xoHChcqJ1rnWud65xsWisZaVkqGywfap6q3auda91sHOxcbJxs2+xaq91sHuog6SNmYuai5uKm4qci5uNmo2WeqJwpXKY",
+        "fJJ3lHOfcqlxpnChcppymHKXdJNvnXavi5t+noOeh52EnYWdhp2FnHWicJ9vnXCdcZ1ynnWddZ11nnOgcqBwo3Wuda93rnKwaatmpmSoarF8q3qrd612rnWw",
+        "crFvtG+xc6l6pnqnfqiOl46VipuKm4mci5uNmY2Xf6BxoXCfd5Z2knWmdax0p3Gib6RvnnGacZlxlW6deKyLnoCdgJ+HnISchp2InICedKJvn3Cfb55wnXCe",
+        "cp10nHacd512nnShdq51rnavcrForWWnZahrsH2qeqt2rnavdLB0snOwbK13o4OfeKiLnZCXjZaKmoqZiZuJnI2XhZ1xo3CYdJd0mXGuc692rnmudaxvqW+j",
+        "cZxuoHGmd6p5rYegg5t+n4adhZ2GnYede6ByoW6hb6FvoHCfb59wn3GddJx2nHecepx2rXaueK1ysWetZKZkqGqwe6x5rXWwdLF1s3SpbKpqr3OohKCNl4+W",
+        "j5eMl4uYi5qMl4iciJt2om6ddJB0mXypgaiCo4GgfqlytXCycKZvmXijgqSCpIClhqCDnX2fhZ6FnoechZ11om+hb6Jvom+icKFvoHCgcp50nXWdd5x6m3at",
+        "d616q3SwZqxkpWWnarF6rnevdLFzsXqueKBponKph5+Pl42Yj5eOlIqaipmJmoedi5mEnXOfdJJ0lHatgaiBo4aZfJB4q3K2cbVwoXKchaKGmXykhKOHnoOd",
+        "fZ6FnoWeiJx/n3Kib6FwoXCicKJwonCicaFzn3adeZ16nHiadq12rXqrdLBnrGSlZKZqsHivdbBws3ipgKF8oHmYjJaRlI2Xj5eRlZCRi5iInIedh5yHnHei",
+        "c5Z0lHOwc7F0rneweaZ2n3OscrVytnOddpx6qnyjeqqAp4edhJx9nYWehp2GnXqgcaFvoHChcaBxoHChcaFyoXWfeZ10nGybaJp2rXirfKt1sGisZaVkpmiw",
+        "d7B0sHC1dqp+oYiajZqQl5GRjpaPl5KTkZCMlYidh52KmHujcJ9zk3Swc7VzrHKrcqx0rHamdahzs3K5daF2lHOqc7J1sHurhqGEnXychZ+GnYOedqJxoHCh",
+        "caFxoHGhcqBzoHSfeJ5vm2OaYppkm3mreqt+qXetaKxlpWSmabB3sHaweayDoouYjZeNmZGTjpWLmo2Yj5SNkoKch5yLmIeadKVykXyhc7dxtHGvcadxo3Ki",
+        "caNxq3Kxcbl0pXaScqVysnG1e6uFoISge52En4aef6FyonCfcaByoHKgcqB0n3WfeJ5tm2GZYZpjm2aZfah9qIGmea1orGalZadpsXmueKx0sYeejZiLm5CV",
+        "kZGMl4mbiZmHmYaefKKBnIyYe6RxmX6SgqdwtnC2cLJvq3ClcKNup2+ucLJvuHSodpJxpnOwcbZ9qYWfhKB5n4Sehp54pHChb59xoHKgc6Bzn3Sfd55xnmCb",
+        "YJximmaWaZR/poCkhKN6rGmtZ6ZkqGiyea5+qIGkiZyLmI6WkpOTjoyWiZuKmoKggqJ5oX2ghp1zo3eRiJp9qnG2b7dwtHCub6pvqG6qbrFwtXC5c612knKm",
+        "c7BxtISig5+EoXqfg5yGnnOlbqBuoXCgcqBzn3OfdZ92n2ScXpxhm2aVaZJplH2nfqaDpHqsaK5npmSnZ7F7rX6ogaaKn46XkJaSk5KPjZOJmoqbgp95pYCf",
+        "iph7oHKdgpmInXqqcbVvt3C1cLFvrm+rb6xws3C1cLZxsnSVcadxsnauiZuBoYSiep+BnIKfbqVvoG+hcKFyn3Kfc592oG+eXpxfnGWWZpNpk2ySfKl8qYCn",
+        "eK1qrGimZadpsHyseK19q4udjJmPlJCUkpGOkImagp6KmIaaiZyDmnCZe5qHnoWeeatvuG64b7ZvsnCwb61vrHCzcLZytXG3caFxqnCzgKSLmX+jhaJ8nn+d",
+        "e6JspHCfcaByoHKfcp9zn3egZ55dnGOZZ5Rpk2qRa5F7qXuqfqh2rGuqZ6hmp2iwea13rnyqjJyOl42WkJaSkZCOjJd8o4mYh5p9nHajeZmJmYadhp15qnC4",
+        "brhvt2+0cLFwrnCscK1ws3CvdKFynnKudq2JmomafqOEon+efJ9zpmyjcJ9xoHKfc59zn3SedKBhnl+aZpVnlGiTapFskX2ofal/qHiqa6pnqGWmaK94rnyr",
+        "fqeNm4yWjZeOmI+WkZKKlIWehZ98mnWbeaGEmYafgqGFn3uncLduuG63b7VvtW+xb69wrXCscZxylnKfcrCAo4uXhp19pYKjgp14oW2pbqFxn3Ggc59zn3Of",
+        "dJ9xoF6eYpdmlGaUaZJskG2QgaV/p3+oeKlsqGimZaVmsXytfal+qI2Zi5eOl5CUj5aPlo+RiJp8mnaVdqWDmIWfg6GBooOhfaVytmy5bbhutm60b7VwtG+0",
+        "b7Rvs3Kvc7B1rIibiZqDnn2kgaOFnXWja6lvoHCgcqBznnSec591n2+hYJtmlGaUZ5NrkW2PbZCEoYCmgKZ3qGqoZqVkpXCrfqh9qoGki5mLmJCXkI+Rk4+V",
+        "kZKAo3KkdJ96nYmZhZ6EoIKhg6B/onWwbbhuuG+2brJutW+7cL91tXeueLBxsX6jipqGnYKhfaWBo4Wdc6Nrp2+ecJ9xn3Kdc55znnaebaFjl2eTZ5NpkWuQ",
+        "apFok4SggqR/pXWra6plpWalb6t9q3+mhKGLlo2XkJWQjZGRkZKPkIecdqFvoIiXh5uGnIadg5+DoIGgfKhxtXC1cLVws2+zb7ZuuHG4c7Zzr3SqiJyIm4Se",
+        "gqJ8pX6khZ5yomykb51wnnCecp10nHSdd55un2WTZ5JpkWqRZpNmlGaUhp6Gn3ymc65rrGalZqZor3ytgqSInYqYjZaOlpCOkY2SjouYiZ14mIKai5mFnoad",
+        "hp2Fn4Khg6CAo3iucbRvt3CzcbJxsHGtcapxqnKrf6OKmYabhJ6ConylfaWEoHOgbaFwnHKdcp1znHWbdZt5nHCbZZFnkmiSaJJnk2eTZpSHnYicfaVxr2qr",
+        "ZqVlpmivfKyCooqZipiMmI6Wj5KQlJOMkJGFnYSYipeJmoSfhZ2GnYadg6CDoIKggaR9qXOycrJysHKtcqhxp3KodKuHnoqWhZuEn4GhfKR8pYKhdJ9wn3Kc",
+        "dJt0m3Sbdpp2mnqbb5hlkWWUZ5Jnk2OWY5trn4ediZuBonOta6topWWna699oISaipiJm4qajpeQjY6Vj5OTi46NiJSLkoqZgqGFnYachp2GnYOfg59/pX2o",
+        "eax1rXSsc61yqXKocqd1oYaWjZSIm4acgaB8on2kgaFzoXWkdqJ3n3acdpt3mniYepppl2OUZJVklmOZa6F/oIWggZ6FnoOheaprrWinaKdup32hhZmLl4mb",
+        "ipmLmo6Tj5CQj5COkZGLlIeRipeCooach5yHnYedhZ6En4Cjc7BwsnGxca9xr3Gscaxvom+WcJR6koSVi5mBoH6hfqR/oXKjdKN1pHekeaN5oXmeept7nGWZ",
+        "YJhllmKYbaGEoYSge6Z/lH2df6N/p2yuaKhop2ysfaOGmYyYi5eMlouYjZeNlI6RkJORj42Ph5aIl4WfhZyGnYebhpuGnYKgg6B1rXGzc7BxsXCxcbBwq26h",
+        "bZptmGyXb5R/kYWdf6B/pICicqJzn3Sfd593oXmifKF0pXilZZtjlmOXbKCBon6keqd6qIGTf499nH+nbK1npWWobKp9nYqaiZqJmYmZi5mLl42VjpWQlZCR",
+        "joyLk4WViZeHm4aciJmGm4acfKeCoXatcbJxsXCxb7Fvr26pbqRtn2uca5ltl26Se5OEoIGif6FwonOedJ51nneeeJ16nG6nbKlkl2SUYpx+pH2meKh3qHqn",
+        "hZp/jXuTgKVsrWalZaZprH+eipiImYiZi5mKmIqZjZaOlpCVkJOOj4qRhpaGk4adg5+Im4achZ50rn6meKxvtW+0brJvsW+vbattp22ibJ9rm2yYcZVxkH+Z",
+        "hqJ8om+icp9yn3Sedp54nHmda6hko2SUYZVro32oeah2qnipeqaJmn+Pe5CComutZaRlpWeufp+Ml4iaiZmMloqWiZuLmI2Yj5SQlI+Pi46Kl4eQhZ6CoIec",
+        "hpyDoXGyfKh2rm23brRttG2ybq9trW6pbaRtn2yabZhxlHKQdZKIn3mkbqFwn3KfdZ52nnecdKJmomKZZJNfmnKqeqp0q3epeah8o4mbgZF6kIGiaq1kpGSl",
+        "Za6Cn4uYiJuLmoyUiZeJmYmai5mNlZCSj4+Lj4yPiZCDoIOghZ6HnHyobbV7qXSvbbZttGy1bbNusW2ubqpupm6hbptvl3GUdJFxkIOZd6VvoHGecp90nnWd",
+        "eJ5voWOWY5ZilGKldq51rHOseah6pX6gipqBknqOgaFrrmalZ6Nqq4WfipmIm4qYiZmJmYmZiZqLmYyXkJOOjouUh5SFmIWbg52EnoOhc7ButXyocbFttm2z",
+        "bLRstW2yba9uq26nbqNunHCXcpR0k3KQfJd1pm+ecp5znnSedpt3n2qhYJZjlmCZaa50r3Otdat5p3yjf6CKmoKTeo2AoGyuZKVkpGirgqGKmYmZiJmKmImZ",
+        "ipeKmIyXjZaQkpCOjpKKlYeahJ2DnoadfqZws3Gxfadvs260bbNstG20bLNtsG6tbqlupW2fb5hylXOTdJB1lnGncpxznXOddJx2m3WgaKdfn2KVYKBvsnWt",
+        "d6t5qXmmfaJ/oIqahJR6jH6gbK9lpmWkZ61+o4uZiJmKmIqYipiJmYqZi5iOlY2TjJOOlYyQhpuFnoadhZ93rG21d6x5qWy1brJts2y0bLRstG2xba5tq22m",
+        "bKFumnKVc5N0kXKScaV5onegdZ51nHWbb6FqqmelX5RhqXWweKt7qXqmfKR9oX+gipqElnmMfZ5ur2WmZaRmrYCjiZmJmYqZipiJmIiaiZqKmI+Tj46MlomY",
+        "hpuFnoach5x+pXCybrSApHCwbLVts2yzbLNrtWu0bLJssGysbKhspG2dcZZ0k3WSc5B4nnyme6V8pH6ffZ5voWWkZJ1cmm2ufal6qXumfKR9on6fgqB/ooCZ",
+        "eIt7mm6uZaVjo2mqgqGKmYmZiZmKmImZiZmJmImZipqOko+NipaHm4ebiJuEoHSubLZ9p3mqarVts220bbRtsmu0a7Rrs2yxa65sqm2mbKBwmXOUdZJ0kHSY",
+        "eaR3pHykgaCLm3OfXJ9cnGOjgKd+pnylfKJ+o36gf5+CoH2hfpd5i3qYbq1mpWKjaqiEn4qYiZqJmomZipiKl4qYipmKmIyXjZKKlYebiJqGnHundK58p3qp",
+        "bLVstGy0bLRttGyzbLJrtGyza7JrsGysbadtpG+cc5V1knWRc5R5onejeaN8oYKhcaJbm2Wmf6SBo3ylfKJ/oX6ifp6An4Kegp2BmHuLepdurWalY6NqqYad",
+        "ipeJmomZipiKmIyWjJaLl4uVjZaOkomWiJmHmoSffqV8qHSvbbVttGy0bLRstGyzbLJssWyxbLJqs2uxbK1tqW6lbp9xmHSTdpFzkHieeqF4oXufeaRxqW2k",
+        "faV9pn2lfKF+oYChfZ9/nYGfg56Fm4SaeY12k26sZaZkpG6miZuJmImZipmLl4uXjZeOk4yVi5aKl42Ui5WJmISgeaxwsm21bLVttGu1a7VrtWu0a7Rss22x",
+        "bbFssGuxbLBrrmyrbaZuoXCac5V1knOPd5l8oHmeeZ9yqHOteKt1qnqofqF+oH+ifaB9nICdg56Dn4abhZp2j3OSbqtlp2OkcqSJm4mZiZmInIuYi5aLmYyW",
+        "jJWLlomZipmNlYebeqxws221bLVstGy0a7Vrtmq2a7ZstWy0bLJssWyxa69rr2utbKttp26jb5xylnSTdJB2lX6gep52om6tb69ssHGufaSBnn+gfKJ7nX+c",
+        "g56DnXqn"
+        ].join("")
+      };
+
+      function loadDefaultNv12Sample(slot) {
+        const width = DEFAULT_NV12_SAMPLE.width;
+        const height = DEFAULT_NV12_SAMPLE.height;
+        const bytes = base64ToBytes(DEFAULT_NV12_SAMPLE.base64);
+
+        slot.fileName = DEFAULT_NV12_SAMPLE.name;
+        slot.fileSize = bytes.length;
+        slot.bytes = bytes;
+        slot.loadSeq = ++loadSeqCounter;
+        slot.selectedProfileId = "";
+        slot.settings = {
+          ...slot.settings,
+          format: "nv12",
+          width,
+          height,
+          offset: 0,
+          stride0: 0,
+          stride1: 0,
+          stride2: 0,
+          byteOrder: "little",
+          yuvBitDepth: 8,
+          colorSpace: "srgb",
+          treatLinear: false,
+          swapUV: false,
+          swapRB: false
+        };
+        invalidateSlot(slot);
+      }
+
+      function base64ToBytes(base64) {
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return bytes;
+      }
+
       function clampInt(value, fallback, min = 0) {
         const n = Number(value);
         if (!Number.isFinite(n)) return fallback;
@@ -781,6 +1219,26 @@
         return index >= 0 && index < bytes.length ? bytes[index] : 0;
       }
 
+      function yuvSampleInfo(s) {
+        const bitDepth = Math.max(8, Math.min(16, s.yuvBitDepth | 0));
+        const bytesPerSample = bitDepth > 8 ? 2 : 1;
+        const maxValue = bitDepth >= 16 ? 0xffff : ((1 << bitDepth) - 1);
+        return { bitDepth, bytesPerSample, maxValue };
+      }
+
+      function readYuvSample(bytes, index, info, s) {
+        if (info.bytesPerSample === 1) return byteAt(bytes, index);
+        const b0 = byteAt(bytes, index);
+        const b1 = byteAt(bytes, index + 1);
+        const word = s.byteOrder === "big" ? ((b0 << 8) | b1) : (b0 | (b1 << 8));
+        return word & info.maxValue;
+      }
+
+      function yuvSampleToByte(value, info) {
+        if (info.bitDepth <= 8) return value;
+        return clampByte((value * 255) / info.maxValue);
+      }
+
       function formatInfo(value) {
         return FORMATS.find((f) => f.value === value) || FORMATS[0];
       }
@@ -827,6 +1285,7 @@
           stride1: s.stride1,
           stride2: s.stride2,
           byteOrder: s.byteOrder,
+          yuvBitDepth: s.yuvBitDepth,
           colorSpace: s.colorSpace,
           treatLinear: s.treatLinear,
           demosaic: s.demosaic,
@@ -946,7 +1405,7 @@
       }
 
       function updateDiffButtonState() {
-        diffBtn.textContent = `Diff Latest (0): ${diffMode ? "On" : "Off"}`;
+        diffBtn.textContent = `Diff Latest: ${diffMode ? "On" : "Off"}`;
       }
 
       function setDiffMode(enabled) {
@@ -1001,6 +1460,7 @@
         stride1Input.value = String(s.stride1);
         stride2Input.value = String(s.stride2);
         byteOrderSelect.value = s.byteOrder;
+        yuvBitDepthSelect.value = String(s.yuvBitDepth);
         bayerBitDepthSelect.value = String(s.bayerBitDepth);
         colorSpaceSelect.value = s.colorSpace;
         treatLinearInput.checked = s.treatLinear;
@@ -1029,6 +1489,7 @@
           s.stride1,
           s.stride2,
           s.byteOrder,
+          s.yuvBitDepth,
           s.bayerBitDepth,
           s.colorSpace,
           s.treatLinear,
@@ -1051,6 +1512,7 @@
         s.stride1 = clampInt(stride1Input.value, s.stride1, 0);
         s.stride2 = clampInt(stride2Input.value, s.stride2, 0);
         s.byteOrder = byteOrderSelect.value;
+        s.yuvBitDepth = clampInt(yuvBitDepthSelect.value, s.yuvBitDepth, 8);
         s.bayerBitDepth = clampInt(bayerBitDepthSelect.value, s.bayerBitDepth, 8);
         s.colorSpace = colorSpaceSelect.value;
         s.treatLinear = !!treatLinearInput.checked;
@@ -1098,8 +1560,9 @@
         else if (lower.includes("nv61")) settings.format = "nv61";
         else if (lower.includes("uyvy")) settings.format = "uyvy";
         else if (lower.includes("yuyv") || lower.includes("yuy2")) settings.format = "yuyv";
-        else if (lower.includes("i420") || lower.includes("yuv420p")) settings.format = "i420";
+        else if (lower.includes("i420") || lower.includes("yuv420p") || lower.includes("planaryuv420") || lower.includes("yuv420")) settings.format = "i420";
         else if (lower.includes("yv12")) settings.format = "yv12";
+        else if (lower.includes("yuv422p") || lower.includes("planaryuv422") || lower.includes("yuv422")) settings.format = "yuv422p";
         else if (lower.includes("rgba")) settings.format = "rgba32";
         else if (lower.includes("bgra")) settings.format = "bgra32";
         else if (lower.includes("argb")) settings.format = "argb32";
@@ -1122,10 +1585,17 @@
 
         const hasBigEndian = /(?:^|[_\-.([ ])(?:be|bigendian|big-endian)(?:$|[_\-. )\]])/.test(lower);
         const hasLittleEndian = /(?:^|[_\-.([ ])(?:le|littleendian|little-endian)(?:$|[_\-. )\]])/.test(lower);
-        if (hasBigEndian) {
+        const yuvEndianMatch = /yuv(?:420|422)?p?(?:8|10|12|14|16)(le|be)(?:$|[^a-z0-9])/.exec(lower);
+        if (hasBigEndian || (yuvEndianMatch && yuvEndianMatch[1] === "be")) {
           settings.byteOrder = "big";
-        } else if (hasLittleEndian) {
+        } else if (hasLittleEndian || (yuvEndianMatch && yuvEndianMatch[1] === "le")) {
           settings.byteOrder = "little";
+        }
+
+        const yuvDepthMatch = /(?:^|[^0-9])(8|10|12|14|16)\s*[-_ ]?bit(?:$|[^0-9])/.exec(lower) ||
+          /yuv(?:420|422)?p?(8|10|12|14|16)(?:le|be)?(?:$|[^a-z0-9])/.exec(lower);
+        if (yuvDepthMatch && (formatInfo(settings.format).kind === "yuv" || lower.includes("yuv") || lower.includes("nv"))) {
+          settings.yuvBitDepth = clampInt(yuvDepthMatch[1], settings.yuvBitDepth, 8);
         }
       }
 
@@ -1427,8 +1897,10 @@
         const w = s.width;
         const h = s.height;
         const offset = s.offset;
-        const strideY = s.stride0 > 0 ? s.stride0 : w;
-        const strideUV = s.stride1 > 0 ? s.stride1 : w;
+        const sample = yuvSampleInfo(s);
+        const bps = sample.bytesPerSample;
+        const strideY = s.stride0 > 0 ? s.stride0 : w * bps;
+        const strideUV = s.stride1 > 0 ? s.stride1 : w * bps;
         const uvRows = opts.is420 ? Math.ceil(h / 2) : h;
         const yBase = offset;
         const uvBase = yBase + strideY * h;
@@ -1440,15 +1912,18 @@
           const yRow = yBase + y * strideY;
           const uvRow = uvBase + (opts.is420 ? (y >> 1) : y) * strideUV;
           for (let x = 0; x < w; x += 1) {
-            const yv = byteAt(bytes, yRow + x);
-            const uvIndex = uvRow + ((x >> 1) << 1);
-            let u = opts.order === "UV" ? byteAt(bytes, uvIndex) : byteAt(bytes, uvIndex + 1);
-            let v = opts.order === "UV" ? byteAt(bytes, uvIndex + 1) : byteAt(bytes, uvIndex);
+            const yRaw = readYuvSample(bytes, yRow + x * bps, sample, s);
+            const uvIndex = uvRow + ((x >> 1) << 1) * bps;
+            let uRaw = opts.order === "UV" ? readYuvSample(bytes, uvIndex, sample, s) : readYuvSample(bytes, uvIndex + bps, sample, s);
+            let vRaw = opts.order === "UV" ? readYuvSample(bytes, uvIndex + bps, sample, s) : readYuvSample(bytes, uvIndex, sample, s);
             if (s.swapUV) {
-              const t = u;
-              u = v;
-              v = t;
+              const t = uRaw;
+              uRaw = vRaw;
+              vRaw = t;
             }
+            const yv = yuvSampleToByte(yRaw, sample);
+            const u = yuvSampleToByte(uRaw, sample);
+            const v = yuvSampleToByte(vRaw, sample);
             let [r, g, b] = yuvToRgb(yv, u, v, s);
             if (s.swapRB) {
               const t = r;
@@ -1467,11 +1942,11 @@
           rgba,
           expectedBytes,
           getRaw: (x, y) => {
-            const yv = byteAt(bytes, yBase + y * strideY + x);
+            const yv = readYuvSample(bytes, yBase + y * strideY + x * bps, sample, s);
             const uvRow = uvBase + (opts.is420 ? (y >> 1) : y) * strideUV;
-            const uvIndex = uvRow + ((x >> 1) << 1);
-            let u = opts.order === "UV" ? byteAt(bytes, uvIndex) : byteAt(bytes, uvIndex + 1);
-            let v = opts.order === "UV" ? byteAt(bytes, uvIndex + 1) : byteAt(bytes, uvIndex);
+            const uvIndex = uvRow + ((x >> 1) << 1) * bps;
+            let u = opts.order === "UV" ? readYuvSample(bytes, uvIndex, sample, s) : readYuvSample(bytes, uvIndex + bps, sample, s);
+            let v = opts.order === "UV" ? readYuvSample(bytes, uvIndex + bps, sample, s) : readYuvSample(bytes, uvIndex, sample, s);
             if (s.swapUV) {
               const t = u;
               u = v;
@@ -1486,7 +1961,9 @@
         const w = s.width;
         const h = s.height;
         const offset = s.offset;
-        const stride = s.stride0 > 0 ? s.stride0 : w * 2;
+        const sample = yuvSampleInfo(s);
+        const bps = sample.bytesPerSample;
+        const stride = s.stride0 > 0 ? s.stride0 : w * 2 * bps;
         const rgba = new Uint8ClampedArray(w * h * 4);
         const expectedBytes = offset + stride * h;
 
@@ -1494,27 +1971,35 @@
         for (let y = 0; y < h; y += 1) {
           const row = offset + y * stride;
           for (let x = 0; x < w; x += 2) {
-            const p = row + (x >> 1) * 4;
+            const p = row + (x >> 1) * 4 * bps;
             let y0;
             let y1;
             let u;
             let v;
+            let y0Raw;
+            let y1Raw;
+            let uRaw;
+            let vRaw;
             if (kind === "YUYV") {
-              y0 = byteAt(bytes, p);
-              u = byteAt(bytes, p + 1);
-              y1 = byteAt(bytes, p + 2);
-              v = byteAt(bytes, p + 3);
+              y0Raw = readYuvSample(bytes, p, sample, s);
+              uRaw = readYuvSample(bytes, p + bps, sample, s);
+              y1Raw = readYuvSample(bytes, p + bps * 2, sample, s);
+              vRaw = readYuvSample(bytes, p + bps * 3, sample, s);
             } else {
-              u = byteAt(bytes, p);
-              y0 = byteAt(bytes, p + 1);
-              v = byteAt(bytes, p + 2);
-              y1 = byteAt(bytes, p + 3);
+              uRaw = readYuvSample(bytes, p, sample, s);
+              y0Raw = readYuvSample(bytes, p + bps, sample, s);
+              vRaw = readYuvSample(bytes, p + bps * 2, sample, s);
+              y1Raw = readYuvSample(bytes, p + bps * 3, sample, s);
             }
             if (s.swapUV) {
-              const t = u;
-              u = v;
-              v = t;
+              const t = uRaw;
+              uRaw = vRaw;
+              vRaw = t;
             }
+            y0 = yuvSampleToByte(y0Raw, sample);
+            y1 = yuvSampleToByte(y1Raw, sample);
+            u = yuvSampleToByte(uRaw, sample);
+            v = yuvSampleToByte(vRaw, sample);
 
             let rgb0 = yuvToRgb(y0, u, v, s);
             let rgb1 = yuvToRgb(y1, u, v, s);
@@ -1543,21 +2028,21 @@
           rgba,
           expectedBytes,
           getRaw: (x, y) => {
-            const p = offset + y * stride + (x >> 1) * 4;
+            const p = offset + y * stride + (x >> 1) * 4 * bps;
             let y0;
             let y1;
             let u;
             let v;
             if (kind === "YUYV") {
-              y0 = byteAt(bytes, p);
-              u = byteAt(bytes, p + 1);
-              y1 = byteAt(bytes, p + 2);
-              v = byteAt(bytes, p + 3);
+              y0 = readYuvSample(bytes, p, sample, s);
+              u = readYuvSample(bytes, p + bps, sample, s);
+              y1 = readYuvSample(bytes, p + bps * 2, sample, s);
+              v = readYuvSample(bytes, p + bps * 3, sample, s);
             } else {
-              u = byteAt(bytes, p);
-              y0 = byteAt(bytes, p + 1);
-              v = byteAt(bytes, p + 2);
-              y1 = byteAt(bytes, p + 3);
+              u = readYuvSample(bytes, p, sample, s);
+              y0 = readYuvSample(bytes, p + bps, sample, s);
+              v = readYuvSample(bytes, p + bps * 2, sample, s);
+              y1 = readYuvSample(bytes, p + bps * 3, sample, s);
             }
             if (s.swapUV) {
               const t = u;
@@ -1579,9 +2064,11 @@
         const cw = Math.ceil(w / 2);
         const ch = Math.ceil(h / 2);
         const offset = s.offset;
-        const strideY = s.stride0 > 0 ? s.stride0 : w;
-        const strideU = s.stride1 > 0 ? s.stride1 : cw;
-        const strideV = s.stride2 > 0 ? s.stride2 : cw;
+        const sample = yuvSampleInfo(s);
+        const bps = sample.bytesPerSample;
+        const strideY = s.stride0 > 0 ? s.stride0 : w * bps;
+        const strideU = s.stride1 > 0 ? s.stride1 : cw * bps;
+        const strideV = s.stride2 > 0 ? s.stride2 : cw * bps;
 
         const yBase = offset;
         const uBase = yBase + strideY * h;
@@ -1601,14 +2088,17 @@
           const vRow = planeV + cy * strideV;
           for (let x = 0; x < w; x += 1) {
             const cx = x >> 1;
-            const yv = byteAt(bytes, yRow + x);
-            let u = byteAt(bytes, uRow + cx);
-            let v = byteAt(bytes, vRow + cx);
+            const yRaw = readYuvSample(bytes, yRow + x * bps, sample, s);
+            let uRaw = readYuvSample(bytes, uRow + cx * bps, sample, s);
+            let vRaw = readYuvSample(bytes, vRow + cx * bps, sample, s);
             if (s.swapUV) {
-              const t = u;
-              u = v;
-              v = t;
+              const t = uRaw;
+              uRaw = vRaw;
+              vRaw = t;
             }
+            const yv = yuvSampleToByte(yRaw, sample);
+            const u = yuvSampleToByte(uRaw, sample);
+            const v = yuvSampleToByte(vRaw, sample);
             let [r, g, b] = yuvToRgb(yv, u, v, s);
             if (s.swapRB) {
               const t = r;
@@ -1627,11 +2117,11 @@
           rgba,
           expectedBytes,
           getRaw: (x, y) => {
-            const yv = byteAt(bytes, yBase + y * strideY + x);
+            const yv = readYuvSample(bytes, yBase + y * strideY + x * bps, sample, s);
             const cx = x >> 1;
             const cy = y >> 1;
-            let u = byteAt(bytes, planeU + cy * strideU + cx);
-            let v = byteAt(bytes, planeV + cy * strideV + cx);
+            let u = readYuvSample(bytes, planeU + cy * strideU + cx * bps, sample, s);
+            let v = readYuvSample(bytes, planeV + cy * strideV + cx * bps, sample, s);
             if (s.swapUV) {
               const t = u;
               u = v;
@@ -1647,9 +2137,11 @@
         const h = s.height;
         const cw = Math.ceil(w / 2);
         const offset = s.offset;
-        const strideY = s.stride0 > 0 ? s.stride0 : w;
-        const strideU = s.stride1 > 0 ? s.stride1 : cw;
-        const strideV = s.stride2 > 0 ? s.stride2 : cw;
+        const sample = yuvSampleInfo(s);
+        const bps = sample.bytesPerSample;
+        const strideY = s.stride0 > 0 ? s.stride0 : w * bps;
+        const strideU = s.stride1 > 0 ? s.stride1 : cw * bps;
+        const strideV = s.stride2 > 0 ? s.stride2 : cw * bps;
 
         const yBase = offset;
         const uBase = yBase + strideY * h;
@@ -1667,14 +2159,17 @@
           const vRow = planeV + y * strideV;
           for (let x = 0; x < w; x += 1) {
             const cx = x >> 1;
-            const yv = byteAt(bytes, yRow + x);
-            let u = byteAt(bytes, uRow + cx);
-            let v = byteAt(bytes, vRow + cx);
+            const yRaw = readYuvSample(bytes, yRow + x * bps, sample, s);
+            let uRaw = readYuvSample(bytes, uRow + cx * bps, sample, s);
+            let vRaw = readYuvSample(bytes, vRow + cx * bps, sample, s);
             if (s.swapUV) {
-              const t = u;
-              u = v;
-              v = t;
+              const t = uRaw;
+              uRaw = vRaw;
+              vRaw = t;
             }
+            const yv = yuvSampleToByte(yRaw, sample);
+            const u = yuvSampleToByte(uRaw, sample);
+            const v = yuvSampleToByte(vRaw, sample);
             let [r, g, b] = yuvToRgb(yv, u, v, s);
             if (s.swapRB) {
               const t = r;
@@ -1693,10 +2188,10 @@
           rgba,
           expectedBytes,
           getRaw: (x, y) => {
-            const yv = byteAt(bytes, yBase + y * strideY + x);
+            const yv = readYuvSample(bytes, yBase + y * strideY + x * bps, sample, s);
             const cx = x >> 1;
-            let u = byteAt(bytes, planeU + y * strideU + cx);
-            let v = byteAt(bytes, planeV + y * strideV + cx);
+            let u = readYuvSample(bytes, planeU + y * strideU + cx * bps, sample, s);
+            let v = readYuvSample(bytes, planeV + y * strideV + cx * bps, sample, s);
             if (s.swapUV) {
               const t = u;
               u = v;
@@ -1900,38 +2395,39 @@
         const w = Math.max(1, s.width | 0);
         const h = Math.max(1, s.height | 0);
         const offset = Math.max(0, s.offset | 0);
+        const yuvBytes = yuvSampleInfo(s).bytesPerSample;
 
         switch (s.format) {
           case "nv12":
           case "nv21": {
-            const y = (s.stride0 > 0 ? s.stride0 : w) * h;
-            const uv = (s.stride1 > 0 ? s.stride1 : w) * Math.ceil(h / 2);
+            const y = (s.stride0 > 0 ? s.stride0 : w * yuvBytes) * h;
+            const uv = (s.stride1 > 0 ? s.stride1 : w * yuvBytes) * Math.ceil(h / 2);
             return offset + y + uv;
           }
           case "nv16":
           case "nv61": {
-            const y = (s.stride0 > 0 ? s.stride0 : w) * h;
-            const uv = (s.stride1 > 0 ? s.stride1 : w) * h;
+            const y = (s.stride0 > 0 ? s.stride0 : w * yuvBytes) * h;
+            const uv = (s.stride1 > 0 ? s.stride1 : w * yuvBytes) * h;
             return offset + y + uv;
           }
           case "yuyv":
           case "uyvy":
-            return offset + (s.stride0 > 0 ? s.stride0 : w * 2) * h;
+            return offset + (s.stride0 > 0 ? s.stride0 : w * 2 * yuvBytes) * h;
           case "i420":
           case "yv12": {
             const cw = Math.ceil(w / 2);
             const ch = Math.ceil(h / 2);
-            const y = (s.stride0 > 0 ? s.stride0 : w) * h;
-            const u = (s.stride1 > 0 ? s.stride1 : cw) * ch;
-            const v = (s.stride2 > 0 ? s.stride2 : cw) * ch;
+            const y = (s.stride0 > 0 ? s.stride0 : w * yuvBytes) * h;
+            const u = (s.stride1 > 0 ? s.stride1 : cw * yuvBytes) * ch;
+            const v = (s.stride2 > 0 ? s.stride2 : cw * yuvBytes) * ch;
             return offset + y + u + v;
           }
           case "yuv422p":
           case "yvu422p": {
             const cw = Math.ceil(w / 2);
-            const y = (s.stride0 > 0 ? s.stride0 : w) * h;
-            const u = (s.stride1 > 0 ? s.stride1 : cw) * h;
-            const v = (s.stride2 > 0 ? s.stride2 : cw) * h;
+            const y = (s.stride0 > 0 ? s.stride0 : w * yuvBytes) * h;
+            const u = (s.stride1 > 0 ? s.stride1 : cw * yuvBytes) * h;
+            const v = (s.stride2 > 0 ? s.stride2 : cw * yuvBytes) * h;
             return offset + y + u + v;
           }
           case "gray8":
@@ -2396,6 +2892,10 @@
 
       function settingsLabel(s) {
         const core = `${s.format} ${s.width}x${s.height}`;
+        if (formatInfo(s.format).kind === "yuv") {
+          const depth = Math.max(8, Math.min(16, s.yuvBitDepth | 0));
+          return depth > 8 ? `${core} ${depth}-bit ${s.byteOrder === "big" ? "BE" : "LE"}` : core;
+        }
         if (!s.format.startsWith("bayer")) return core;
         const extra = [];
         if (s.format === "bayer16") extra.push(`${s.bayerBitDepth}-bit`);
@@ -2406,7 +2906,7 @@
       }
 
       function candidateKey(s) {
-        return `${s.format}|${s.width}|${s.height}|${s.bayerPattern}|${s.byteOrder}|${s.bayerBitDepth}`;
+        return `${s.format}|${s.width}|${s.height}|${s.bayerPattern}|${s.byteOrder}|${s.yuvBitDepth}|${s.bayerBitDepth}`;
       }
 
       function parseGuessWidths(text) {
@@ -2483,6 +2983,7 @@
         const base = slot.settings;
         const dims = buildGuessDimensions(base, opts);
         const yuvFormats = ["nv12", "nv21", "nv16", "uyvy", "yuyv", "i420"];
+        const yuvDepths = [...new Set([base.yuvBitDepth, 8, 10, 12])].filter((x) => x >= 8 && x <= 16);
         const rgbFormats = ["rgb24", "rgba32"];
         const bayerPatterns = ["RGGB", "BGGR", "GRBG", "GBRG"];
         const bayerEndians = opts.bayerBothEndians ? ["little", "big"] : [base.byteOrder];
@@ -2496,7 +2997,9 @@
         for (const [w, h] of dims) {
           if (enableYuv) {
             for (const fmt of yuvFormats) {
-              candidates.push({ ...base, width: w, height: h, format: fmt });
+              for (const depth of yuvDepths) {
+                candidates.push({ ...base, width: w, height: h, format: fmt, yuvBitDepth: depth });
+              }
             }
           }
           if (enableRgb) {
@@ -2596,7 +3099,7 @@
           guessRunning = false;
           guessBtn.disabled = false;
           guessRunBtn.disabled = false;
-          guessBtn.textContent = "Guess Format (Overlay)";
+          guessBtn.textContent = "Guess Format";
         }
       }
 
@@ -2623,7 +3126,7 @@
           fileInput.value = "";
         });
 
-        fitBtn.addEventListener("click", () => {
+        fitStatusBtn.addEventListener("click", () => {
           const decoded = getRenderTarget().decoded;
           if (!decoded) return;
           fitViewToImage(decoded);
@@ -2634,10 +3137,6 @@
         });
         saveBtn.addEventListener("click", () => {
           saveCurrentImage();
-        });
-
-        resetViewBtn.addEventListener("click", () => {
-          resetView();
         });
 
         guessBtn.addEventListener("click", () => {
@@ -2681,6 +3180,7 @@
           stride1Input,
           stride2Input,
           byteOrderSelect,
+          yuvBitDepthSelect,
           bayerBitDepthSelect,
           colorSpaceSelect,
           treatLinearInput,
@@ -2752,6 +3252,7 @@
         rebuildProfileSelect();
         populateFormats();
         attachEvents();
+        loadDefaultNv12Sample(slots[0]);
         syncControlsFromSlot();
         updateSlotButtons();
         updateDiffButtonState();
